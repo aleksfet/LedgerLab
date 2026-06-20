@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="LedgerLab is an interactive accounting and business finance toolkit for beginners, accounting students, and new business owners."
+  />
+  <title>LedgerLab — Learn accounting by running the numbers of a business</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===== Header / Navigation ===== -->
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#top" class="brand">
+        <span class="brand-mark" aria-hidden="true">₪</span>
+        <span class="brand-name">LedgerLab</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#audience">Who it's for</a>
+        <a href="#simulator">Simulator</a>
+        <a href="#tools">Tools</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ===== Hero / Landing ===== -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <p class="eyebrow">Accounting &amp; business finance, made approachable</p>
+        <h1 class="hero-title">LedgerLab</h1>
+        <p class="hero-subtitle">
+          Learn accounting by running the numbers of a business.
+        </p>
+        <p class="hero-description">
+          LedgerLab helps you actually understand accounting — not just memorize it.
+          Work through business expenses, post journal entries, reconcile a bank
+          account, and build real financial statements. Every tool pairs a plain-English
+          explanation with the kind of output a real bookkeeper or accountant would produce.
+        </p>
+        <div class="hero-actions">
+          <a href="#simulator" class="btn btn-primary">Start Business Simulator</a>
+          <a href="#tools" class="btn btn-secondary">Explore Accounting Tools</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== What LedgerLab Helps With ===== -->
+    <section id="features" class="section">
+      <div class="container">
+        <header class="section-head">
+          <h2>What LedgerLab Helps With</h2>
+          <p class="section-sub">
+            Six core areas of business accounting, each broken down into something
+            you can practice hands-on.
+          </p>
+        </header>
+
+        <div class="card-grid">
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">📊</div>
+            <h3>Business Budgeting</h3>
+            <p>
+              Plan income and expenses, set targets, and see how spending decisions
+              shape a company's bottom line.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">📒</div>
+            <h3>Journal Entries</h3>
+            <p>
+              Record transactions the proper way with debits and credits, and learn
+              why every entry has to balance.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">🏦</div>
+            <h3>Bank Reconciliation</h3>
+            <p>
+              Match your books against a bank statement, spot the differences, and
+              prove that your cash balance is correct.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">📉</div>
+            <h3>Depreciation</h3>
+            <p>
+              Spread the cost of equipment and assets over time and understand how it
+              affects expenses and value.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">💵</div>
+            <h3>Cash Flow</h3>
+            <p>
+              Follow money in and out of a business and learn the difference between
+              profit on paper and cash in the bank.
+            </p>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">📑</div>
+            <h3>Financial Statements</h3>
+            <p>
+              Build an income statement, balance sheet, and cash flow statement, and
+              see how they connect to tell one story.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Built for Beginners and Accounting Students ===== -->
+    <section id="audience" class="section section-alt">
+      <div class="container audience-inner">
+        <div class="audience-text">
+          <h2>Built for Beginners and Accounting Students</h2>
+          <p>
+            Most accounting resources force you to pick a side: oversimplified
+            explainers that never show real numbers, or dense textbooks that assume
+            you already know the language. LedgerLab does both at once.
+          </p>
+          <p>
+            Every tool gives you two things side by side — a clear, plain-English
+            explanation of <em>what's happening and why</em>, and a clean,
+            accounting-style output that looks like the real ledgers, statements, and
+            reconciliations professionals use. You learn the concept and recognize the
+            format at the same time.
+          </p>
+          <ul class="audience-list">
+            <li><strong>New business owners</strong> — understand your own books with confidence.</li>
+            <li><strong>Accounting students</strong> — connect classroom theory to real worksheets.</li>
+            <li><strong>Curious beginners</strong> — start from zero, no prior finance experience needed.</li>
+          </ul>
+        </div>
+        <aside class="audience-preview" aria-label="Example accounting output">
+          <div class="preview-card">
+            <div class="preview-head">Journal Entry — Preview</div>
+            <table class="preview-table">
+              <thead>
+                <tr>
+                  <th>Account</th>
+                  <th class="num">Debit</th>
+                  <th class="num">Credit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Office Equipment</td>
+                  <td class="num">1,200.00</td>
+                  <td class="num">—</td>
+                </tr>
+                <tr>
+                  <td>&nbsp;&nbsp;&nbsp;&nbsp;Cash</td>
+                  <td class="num">—</td>
+                  <td class="num">1,200.00</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>Totals</td>
+                  <td class="num">1,200.00</td>
+                  <td class="num">1,200.00</td>
+                </tr>
+              </tfoot>
+            </table>
+            <p class="preview-note">
+              Plain English: the business bought equipment with cash. One side goes up,
+              the other goes down — and the entry balances.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== Placeholder: Business Simulator ===== -->
+    <section id="simulator" class="section">
+      <div class="container">
+        <header class="section-head">
+          <h2>Business Simulator</h2>
+          <p class="section-sub">
+            Run a small business, make decisions, and watch the books respond.
+          </p>
+        </header>
+        <div class="placeholder-panel">
+          <span class="badge">Coming soon</span>
+          <p>
+            The interactive simulator is on its way. You'll start a sample company,
+            handle everyday transactions, and see how each choice flows through the
+            ledgers and financial statements.
+          </p>
+          <a href="#tools" class="btn btn-secondary">Explore Accounting Tools instead</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Placeholder: Accounting Tools ===== -->
+    <section id="tools" class="section section-alt">
+      <div class="container">
+        <header class="section-head">
+          <h2>Accounting Tools</h2>
+          <p class="section-sub">
+            Focused, hands-on calculators and worksheets for each accounting topic.
+          </p>
+        </header>
+        <div class="placeholder-panel">
+          <span class="badge">Coming soon</span>
+          <p>
+            Individual tools for budgeting, journal entries, reconciliation,
+            depreciation, cash flow, and financial statements will live here. Each one
+            will be interactive — built next.
+          </p>
+          <a href="#top" class="btn btn-secondary">Back to top</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="brand-name">LedgerLab</span>
+        <p>Learn accounting by running the numbers of a business.</p>
+      </div>
+      <p class="footer-note">
+        A learning project — for education, not professional financial advice.
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
