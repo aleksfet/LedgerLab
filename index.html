@@ -181,23 +181,183 @@
       </div>
     </section>
 
-    <!-- ===== Placeholder: Business Simulator ===== -->
+    <!-- ===== Business Simulator (MVP) ===== -->
     <section id="simulator" class="section">
       <div class="container">
         <header class="section-head">
           <h2>Business Simulator</h2>
           <p class="section-sub">
-            Run a small business, make decisions, and watch the books respond.
+            Enter a few simple business numbers and see what they mean — profit,
+            cash, and a plain-English read on your business's health.
           </p>
         </header>
-        <div class="placeholder-panel">
-          <span class="badge">Coming soon</span>
-          <p>
-            The interactive simulator is on its way. You'll start a sample company,
-            handle everyday transactions, and see how each choice flows through the
-            ledgers and financial statements.
-          </p>
-          <a href="#tools" class="btn btn-secondary">Explore Accounting Tools instead</a>
+
+        <div class="sim-layout">
+          <!-- ---- Inputs panel ---- -->
+          <form id="sim-form" class="sim-panel sim-form" novalidate>
+            <h3 class="sim-panel-title">Your Business Numbers</h3>
+
+            <div class="field field-full">
+              <label for="biz-name">Business name</label>
+              <input type="text" id="biz-name" name="biz-name"
+                     placeholder="e.g. Riverside Coffee Co." autocomplete="off" />
+            </div>
+
+            <fieldset class="field-group">
+              <legend>Cash &amp; income</legend>
+              <div class="field-row">
+                <div class="field">
+                  <label for="starting-cash">Starting cash</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="starting-cash" name="starting-cash"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="monthly-revenue">Monthly revenue</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="monthly-revenue" name="monthly-revenue"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="field-group">
+              <legend>Monthly expenses</legend>
+              <div class="field-row">
+                <div class="field">
+                  <label for="rent">Rent</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="rent" name="rent"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="wages">Wages</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="wages" name="wages"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="supplies">Supplies</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="supplies" name="supplies"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="utilities">Utilities</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="utilities" name="utilities"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field field-full">
+                  <label for="other">Other expenses</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="other" name="other"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="field-group">
+              <legend>One-time startup purchases</legend>
+              <div class="field-row">
+                <div class="field">
+                  <label for="equipment">Equipment purchase</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="equipment" name="equipment"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="inventory">Inventory purchase</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="inventory" name="inventory"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="sim-actions">
+              <button type="submit" class="btn btn-primary">Run Simulation</button>
+              <button type="reset" class="btn btn-secondary" id="sim-reset">Reset</button>
+            </div>
+          </form>
+
+          <!-- ---- Results dashboard ---- -->
+          <div class="sim-results" id="sim-results" aria-live="polite">
+            <!-- Empty state (shown before first run) -->
+            <div class="sim-empty" id="sim-empty">
+              <div class="card-icon" aria-hidden="true">📈</div>
+              <h3>Your dashboard appears here</h3>
+              <p>
+                Fill in your numbers and select <strong>Run Simulation</strong> to see
+                your monthly profit, cash position, and a plain-English summary.
+              </p>
+            </div>
+
+            <!-- Dashboard (populated by script.js after running) -->
+            <div class="sim-dashboard" id="sim-dashboard" hidden>
+              <h3 class="sim-dash-title" id="dash-title">Results</h3>
+
+              <div class="stat-grid">
+                <div class="stat-card">
+                  <span class="stat-label">Total Monthly Expenses</span>
+                  <span class="stat-value" id="out-expenses">$0</span>
+                </div>
+                <div class="stat-card" id="out-profit-card">
+                  <span class="stat-label">Monthly Profit / Loss</span>
+                  <span class="stat-value" id="out-profit">$0</span>
+                </div>
+                <div class="stat-card" id="out-cash-card">
+                  <span class="stat-label">Cash Remaining</span>
+                  <span class="stat-value" id="out-cash">$0</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-label">Monthly Revenue</span>
+                  <span class="stat-value" id="out-revenue">$0</span>
+                </div>
+              </div>
+
+              <div class="health-banner" id="health-banner">
+                <span class="health-dot" aria-hidden="true"></span>
+                <span id="health-message">—</span>
+              </div>
+
+              <div class="breakdown">
+                <h4 class="breakdown-title">Expense Breakdown</h4>
+                <ul class="breakdown-list" id="breakdown-list">
+                  <!-- rows injected by script.js -->
+                </ul>
+              </div>
+
+              <div class="explanation" id="explanation">
+                <h4 class="explanation-title">What this means</h4>
+                <ul class="explanation-list" id="explanation-list">
+                  <!-- notes injected by script.js -->
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
