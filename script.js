@@ -1170,6 +1170,263 @@
     });
   }
 
+  /* ==========================================================
+     Journal Entry Helper (first Accounting Tool)
+     Reveal-only. Reads data + pure logic from journal-entry.js
+     (window.JournalEntry) and renders a general-journal entry
+     with a plain-English, rules-based explanation.
+     ========================================================== */
+
+  var JE_MONTHS = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+
+  /** Today's date as an ISO "YYYY-MM-DD" string (local time). */
+  function todayIso() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1);
+    var day = String(d.getDate());
+    if (m.length < 2) m = "0" + m;
+    if (day.length < 2) day = "0" + day;
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  /** Format an ISO date for display, e.g. "Jun 25, 2026". Falls back to today. */
+  function formatJeDate(iso) {
+    var value = (iso || "").trim();
+    var parts = value.split("-");
+    if (parts.length !== 3) parts = todayIso().split("-");
+    var year = parts[0];
+    var month = parseInt(parts[1], 10);
+    var day = parseInt(parts[2], 10);
+    if (isNaN(month) || isNaN(day) || month < 1 || month > 12) {
+      return value; // unparseable but non-empty: show as-is rather than break
+    }
+    return JE_MONTHS[month - 1] + " " + day + ", " + year;
+  }
+
+  /** Past-tense of a posting side, for explanation sentences. */
+  function jeSideWord(side) {
+    return side === "debit" ? "debited" : "credited";
+  }
+
+  /** CSS modifier for an account-type badge. */
+  function jeBadgeClass(line) {
+    if (line.isContra) return "contra";
+    switch (line.type) {
+      case "Asset": return "asset";
+      case "Liability": return "liability";
+      case "Equity": return "equity";
+      case "Revenue": return "revenue";
+      case "Expense": return "expense";
+      default: return "asset";
+    }
+  }
+
+  function validateJeTransaction() {
+    var select = document.getElementById("je-transaction");
+    if (!select) return false;
+    if (!select.value) {
+      showError(select, "Choose a transaction.");
+      return false;
+    }
+    clearError(select);
+    return true;
+  }
+
+  /** Amount must be present, a valid number, and strictly greater than 0. */
+  function validateJeAmount() {
+    var input = document.getElementById("je-amount");
+    if (!input) return false;
+    var raw = (input.value || "").trim();
+    if (raw === "") {
+      showError(input, "Enter an amount.");
+      return false;
+    }
+    var value = Number(raw);
+    if (isNaN(value) || !isFinite(value)) {
+      showError(input, "Enter a valid number.");
+      return false;
+    }
+    if (value <= 0) {
+      showError(input, "Enter an amount greater than 0.");
+      return false;
+    }
+    clearError(input);
+    return true;
+  }
+
+  /** Render the journal entry view-model into the output panel. */
+  function renderJournalEntry(entry) {
+    var empty = document.getElementById("je-empty");
+    var dashboard = document.getElementById("je-dashboard");
+    if (empty) empty.hidden = true;
+    if (dashboard) dashboard.hidden = false;
+
+    var setText = function (id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    // Preview header: date · transaction label
+    setText("je-preview-date", formatJeDate(entry.date));
+    setText("je-preview-label", entry.label);
+
+    // Debit + credit rows (credit indented via .je-credit-row)
+    var rows = document.getElementById("je-rows");
+    if (rows) {
+      rows.innerHTML = "";
+
+      var debitRow = document.createElement("tr");
+      debitRow.innerHTML =
+        "<td>" + entry.debit.name + "</td>" +
+        '<td class="num">' + formatMoney(entry.debit.amount) + "</td>" +
+        '<td class="num">—</td>';
+      rows.appendChild(debitRow);
+
+      var creditRow = document.createElement("tr");
+      creditRow.className = "je-credit-row";
+      creditRow.innerHTML =
+        "<td>" + entry.credit.name + "</td>" +
+        '<td class="num">—</td>' +
+        '<td class="num">' + formatMoney(entry.credit.amount) + "</td>";
+      rows.appendChild(creditRow);
+    }
+
+    // Totals
+    setText("je-total-debit", formatMoney(entry.totals.debit));
+    setText("je-total-credit", formatMoney(entry.totals.credit));
+
+    // Narration
+    setText("je-narration", entry.narration);
+
+    // Balance confirmation
+    setText(
+      "je-balance",
+      "This entry balances because total debits equal total credits (" +
+        formatMoney(entry.totals.debit) +
+        " = " +
+        formatMoney(entry.totals.credit) +
+        ")."
+    );
+
+    // Per-account explanation (badge + plain-English sentence)
+    var list = document.getElementById("je-explanation-list");
+    if (list) {
+      list.innerHTML = "";
+      entry.lines.forEach(function (line) {
+        var li = document.createElement("li");
+
+        var badge = document.createElement("span");
+        badge.className = "je-badge je-badge--" + jeBadgeClass(line);
+        badge.textContent = line.type;
+        li.appendChild(badge);
+
+        var text = line.isContra
+          ? line.note
+          : line.name +
+            " (" +
+            line.type +
+            ") is " +
+            jeSideWord(line.side) +
+            ", which " +
+            line.direction +
+            " it.";
+        li.appendChild(document.createTextNode(" " + text));
+
+        list.appendChild(li);
+      });
+    }
+  }
+
+  /** Reset the Journal Entry Helper to its empty state. */
+  function resetJournalEntry() {
+    var select = document.getElementById("je-transaction");
+    var amount = document.getElementById("je-amount");
+    var date = document.getElementById("je-date");
+    if (select) {
+      select.value = "";
+      clearError(select);
+    }
+    if (amount) {
+      amount.value = "";
+      clearError(amount);
+    }
+    if (date) date.value = todayIso();
+
+    var empty = document.getElementById("je-empty");
+    var dashboard = document.getElementById("je-dashboard");
+    if (dashboard) dashboard.hidden = true;
+    if (empty) empty.hidden = false;
+  }
+
+  function initJournalEntry() {
+    var form = document.getElementById("je-form");
+    if (!form) return;
+    var JE = window.JournalEntry;
+    if (!JE) return; // journal-entry.js missing: leave the empty state in place
+
+    // Populate the transaction dropdown from the single source of truth.
+    var select = document.getElementById("je-transaction");
+    if (select) {
+      JE.TRANSACTIONS.forEach(function (tx) {
+        var option = document.createElement("option");
+        option.value = tx.id;
+        option.textContent = tx.label;
+        select.appendChild(option);
+      });
+    }
+
+    // Default the date to today.
+    var date = document.getElementById("je-date");
+    if (date) date.value = todayIso();
+
+    // Live-clear errors as the user fixes them.
+    if (select) {
+      select.addEventListener("change", function () {
+        var wrapper = getFieldWrapper(select);
+        if (wrapper && wrapper.classList.contains("has-error")) {
+          validateJeTransaction();
+        }
+      });
+    }
+    var amount = document.getElementById("je-amount");
+    if (amount) {
+      amount.addEventListener("input", function () {
+        var wrapper = getFieldWrapper(amount);
+        if (wrapper && wrapper.classList.contains("has-error")) {
+          validateJeAmount();
+        }
+      });
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var okTransaction = validateJeTransaction();
+      var okAmount = validateJeAmount();
+      if (!okTransaction) {
+        if (select) select.focus();
+        return;
+      }
+      if (!okAmount) {
+        if (amount) amount.focus();
+        return;
+      }
+      var entry = JE.buildEntry(
+        select.value,
+        Number((amount.value || "").trim()),
+        date ? date.value : todayIso()
+      );
+      if (entry) renderJournalEntry(entry);
+    });
+
+    form.addEventListener("reset", function () {
+      // Let the native reset clear fields first, then restore our defaults.
+      window.setTimeout(resetJournalEntry, 0);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initSmoothScroll();
     initActiveNav();
@@ -1177,12 +1434,15 @@
     initSimulator();
     initPlanning();
     initModeTabs();
+    initJournalEntry();
     resetSimulatorState();
+    resetJournalEntry();
   });
 
   // Also clear when the page is shown from the back/forward cache, where the
   // browser would otherwise restore the previously entered values.
   window.addEventListener("pageshow", function () {
     resetSimulatorState();
+    resetJournalEntry();
   });
 })();

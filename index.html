@@ -668,23 +668,118 @@
       </div>
     </section>
 
-    <!-- ===== Placeholder: Accounting Tools ===== -->
+    <!-- ===== Accounting Tools ===== -->
     <section id="tools" class="section section-alt">
       <div class="container">
         <header class="section-head">
           <h2>Accounting Tools</h2>
           <p class="section-sub">
-            Focused, hands-on calculators and worksheets for each accounting topic.
+            Hands-on tools for each accounting topic. First up: turn everyday
+            business transactions into journal entries.
           </p>
         </header>
-        <div class="placeholder-panel">
-          <span class="badge">Coming soon</span>
-          <p>
-            Individual tools for budgeting, journal entries, reconciliation,
-            depreciation, cash flow, and financial statements will live here. Each one
-            will be interactive — built next.
+
+        <!-- ---- Journal Entry Helper ---- -->
+        <div class="je-tool">
+          <h3 class="tool-title">Journal Entry Helper</h3>
+          <p class="tool-sub">
+            Pick a common transaction, enter an amount, and see how it becomes a
+            journal entry — with a plain-English explanation of every debit and credit.
           </p>
-          <a href="#top" class="btn btn-secondary">Back to top</a>
+
+          <div class="sim-layout">
+            <!-- Controls -->
+            <form id="je-form" class="sim-panel sim-form" novalidate autocomplete="off">
+              <h3 class="sim-panel-title">Build a Journal Entry</h3>
+
+              <div class="field field-full">
+                <label for="je-transaction">Transaction</label>
+                <select id="je-transaction" name="je-transaction" class="je-select">
+                  <option value="" disabled selected>Choose a transaction…</option>
+                  <!-- options injected by script.js from journal-entry.js -->
+                </select>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="je-amount">Amount</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="je-amount" name="je-amount"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="je-date">Date</label>
+                  <input type="date" id="je-date" name="je-date" class="je-date" />
+                </div>
+              </div>
+
+              <div class="sim-actions">
+                <button type="submit" class="btn btn-primary">Show Journal Entry</button>
+                <button type="reset" class="btn btn-secondary" id="je-reset">Reset</button>
+              </div>
+            </form>
+
+            <!-- Output -->
+            <div class="sim-results" id="je-results" aria-live="polite">
+              <!-- Empty state -->
+              <div class="sim-empty" id="je-empty">
+                <div class="card-icon" aria-hidden="true">📒</div>
+                <h3>Your journal entry appears here</h3>
+                <p>
+                  Choose a transaction and enter an amount, then select
+                  <strong>Show Journal Entry</strong>.
+                </p>
+              </div>
+
+              <!-- Journal entry output -->
+              <div class="sim-dashboard" id="je-dashboard" hidden>
+                <h3 class="sim-dash-title">Journal Entry</h3>
+
+                <div class="preview-card je-preview">
+                  <div class="preview-head">
+                    <span id="je-preview-date">—</span>
+                    <span class="je-preview-sep" aria-hidden="true">·</span>
+                    <span id="je-preview-label">—</span>
+                  </div>
+                  <table class="preview-table">
+                    <thead>
+                      <tr>
+                        <th>Account</th>
+                        <th class="num">Debit</th>
+                        <th class="num">Credit</th>
+                      </tr>
+                    </thead>
+                    <tbody id="je-rows">
+                      <!-- debit + credit rows injected by script.js -->
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td>Totals</td>
+                        <td class="num" id="je-total-debit">—</td>
+                        <td class="num" id="je-total-credit">—</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                  <p class="preview-note" id="je-narration">—</p>
+                </div>
+
+                <p class="je-balance" id="je-balance">—</p>
+
+                <div class="explanation je-explanation">
+                  <h4 class="explanation-title">Why these accounts?</h4>
+                  <ul class="explanation-list" id="je-explanation-list">
+                    <!-- per-account explanation injected by script.js -->
+                  </ul>
+                  <p class="je-rule">
+                    Debits increase assets and expenses; credits increase
+                    liabilities, equity, and revenue.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -703,6 +798,7 @@
     </div>
   </footer>
 
+  <script src="journal-entry.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
