@@ -162,6 +162,17 @@
     if (!list) return;
     list.innerHTML = "";
 
+    var total = result.totalExpenses;
+
+    // Empty state: nothing to chart when there are no expenses.
+    if (total <= 0) {
+      var emptyRow = document.createElement("li");
+      emptyRow.className = "breakdown-empty";
+      emptyRow.textContent = "No monthly expenses entered yet.";
+      list.appendChild(emptyRow);
+      return;
+    }
+
     var items = [
       { label: "Rent", value: result.inputs.rent },
       { label: "Wages", value: result.inputs.wages },
@@ -170,10 +181,8 @@
       { label: "Other", value: result.inputs.other },
     ];
 
-    var total = result.totalExpenses;
-
     items.forEach(function (item) {
-      var pct = total > 0 ? (item.value / total) * 100 : 0;
+      var pct = (item.value / total) * 100;
 
       var li = document.createElement("li");
       li.className = "breakdown-row";
@@ -188,7 +197,7 @@
       var amount = document.createElement("span");
       amount.className = "breakdown-amount";
       amount.textContent =
-        formatMoney(item.value) + "  (" + pct.toFixed(0) + "%)";
+        formatMoney(item.value) + " · " + pct.toFixed(0) + "%";
 
       head.appendChild(label);
       head.appendChild(amount);
@@ -248,45 +257,37 @@
 
     var notes = [];
 
-    // Profit/loss = revenue vs expenses.
+    // 1) Revenue minus expenses creates profit or loss.
     if (result.profit > 0) {
       notes.push(
-        "Profit/loss compares revenue and expenses — here revenue beats expenses, so you profit " +
+        "Revenue minus expenses creates profit or loss — here revenue is higher, so the business profits " +
           formatMoney(result.profit) +
-          "/mo."
+          " this month."
       );
     } else if (result.profit < 0) {
       notes.push(
-        "Profit/loss compares revenue and expenses — here expenses beat revenue, so you lose " +
+        "Revenue minus expenses creates profit or loss — here expenses are higher, so the business loses " +
           formatMoney(Math.abs(result.profit)) +
-          "/mo."
-      );
-    } else {
-      notes.push("Profit/loss compares revenue and expenses — here they're equal, so you break even.");
-    }
-
-    // Cash vs profit (startup purchases).
-    if (result.startupPurchases > 0) {
-      notes.push(
-        "Cash and profit aren't the same: startup purchases like equipment & inventory (" +
-          formatMoney(result.startupPurchases) +
-          ") lower cash now, so cash can drop even in a profitable month."
+          " this month."
       );
     } else {
       notes.push(
-        "Cash and profit track together here since there are no startup purchases — equipment or inventory would lower cash without changing monthly profit."
+        "Revenue minus expenses creates profit or loss — here they're equal, so the business breaks even this month."
       );
     }
 
-    // Where cash stands.
+    // 2) Cash at start of month + profit/loss − equipment & inventory = estimated ending cash.
     notes.push(
-      result.cashRemaining < 0
-        ? "Cash remaining is negative (" +
-            formatMoney(result.cashRemaining) +
-            ") — you'd need more starting cash, higher revenue, or lower costs."
-        : "Cash remaining is " +
-            formatMoney(result.cashRemaining) +
-            " after startup purchases and this month's result."
+      "Cash at start of month plus this month's profit or loss, minus equipment and inventory purchases (" +
+        formatMoney(result.startupPurchases) +
+        "), gives an estimated ending cash balance of " +
+        formatMoney(result.cashRemaining) +
+        "."
+    );
+
+    // 3) Equipment & inventory reduce cash, even if accounting treats them differently.
+    notes.push(
+      "Equipment and inventory purchases reduce cash, even though accounting may treat them differently than normal monthly expenses."
     );
 
     notes.forEach(function (text) {
@@ -331,6 +332,138 @@
     };
   }
 
+  /**
+   * Business health status from profit and remaining cash.
+   *  - At Risk:       cash remaining is negative
+   *  - Stable:        profit is close to break-even, cash positive
+   *  - Strong:        profit is positive (beyond the break-even band), cash positive
+   *  - Watch Closely: profit is negative, but cash is still positive
+   * "Close to break-even" = within 5% of revenue (or exactly $0 when revenue is 0).
+   */
+  function getStatus(result) {
+    if (result.cashRemaining < 0) {
+      return { key: "risk", label: "At Risk" };
+    }
+    var revenue = result.inputs.revenue;
+    var band = revenue > 0 ? revenue * 0.05 : 0;
+    if (Math.abs(result.profit) <= band) {
+      return { key: "stable", label: "Stable" };
+    }
+    if (result.profit > 0) {
+      return { key: "strong", label: "Strong" };
+    }
+    return { key: "watch", label: "Watch Closely" };
+  }
+
+  /** Profit margin as a percentage string; "N/A" when revenue is 0. */
+  function formatMargin(result) {
+    if (result.inputs.revenue <= 0) return "N/A";
+    var margin = (result.profit / result.inputs.revenue) * 100;
+    return margin.toFixed(1) + "%";
+  }
+
+  /** The single biggest monthly expense, or null when there are no expenses. */
+  function getBiggestExpense(result) {
+    if (result.totalExpenses <= 0) return null;
+    var items = [
+      { label: "Rent", value: result.inputs.rent },
+      { label: "Wages", value: result.inputs.wages },
+      { label: "Supplies", value: result.inputs.supplies },
+      { label: "Utilities", value: result.inputs.utilities },
+      { label: "Other", value: result.inputs.other },
+    ];
+    var biggest = items[0];
+    items.forEach(function (item) {
+      if (item.value > biggest.value) biggest = item;
+    });
+    return biggest;
+  }
+
+  /** Fill the Business Health insight cards (status, margin, biggest, break-even). */
+  function renderInsights(result, status, biggest) {
+    var setText = function (id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    // Status card + color by state.
+    setText("out-status", status.label);
+    var statusCard = document.getElementById("out-status-card");
+    if (statusCard) {
+      statusCard.classList.remove(
+        "status-strong",
+        "status-stable",
+        "status-watch",
+        "status-risk"
+      );
+      statusCard.classList.add("status-" + status.key);
+    }
+
+    // Profit margin, colored by sign when revenue exists.
+    setText("out-margin", formatMargin(result));
+    var marginCard = document.getElementById("out-margin-card");
+    if (marginCard) {
+      marginCard.classList.remove("is-positive", "is-negative");
+      if (result.inputs.revenue > 0) {
+        marginCard.classList.add(result.profit >= 0 ? "is-positive" : "is-negative");
+      }
+    }
+
+    // Biggest expense + break-even revenue (= total monthly expenses).
+    setText("out-biggest", biggest ? biggest.label : "—");
+    setText("out-breakeven", formatMoney(result.totalExpenses));
+  }
+
+  /** Build 2–3 short, plain-English improvement suggestions from the numbers. */
+  function renderSuggestions(result, biggest) {
+    var list = document.getElementById("suggestion-list");
+    if (!list) return;
+    list.innerHTML = "";
+
+    var suggestions = [];
+
+    // 1) Profitability vs. break-even (always present).
+    if (result.profit > 0) {
+      suggestions.push(
+        "Revenue is above break-even, so the business is profitable this month."
+      );
+    } else if (result.profit < 0) {
+      suggestions.push(
+        "Profit is negative, so revenue must increase or expenses must decrease to break even."
+      );
+    } else {
+      suggestions.push(
+        "Revenue exactly meets break-even, so the business is right at the edge of profitability."
+      );
+    }
+
+    // 2) Cash position.
+    if (result.cashRemaining < 0) {
+      suggestions.push(
+        "Cash is negative, so the business may need more beginning cash or lower purchases."
+      );
+    } else if (result.profit > 0) {
+      suggestions.push(
+        "Profit and cash are both positive, leaving room to reinvest or build a cash reserve."
+      );
+    }
+
+    // 3) Largest expense lever.
+    if (biggest) {
+      suggestions.push(
+        "Your largest expense is " +
+          biggest.label.toLowerCase() +
+          ". Reviewing that cost could improve profit."
+      );
+    }
+
+    suggestions.slice(0, 3).forEach(function (text) {
+      var li = document.createElement("li");
+      li.textContent = text;
+      list.appendChild(li);
+    });
+  }
+
   /** Push all computed values into the dashboard UI. */
   function renderResults(result) {
     var empty = document.getElementById("sim-empty");
@@ -341,7 +474,9 @@
     var name = result.inputs.name.trim();
     var title = document.getElementById("dash-title");
     if (title) {
-      title.textContent = name ? name + " — Monthly Snapshot" : "Monthly Snapshot";
+      title.textContent = name
+        ? name + " — Monthly Assessment & Projection"
+        : "Monthly Assessment & Projection";
     }
 
     var setText = function (id, text) {
@@ -397,8 +532,14 @@
     }
     setText("health-message", health.message);
 
+    // Business health insights + suggestions
+    var status = getStatus(result);
+    var biggest = getBiggestExpense(result);
+    renderInsights(result, status, biggest);
+
     renderBreakdown(result);
     renderExplanation(result);
+    renderSuggestions(result, biggest);
   }
 
   /**

@@ -528,10 +528,72 @@ a:hover {
 }
 
 /* ===== Business Simulator ===== */
+/* Mode tabs: Assessment (active) + Planning & Budgeting (coming soon) */
+.sim-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 0 1.5rem;
+}
+
+.sim-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text-soft);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition),
+    background-color var(--transition), box-shadow var(--transition);
+}
+
+.sim-mode.is-active {
+  color: var(--white);
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  border-color: transparent;
+  box-shadow: 0 6px 18px var(--glow-blue);
+  cursor: default;
+}
+
+.sim-mode.is-disabled {
+  cursor: not-allowed;
+  color: var(--text-muted);
+  background: var(--surface);
+  border-style: dashed;
+  border-color: var(--border);
+  opacity: 0.75;
+}
+
+.sim-mode-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  border-radius: 999px;
+}
+
+/* Give the simulator a bit more horizontal room than other sections so the
+   two panels feel less cramped and the report needs less vertical scrolling.
+   The section header keeps its own narrower max-width and stays centered. */
+#simulator .container {
+  max-width: 1280px;
+}
+
 .sim-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1.75rem;
   align-items: start;
 }
 
@@ -565,6 +627,13 @@ a:hover {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--blue-bright);
+}
+
+.field-help {
+  margin: -0.2rem 0 0.9rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-muted);
 }
 
 .field-row {
@@ -790,15 +859,15 @@ a:hover {
 .stat-card {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.7rem 0.85rem;
+  gap: 0.1rem;
+  padding: 0.45rem 0.65rem;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
 
 .stat-label {
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -806,8 +875,9 @@ a:hover {
 }
 
 .stat-value {
-  font-size: 1.2rem;
+  font-size: 1.02rem;
   font-weight: 700;
+  line-height: 1.25;
   color: var(--text);
   font-variant-numeric: tabular-nums;
 }
@@ -826,6 +896,35 @@ a:hover {
 
 .stat-card.is-negative {
   border-color: rgba(248, 113, 113, 0.35);
+}
+
+/* Business-health status card coloring */
+.stat-card.status-strong .stat-value {
+  color: var(--green-bright);
+}
+.stat-card.status-strong {
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.stat-card.status-stable .stat-value {
+  color: var(--blue-bright);
+}
+.stat-card.status-stable {
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+.stat-card.status-watch .stat-value {
+  color: #fbbf24;
+}
+.stat-card.status-watch {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.stat-card.status-risk .stat-value {
+  color: #f87171;
+}
+.stat-card.status-risk {
+  border-color: rgba(248, 113, 113, 0.4);
 }
 
 /* Health banner */
@@ -933,7 +1032,7 @@ a:hover {
 }
 
 .breakdown-row {
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.6rem;
 }
 
 .breakdown-row:last-child {
@@ -944,11 +1043,13 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 0.25rem;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
 }
 
 .breakdown-label {
   font-size: 0.85rem;
+  font-weight: 600;
   color: var(--text-soft);
 }
 
@@ -956,11 +1057,11 @@ a:hover {
   font-size: 0.8rem;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
-  white-space: pre;
+  white-space: nowrap;
 }
 
 .breakdown-bar {
-  height: 6px;
+  height: 10px;
   border-radius: 999px;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -970,9 +1071,23 @@ a:hover {
 .breakdown-fill {
   height: 100%;
   width: 0;
+  min-width: 3px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--blue), var(--green));
-  transition: width 300ms ease;
+  background: linear-gradient(90deg, var(--blue), var(--green-bright));
+  box-shadow: 0 0 8px var(--glow-blue);
+  transition: width 350ms ease;
+}
+
+/* Empty state when no expenses are entered */
+.breakdown-empty {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
 }
 
 /* Plain-English explanation */
@@ -998,6 +1113,35 @@ a:hover {
 
 .explanation-list li:last-child {
   margin-bottom: 0;
+}
+
+/* Improvement suggestions */
+.suggestion-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.suggestion-list li {
+  position: relative;
+  padding-left: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-soft);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.suggestion-list li:last-child {
+  margin-bottom: 0;
+}
+
+.suggestion-list li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--green-bright);
+  font-weight: 700;
 }
 
 /* ===== Footer ===== */

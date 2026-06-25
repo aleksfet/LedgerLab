@@ -194,16 +194,28 @@
         <header class="section-head">
           <h2>Business Simulator</h2>
           <p class="section-sub">
-            Start by running a simple business scenario. Enter revenue, expenses,
-            cash, and startup purchases to see how business activity affects profit,
-            cash, and the overall financial picture.
+            Use Assessment Mode to enter one month of business activity and see how
+            revenue, expenses, cash, and major purchases affect the business's
+            financial picture.
           </p>
         </header>
+
+        <div class="sim-modes" role="tablist" aria-label="Simulator mode">
+          <button type="button" class="sim-mode is-active" role="tab"
+                  aria-selected="true">
+            Assessment Mode
+          </button>
+          <button type="button" class="sim-mode is-disabled" role="tab"
+                  aria-selected="false" aria-disabled="true" disabled>
+            Planning &amp; Budgeting Mode
+            <span class="sim-mode-badge">Coming soon</span>
+          </button>
+        </div>
 
         <div class="sim-layout">
           <!-- ---- Inputs panel ---- -->
           <form id="sim-form" class="sim-panel sim-form" novalidate>
-            <h3 class="sim-panel-title">Your Business Numbers</h3>
+            <h3 class="sim-panel-title">Input Your Business Numbers</h3>
 
             <div class="field field-full">
               <label for="biz-name">Business name</label>
@@ -212,10 +224,10 @@
             </div>
 
             <fieldset class="field-group">
-              <legend>Cash &amp; income</legend>
+              <legend>Cash &amp; Revenue</legend>
               <div class="field-row">
                 <div class="field">
-                  <label for="starting-cash">Starting cash</label>
+                  <label for="starting-cash">Cash at start of month</label>
                   <div class="money-input">
                     <span class="money-symbol">$</span>
                     <input type="number" id="starting-cash" name="starting-cash"
@@ -284,7 +296,11 @@
             </fieldset>
 
             <fieldset class="field-group">
-              <legend>One-time startup purchases</legend>
+              <legend>Major Cash Purchases This Month</legend>
+              <p class="field-help">
+                These reduce cash this month, but may be treated differently than
+                normal monthly expenses in accounting.
+              </p>
               <div class="field-row">
                 <div class="field">
                   <label for="equipment">Equipment purchase</label>
@@ -332,9 +348,9 @@
                 <span id="health-message">—</span>
               </div>
 
-              <!-- Monthly Snapshot -->
+              <!-- Monthly Assessment -->
               <section class="report-section">
-                <h4 class="report-heading">Monthly Snapshot</h4>
+                <h4 class="report-heading">Monthly Assessment</h4>
                 <div class="stat-grid">
                   <div class="stat-card">
                     <span class="stat-label">Monthly Revenue</span>
@@ -355,10 +371,33 @@
                 </div>
               </section>
 
-              <!-- Projected Yearly Report -->
+              <!-- Business Health Insights -->
+              <section class="report-section">
+                <h4 class="report-heading">Business Health</h4>
+                <div class="stat-grid">
+                  <div class="stat-card" id="out-status-card">
+                    <span class="stat-label">Health Status</span>
+                    <span class="stat-value" id="out-status">—</span>
+                  </div>
+                  <div class="stat-card" id="out-margin-card">
+                    <span class="stat-label">Profit Margin</span>
+                    <span class="stat-value" id="out-margin">—</span>
+                  </div>
+                  <div class="stat-card">
+                    <span class="stat-label">Biggest Expense</span>
+                    <span class="stat-value" id="out-biggest">—</span>
+                  </div>
+                  <div class="stat-card">
+                    <span class="stat-label">Break-even Revenue</span>
+                    <span class="stat-value" id="out-breakeven">—</span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Projected Yearly Results -->
               <section class="report-section">
                 <h4 class="report-heading">
-                  Projected Yearly Report
+                  Projected Yearly Results
                   <span class="report-note">if this month repeats × 12</span>
                 </h4>
                 <div class="stat-grid">
@@ -391,11 +430,19 @@
               </section>
 
               <div class="explanation" id="explanation">
-                <h4 class="explanation-title">What this means</h4>
+                <h4 class="explanation-title">What This Means</h4>
                 <ul class="explanation-list" id="explanation-list">
                   <!-- notes injected by script.js -->
                 </ul>
               </div>
+
+              <!-- Improvement Suggestions -->
+              <section class="report-section">
+                <h4 class="report-heading">Assessment Improvement Suggestions</h4>
+                <ul class="suggestion-list" id="suggestion-list">
+                  <!-- suggestions injected by script.js -->
+                </ul>
+              </section>
             </div>
           </div>
         </div>
