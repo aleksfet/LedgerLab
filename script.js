@@ -697,6 +697,29 @@
     });
   }
 
+  /**
+   * Force a blank form + default (empty) dashboard.
+   * Some browsers restore previously typed values on refresh / bfcache
+   * (notably number inputs), so we clear every field explicitly rather than
+   * relying on autocomplete="off" alone.
+   */
+  function resetSimulatorState() {
+    var form = document.getElementById("sim-form");
+    if (!form) return;
+
+    REQUIRED_FIELDS.forEach(function (field) {
+      var input = document.getElementById(field.id);
+      if (input) input.value = "";
+    });
+
+    clearAllErrors();
+
+    var empty = document.getElementById("sim-empty");
+    var dashboard = document.getElementById("sim-dashboard");
+    if (dashboard) dashboard.hidden = true;
+    if (empty) empty.hidden = false;
+  }
+
   function initSimulator() {
     var form = document.getElementById("sim-form");
     if (!form) return;
@@ -724,5 +747,12 @@
     initActiveNav();
     initMoneyInputs();
     initSimulator();
+    resetSimulatorState();
+  });
+
+  // Also clear when the page is shown from the back/forward cache, where the
+  // browser would otherwise restore the previously entered values.
+  window.addEventListener("pageshow", function () {
+    resetSimulatorState();
   });
 })();
