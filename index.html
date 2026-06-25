@@ -781,6 +781,191 @@
             </div>
           </div>
         </div>
+
+        <!-- ---- Bank Reconciliation Helper ---- -->
+        <div class="je-tool br-tool">
+          <h3 class="tool-title">Bank Reconciliation Helper</h3>
+          <p class="tool-sub">
+            Compare your book cash balance to the bank statement, adjust both sides,
+            and see whether they reconcile — plus the journal entries you'd record.
+          </p>
+
+          <div class="sim-layout">
+            <!-- Controls -->
+            <form id="br-form" class="sim-panel sim-form" novalidate autocomplete="off">
+              <h3 class="sim-panel-title">Reconcile Your Cash</h3>
+
+              <fieldset class="field-group">
+                <legend>Balances</legend>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="br-bank-balance">Bank statement balance</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="br-bank-balance" name="br-bank-balance"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="br-book-balance">Book cash balance</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="br-book-balance" name="br-book-balance"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="field-group">
+                <legend>Reconciling items</legend>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="br-deposits">Deposits in transit</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="br-deposits" name="br-deposits"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="br-checks">Outstanding checks</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="br-checks" name="br-checks"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="br-fees">Bank service fees</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="br-fees" name="br-fees"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="br-interest">Interest earned</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="br-interest" name="br-interest"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="field-group">
+                <legend>Error adjustment (optional)</legend>
+                <p class="field-help">
+                  Use this only if you spotted a mistake. Pick which side it affects
+                  and whether it raises or lowers that side.
+                </p>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="br-error-amount">Error amount</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="br-error-amount" name="br-error-amount"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="br-error-side">Error side</label>
+                    <select id="br-error-side" name="br-error-side" class="je-select">
+                      <option value="bank">Bank</option>
+                      <option value="book">Book</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field field-full">
+                    <label for="br-error-direction">Error direction</label>
+                    <select id="br-error-direction" name="br-error-direction" class="je-select">
+                      <option value="increase">Increase that side</option>
+                      <option value="decrease">Decrease that side</option>
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="sim-actions">
+                <button type="submit" class="btn btn-primary">Reconcile</button>
+                <button type="reset" class="btn btn-secondary" id="br-reset">Reset</button>
+              </div>
+            </form>
+
+            <!-- Output -->
+            <div class="sim-results" id="br-results" aria-live="polite">
+              <!-- Empty state -->
+              <div class="sim-empty" id="br-empty">
+                <div class="card-icon" aria-hidden="true">🏦</div>
+                <h3>Your reconciliation appears here</h3>
+                <p>
+                  Enter your balances and any reconciling items, then select
+                  <strong>Reconcile</strong>.
+                </p>
+              </div>
+
+              <!-- Reconciliation output -->
+              <div class="sim-dashboard" id="br-dashboard" hidden>
+                <h3 class="sim-dash-title">Bank Reconciliation</h3>
+
+                <div class="health-banner" id="br-banner">
+                  <span class="health-dot" aria-hidden="true"></span>
+                  <span id="br-banner-message">—</span>
+                </div>
+
+                <div class="preview-card br-report">
+                  <div class="br-statement">
+                    <div class="preview-head">Bank side</div>
+                    <table class="preview-table br-table">
+                      <tbody id="br-bank-rows">
+                        <!-- injected by script.js -->
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td>Adjusted bank balance</td>
+                          <td class="num" id="br-bank-adjusted">—</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <div class="br-statement">
+                    <div class="preview-head">Book side</div>
+                    <table class="preview-table br-table">
+                      <tbody id="br-book-rows">
+                        <!-- injected by script.js -->
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td>Adjusted book balance</td>
+                          <td class="num" id="br-book-adjusted">—</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+
+                <section class="report-section">
+                  <h4 class="report-heading">What each adjustment means</h4>
+                  <ul class="explanation-list" id="br-explanation-list">
+                    <!-- injected by script.js -->
+                  </ul>
+                </section>
+
+                <section class="report-section">
+                  <h4 class="report-heading">Journal entries you'd record</h4>
+                  <ul class="suggestion-list" id="br-entries-list">
+                    <!-- injected by script.js -->
+                  </ul>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -799,6 +984,7 @@
   </footer>
 
   <script src="journal-entry.js"></script>
+  <script src="bank-reconciliation.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

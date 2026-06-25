@@ -1427,6 +1427,282 @@
     });
   }
 
+  /* ==========================================================
+     Bank Reconciliation Helper (second Accounting Tool)
+     Reads data + pure logic from bank-reconciliation.js
+     (window.BankReconciliation) and renders a two-sided
+     reconciliation report with adjustment explanations and the
+     journal entries the book-side items would require.
+     ========================================================== */
+
+  // id + whether the field must be filled in. Balances required; rest optional.
+  var BR_MONEY_FIELDS = [
+    { id: "br-bank-balance", required: true },
+    { id: "br-book-balance", required: true },
+    { id: "br-deposits", required: false },
+    { id: "br-checks", required: false },
+    { id: "br-fees", required: false },
+    { id: "br-interest", required: false },
+    { id: "br-error-amount", required: false },
+  ];
+
+  function brValue(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : "";
+  }
+
+  function readBrInputs() {
+    return {
+      bankBalance: brValue("br-bank-balance"),
+      bookBalance: brValue("br-book-balance"),
+      depositsInTransit: brValue("br-deposits"),
+      outstandingChecks: brValue("br-checks"),
+      bankServiceFees: brValue("br-fees"),
+      interestEarned: brValue("br-interest"),
+      errorAmount: brValue("br-error-amount"),
+      errorSide: brValue("br-error-side"),
+      errorDirection: brValue("br-error-direction"),
+    };
+  }
+
+  /** Validate one money field. Required ones can't be blank; all must be >= 0. */
+  function validateBrField(field) {
+    var input = document.getElementById(field.id);
+    if (!input) return true;
+    var raw = (input.value || "").trim();
+    if (raw === "") {
+      if (field.required) {
+        showError(input, "Enter an amount.");
+        return false;
+      }
+      clearError(input);
+      return true;
+    }
+    var value = Number(raw);
+    if (isNaN(value) || !isFinite(value)) {
+      showError(input, "Enter a valid number.");
+      return false;
+    }
+    if (value < 0) {
+      showError(input, "Enter 0 or more.");
+      return false;
+    }
+    clearError(input);
+    return true;
+  }
+
+  function validateBrAll() {
+    var firstInvalid = null;
+    BR_MONEY_FIELDS.forEach(function (field) {
+      var ok = validateBrField(field);
+      if (!ok && !firstInvalid) firstInvalid = document.getElementById(field.id);
+    });
+    if (firstInvalid) firstInvalid.focus();
+    return !firstInvalid;
+  }
+
+  /** Display string for a reconciliation line based on its sign. */
+  function brLineAmount(line) {
+    if (line.sign === "minus") return "(" + formatMoney(line.amount) + ")";
+    if (line.sign === "plus") return "+ " + formatMoney(line.amount);
+    return formatMoney(line.amount); // start line
+  }
+
+  /** Render one side's table body (start line + non-zero adjustments). */
+  function renderBrSide(tbodyId, side) {
+    var tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    side.lines.forEach(function (line) {
+      var tr = document.createElement("tr");
+      if (line.sign === "start") tr.className = "br-start-row";
+      tr.innerHTML =
+        "<td>" + line.label + "</td>" +
+        '<td class="num">' + brLineAmount(line) + "</td>";
+      tbody.appendChild(tr);
+    });
+  }
+
+  /** Plain-English sentence for a single adjustment line. */
+  function brAdjustmentSentence(line) {
+    switch (line.label) {
+      case "Deposits in transit":
+        return "Deposits in transit raise the bank side — the bank hasn't recorded them yet.";
+      case "Outstanding checks":
+        return "Outstanding checks lower the bank side — they haven't cleared the bank yet.";
+      case "Interest earned":
+        return "Interest earned raises the book side — add it to your cash.";
+      case "Bank service fees":
+        return "Bank service fees lower the book side — subtract them from your cash.";
+      case "Bank error":
+        return (
+          "A bank error " +
+          (line.sign === "minus" ? "lowers" : "raises") +
+          " the bank side by " +
+          formatMoney(line.amount) +
+          " — the bank fixes this, not you."
+        );
+      case "Book error":
+        return (
+          "A book error " +
+          (line.sign === "minus" ? "lowers" : "raises") +
+          " the book side by " +
+          formatMoney(line.amount) +
+          " — correct it in your own records."
+        );
+      default:
+        return line.label + ": " + formatMoney(line.amount) + ".";
+    }
+  }
+
+  function renderBrExplanations(result) {
+    var list = document.getElementById("br-explanation-list");
+    if (!list) return;
+    list.innerHTML = "";
+
+    var adjustments = [];
+    result.bank.lines.concat(result.book.lines).forEach(function (line) {
+      if (line.sign !== "start") adjustments.push(line);
+    });
+
+    if (adjustments.length === 0) {
+      var li = document.createElement("li");
+      li.textContent =
+        "No reconciling items entered — the bank and book balances are compared as-is.";
+      list.appendChild(li);
+      return;
+    }
+
+    adjustments.forEach(function (line) {
+      var li = document.createElement("li");
+      li.textContent = brAdjustmentSentence(line);
+      list.appendChild(li);
+    });
+  }
+
+  function renderBrEntries(inputs) {
+    var list = document.getElementById("br-entries-list");
+    if (!list) return;
+    list.innerHTML = "";
+
+    var entries = window.BankReconciliation.suggestedEntries(inputs);
+    if (entries.length === 0) {
+      var li = document.createElement("li");
+      li.textContent = "No adjustments entered, so there are no journal entries to record.";
+      list.appendChild(li);
+      return;
+    }
+
+    entries.forEach(function (entry) {
+      var li = document.createElement("li");
+      if (entry.needsEntry) {
+        li.textContent =
+          entry.item +
+          ": Debit " +
+          entry.debit +
+          ", Credit " +
+          entry.credit +
+          " " +
+          formatMoney(entry.amount) +
+          ".";
+      } else {
+        li.textContent = entry.item + ": no entry needed — " + entry.note;
+      }
+      list.appendChild(li);
+    });
+  }
+
+  function renderBankReconciliation(inputs) {
+    var BR = window.BankReconciliation;
+    var result = BR.reconcile(inputs);
+
+    var empty = document.getElementById("br-empty");
+    var dashboard = document.getElementById("br-dashboard");
+    if (empty) empty.hidden = true;
+    if (dashboard) dashboard.hidden = false;
+
+    var setText = function (id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    renderBrSide("br-bank-rows", result.bank);
+    renderBrSide("br-book-rows", result.book);
+    setText("br-bank-adjusted", formatMoney(result.bank.adjusted));
+    setText("br-book-adjusted", formatMoney(result.book.adjusted));
+
+    var banner = document.getElementById("br-banner");
+    if (banner) {
+      banner.classList.remove(
+        "health-good",
+        "health-warn",
+        "health-danger",
+        "health-neutral"
+      );
+      banner.classList.add(result.reconciled ? "health-good" : "health-danger");
+    }
+    setText(
+      "br-banner-message",
+      result.reconciled
+        ? "Reconciled — both adjusted balances equal " +
+            formatMoney(result.bank.adjusted) +
+            "."
+        : "Not reconciled — difference of " +
+            formatMoney(Math.abs(result.difference)) +
+            ". Recheck the side that's off."
+    );
+
+    renderBrExplanations(result);
+    renderBrEntries(inputs);
+  }
+
+  function resetBankReconciliation() {
+    BR_MONEY_FIELDS.forEach(function (field) {
+      var input = document.getElementById(field.id);
+      if (input) {
+        input.value = "";
+        clearError(input);
+      }
+    });
+    var side = document.getElementById("br-error-side");
+    var direction = document.getElementById("br-error-direction");
+    if (side) side.value = "bank";
+    if (direction) direction.value = "increase";
+
+    var empty = document.getElementById("br-empty");
+    var dashboard = document.getElementById("br-dashboard");
+    if (dashboard) dashboard.hidden = true;
+    if (empty) empty.hidden = false;
+  }
+
+  function initBankReconciliation() {
+    var form = document.getElementById("br-form");
+    if (!form) return;
+    if (!window.BankReconciliation) return; // module missing: keep empty state
+
+    // Live-clear errors as the user fixes a field.
+    BR_MONEY_FIELDS.forEach(function (field) {
+      var input = document.getElementById(field.id);
+      if (!input) return;
+      input.addEventListener("input", function () {
+        var wrapper = getFieldWrapper(input);
+        if (wrapper && wrapper.classList.contains("has-error")) {
+          validateBrField(field);
+        }
+      });
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!validateBrAll()) return;
+      renderBankReconciliation(readBrInputs());
+    });
+
+    form.addEventListener("reset", function () {
+      window.setTimeout(resetBankReconciliation, 0);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initSmoothScroll();
     initActiveNav();
@@ -1435,8 +1711,10 @@
     initPlanning();
     initModeTabs();
     initJournalEntry();
+    initBankReconciliation();
     resetSimulatorState();
     resetJournalEntry();
+    resetBankReconciliation();
   });
 
   // Also clear when the page is shown from the back/forward cache, where the
@@ -1444,5 +1722,6 @@
   window.addEventListener("pageshow", function () {
     resetSimulatorState();
     resetJournalEntry();
+    resetBankReconciliation();
   });
 })();
