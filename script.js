@@ -137,12 +137,22 @@
     var profit = inputs.revenue - totalExpenses;
     var cashRemaining = inputs.startingCash - startupPurchases + profit;
 
+    // Yearly projection: assume this month repeats for 12 months.
+    var yearlyRevenue = inputs.revenue * 12;
+    var yearlyExpenses = totalExpenses * 12;
+    var yearlyProfit = profit * 12;
+    var yearEndCash = inputs.startingCash - startupPurchases + yearlyProfit;
+
     return {
       inputs: inputs,
       totalExpenses: totalExpenses,
       startupPurchases: startupPurchases,
       profit: profit,
       cashRemaining: cashRemaining,
+      yearlyRevenue: yearlyRevenue,
+      yearlyExpenses: yearlyExpenses,
+      yearlyProfit: yearlyProfit,
+      yearEndCash: yearEndCash,
     };
   }
 
@@ -230,7 +240,7 @@
     };
   }
 
-  /** Build the plain-English explanation bullet points. */
+  /** Build the short plain-English explanation bullets (kept brief on purpose). */
   function renderExplanation(result) {
     var list = document.getElementById("explanation-list");
     if (!list) return;
@@ -238,64 +248,87 @@
 
     var notes = [];
 
+    // Profit/loss = revenue vs expenses.
     if (result.profit > 0) {
       notes.push(
-        "You made a profit of " +
+        "Profit/loss compares revenue and expenses — here revenue beats expenses, so you profit " +
           formatMoney(result.profit) +
-          " this month because revenue (" +
-          formatMoney(result.inputs.revenue) +
-          ") was higher than your monthly expenses (" +
-          formatMoney(result.totalExpenses) +
-          ")."
+          "/mo."
       );
     } else if (result.profit < 0) {
       notes.push(
-        "You had a loss of " +
+        "Profit/loss compares revenue and expenses — here expenses beat revenue, so you lose " +
           formatMoney(Math.abs(result.profit)) +
-          " this month because your monthly expenses (" +
-          formatMoney(result.totalExpenses) +
-          ") were higher than revenue (" +
-          formatMoney(result.inputs.revenue) +
-          ")."
+          "/mo."
       );
     } else {
-      notes.push(
-        "You broke even — revenue and monthly expenses were both " +
-          formatMoney(result.inputs.revenue) +
-          "."
-      );
+      notes.push("Profit/loss compares revenue and expenses — here they're equal, so you break even.");
     }
 
+    // Cash vs profit (startup purchases).
     if (result.startupPurchases > 0) {
       notes.push(
-        "Equipment and inventory (" +
+        "Cash and profit aren't the same: startup purchases like equipment & inventory (" +
           formatMoney(result.startupPurchases) +
-          ") reduce your cash, even if they may not all count as expenses " +
-          "immediately in accounting. That's why your cash can drop even in a " +
-          "profitable month."
-      );
-    }
-
-    if (result.cashRemaining < 0) {
-      notes.push(
-        "Your cash remaining is negative (" +
-          formatMoney(result.cashRemaining) +
-          "). You'd need more starting cash, higher revenue, or lower spending " +
-          "to stay afloat."
+          ") lower cash now, so cash can drop even in a profitable month."
       );
     } else {
       notes.push(
-        "After startup purchases and this month's results, you have " +
-          formatMoney(result.cashRemaining) +
-          " in cash remaining."
+        "Cash and profit track together here since there are no startup purchases — equipment or inventory would lower cash without changing monthly profit."
       );
     }
+
+    // Where cash stands.
+    notes.push(
+      result.cashRemaining < 0
+        ? "Cash remaining is negative (" +
+            formatMoney(result.cashRemaining) +
+            ") — you'd need more starting cash, higher revenue, or lower costs."
+        : "Cash remaining is " +
+            formatMoney(result.cashRemaining) +
+            " after startup purchases and this month's result."
+    );
 
     notes.forEach(function (text) {
       var li = document.createElement("li");
       li.textContent = text;
       list.appendChild(li);
     });
+  }
+
+  /** Yearly trend message + state, based on the projection. */
+  function getYearlyTrend(result) {
+    if (result.yearEndCash < 0) {
+      return {
+        state: "negative",
+        message:
+          "Cash may run negative this year unless the business increases revenue, " +
+          "lowers expenses, or adds more starting cash.",
+      };
+    }
+    if (result.yearlyProfit > 0) {
+      return {
+        state: "positive",
+        message:
+          "If these numbers continue, the business is projected to make a yearly profit of " +
+          formatMoney(result.yearlyProfit) +
+          ".",
+      };
+    }
+    if (result.yearlyProfit < 0) {
+      return {
+        state: "negative",
+        message:
+          "If these numbers continue, the business is projected to lose money this year (" +
+          formatMoney(result.yearlyProfit) +
+          ").",
+      };
+    }
+    return {
+      state: "neutral",
+      message:
+        "If these numbers continue, the business is projected to break even this year.",
+    };
   }
 
   /** Push all computed values into the dashboard UI. */
@@ -316,23 +349,38 @@
       if (el) el.textContent = text;
     };
 
+    // Monthly snapshot
+    setText("out-revenue", formatMoney(result.inputs.revenue));
     setText("out-expenses", formatMoney(result.totalExpenses));
     setText("out-profit", formatMoney(result.profit));
     setText("out-cash", formatMoney(result.cashRemaining));
-    setText("out-revenue", formatMoney(result.inputs.revenue));
 
-    // Color the profit and cash cards by sign.
-    var profitCard = document.getElementById("out-profit-card");
-    if (profitCard) {
-      profitCard.classList.remove("is-positive", "is-negative");
-      if (result.profit > 0) profitCard.classList.add("is-positive");
-      else if (result.profit < 0) profitCard.classList.add("is-negative");
-    }
-    var cashCard = document.getElementById("out-cash-card");
-    if (cashCard) {
-      cashCard.classList.remove("is-positive", "is-negative");
-      if (result.cashRemaining < 0) cashCard.classList.add("is-negative");
-      else cashCard.classList.add("is-positive");
+    // Yearly projection
+    setText("out-year-revenue", formatMoney(result.yearlyRevenue));
+    setText("out-year-expenses", formatMoney(result.yearlyExpenses));
+    setText("out-year-profit", formatMoney(result.yearlyProfit));
+    setText("out-year-cash", formatMoney(result.yearEndCash));
+
+    // Color cards by sign (positive green / negative red).
+    var colorBySign = function (id, positive) {
+      var card = document.getElementById(id);
+      if (!card) return;
+      card.classList.remove("is-positive", "is-negative");
+      card.classList.add(positive ? "is-positive" : "is-negative");
+    };
+    colorBySign("out-profit-card", result.profit >= 0);
+    colorBySign("out-cash-card", result.cashRemaining >= 0);
+    colorBySign("out-year-profit-card", result.yearlyProfit >= 0);
+    colorBySign("out-year-cash-card", result.yearEndCash >= 0);
+
+    // Yearly trend message
+    var trend = getYearlyTrend(result);
+    var trendEl = document.getElementById("yearly-trend");
+    if (trendEl) {
+      trendEl.classList.remove("is-positive", "is-negative");
+      if (trend.state === "positive") trendEl.classList.add("is-positive");
+      else if (trend.state === "negative") trendEl.classList.add("is-negative");
+      trendEl.textContent = trend.message;
     }
 
     // Health banner
