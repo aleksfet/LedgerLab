@@ -697,6 +697,423 @@
     });
   }
 
+  /* ==========================================================
+     Planning & Budgeting Mode
+     A separate form + report. Budget a month forward, set a
+     target profit, and see whether the plan reaches it.
+     Assessment Mode is untouched by anything below.
+     ========================================================== */
+
+  // Same validation contract as Assessment: name required, money >= 0.
+  var PLAN_REQUIRED_FIELDS = [
+    { id: "plan-biz-name", type: "text" },
+    { id: "plan-starting-cash", type: "money" },
+    { id: "plan-target-profit", type: "money" },
+    { id: "plan-revenue", type: "money" },
+    { id: "plan-rent", type: "money" },
+    { id: "plan-wages", type: "money" },
+    { id: "plan-supplies", type: "money" },
+    { id: "plan-utilities", type: "money" },
+    { id: "plan-marketing", type: "money" },
+    { id: "plan-other", type: "money" },
+    { id: "plan-equipment", type: "money" },
+    { id: "plan-inventory", type: "money" },
+  ];
+
+  /**
+   * Planning math (separate from Assessment):
+   *  - Planned expenses = rent + wages + supplies + utilities + marketing + other
+   *  - Expected profit/loss = expected revenue − planned expenses
+   *  - Target profit gap = target profit − expected profit  (> 0 means short)
+   *  - Startup cash needed = equipment + inventory
+   *  - Estimated cash left = cash to start − startup purchases + expected profit
+   */
+  function calculatePlan() {
+    var inputs = {
+      name: (document.getElementById("plan-biz-name") || {}).value || "",
+      startingCash: readMoney("plan-starting-cash"),
+      targetProfit: readMoney("plan-target-profit"),
+      revenue: readMoney("plan-revenue"),
+      rent: readMoney("plan-rent"),
+      wages: readMoney("plan-wages"),
+      supplies: readMoney("plan-supplies"),
+      utilities: readMoney("plan-utilities"),
+      marketing: readMoney("plan-marketing"),
+      other: readMoney("plan-other"),
+      equipment: readMoney("plan-equipment"),
+      inventory: readMoney("plan-inventory"),
+    };
+
+    var totalExpenses =
+      inputs.rent +
+      inputs.wages +
+      inputs.supplies +
+      inputs.utilities +
+      inputs.marketing +
+      inputs.other;
+
+    var expectedProfit = inputs.revenue - totalExpenses;
+    var targetGap = inputs.targetProfit - expectedProfit;
+    var startupPurchases = inputs.equipment + inputs.inventory;
+    var cashLeft = inputs.startingCash - startupPurchases + expectedProfit;
+
+    return {
+      inputs: inputs,
+      totalExpenses: totalExpenses,
+      expectedProfit: expectedProfit,
+      targetGap: targetGap,
+      startupPurchases: startupPurchases,
+      cashLeft: cashLeft,
+    };
+  }
+
+  /** Largest budgeted category, or null when nothing is budgeted. */
+  function getBiggestBudget(plan) {
+    if (plan.totalExpenses <= 0) return null;
+    var items = [
+      { label: "Rent", value: plan.inputs.rent },
+      { label: "Wages", value: plan.inputs.wages },
+      { label: "Supplies", value: plan.inputs.supplies },
+      { label: "Utilities", value: plan.inputs.utilities },
+      { label: "Marketing", value: plan.inputs.marketing },
+      { label: "Other", value: plan.inputs.other },
+    ];
+    var biggest = items[0];
+    items.forEach(function (item) {
+      if (item.value > biggest.value) biggest = item;
+    });
+    return biggest;
+  }
+
+  /** Overall read on the plan, shown in the banner. */
+  function getPlanHealth(plan) {
+    if (plan.cashLeft < 0) {
+      return {
+        state: "danger",
+        message:
+          "This startup plan runs cash negative after startup costs and one month of operations.",
+      };
+    }
+    if (plan.expectedProfit < 0) {
+      return {
+        state: "warn",
+        message:
+          "This startup plan spends more than it earns — planned expenses are above expected revenue.",
+      };
+    }
+    if (plan.targetGap <= 0) {
+      return {
+        state: "good",
+        message: "This startup plan meets your target monthly profit.",
+      };
+    }
+    return {
+      state: "neutral",
+      message:
+        "This startup plan is profitable but falls short of your target by " +
+        formatMoney(plan.targetGap) +
+        ".",
+    };
+  }
+
+  /** Build 1–4 short planning-advice bullets from the numbers. */
+  function renderPlanAdvice(plan, biggest) {
+    var list = document.getElementById("plan-advice-list");
+    if (!list) return;
+    list.innerHTML = "";
+
+    var advice = [];
+
+    // Target profit (always present).
+    if (plan.targetGap <= 0) {
+      advice.push("Your startup plan meets your target profit.");
+    } else {
+      advice.push(
+        "You need " +
+          formatMoney(plan.targetGap) +
+          " more revenue to reach your target profit."
+      );
+    }
+
+    // Expenses above revenue.
+    if (plan.totalExpenses > plan.inputs.revenue) {
+      advice.push("Your planned expenses are higher than revenue.");
+    }
+
+    // Startup purchases vs. available cash.
+    if (
+      plan.startupPurchases > 0 &&
+      (plan.inputs.startingCash <= 0 ||
+        plan.startupPurchases / plan.inputs.startingCash >= 0.5)
+    ) {
+      advice.push(
+        "Your startup purchases use a large portion of your available cash."
+      );
+    }
+
+    // Largest-budget lever, when the plan isn't already on target.
+    if (biggest && (plan.targetGap > 0 || plan.totalExpenses > plan.inputs.revenue)) {
+      advice.push(
+        "Consider lowering your largest budget category (" +
+          biggest.label +
+          ") or increasing expected revenue."
+      );
+    }
+
+    advice.slice(0, 4).forEach(function (text) {
+      var li = document.createElement("li");
+      li.textContent = text;
+      list.appendChild(li);
+    });
+  }
+
+  /** Push planning results into the plan dashboard UI. */
+  function renderPlanResults(plan) {
+    var empty = document.getElementById("plan-empty");
+    var dashboard = document.getElementById("plan-dashboard");
+    if (empty) empty.hidden = true;
+    if (dashboard) dashboard.hidden = false;
+
+    var name = plan.inputs.name.trim();
+    var title = document.getElementById("plan-dash-title");
+    if (title) {
+      title.textContent = name
+        ? name + " — Startup Plan Summary"
+        : "Startup Plan Summary";
+    }
+
+    var setText = function (id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    setText("plan-out-revenue", formatMoney(plan.inputs.revenue));
+    setText("plan-out-expenses", formatMoney(plan.totalExpenses));
+    setText("plan-out-profit", formatMoney(plan.expectedProfit));
+    setText(
+      "plan-out-gap",
+      plan.targetGap > 0 ? formatMoney(plan.targetGap) : "Met"
+    );
+    setText("plan-out-startup", formatMoney(plan.startupPurchases));
+    setText("plan-out-cash", formatMoney(plan.cashLeft));
+
+    var colorBySign = function (id, positive) {
+      var card = document.getElementById(id);
+      if (!card) return;
+      card.classList.remove("is-positive", "is-negative");
+      card.classList.add(positive ? "is-positive" : "is-negative");
+    };
+    colorBySign("plan-out-profit-card", plan.expectedProfit >= 0);
+    colorBySign("plan-out-gap-card", plan.targetGap <= 0); // met = green
+    colorBySign("plan-out-cash-card", plan.cashLeft >= 0);
+
+    var health = getPlanHealth(plan);
+    var banner = document.getElementById("plan-banner");
+    if (banner) {
+      banner.classList.remove(
+        "health-good",
+        "health-warn",
+        "health-danger",
+        "health-neutral"
+      );
+      banner.classList.add("health-" + health.state);
+    }
+    setText("plan-banner-message", health.message);
+
+    var biggest = getBiggestBudget(plan);
+    renderPlanAdvice(plan, biggest);
+    renderPlanManager(plan, biggest);
+    renderPlanAccounting(plan);
+  }
+
+  /** Short "Manager's View" read on the plan. */
+  function renderPlanManager(plan, biggest) {
+    var list = document.getElementById("plan-manager-list");
+    if (!list) return;
+    list.innerHTML = "";
+
+    var notes = [];
+
+    // Largest planned expense.
+    if (biggest) {
+      notes.push(
+        "Your largest planned expense is " +
+          biggest.label.toLowerCase() +
+          " at " +
+          formatMoney(biggest.value) +
+          "."
+      );
+    } else {
+      notes.push("No monthly expenses are budgeted in this plan yet.");
+    }
+
+    // Reaching the target profit.
+    if (plan.targetGap <= 0) {
+      notes.push("This plan reaches your target monthly profit.");
+    } else {
+      notes.push(
+        "This plan does not reach your target profit — it is short by " +
+          formatMoney(plan.targetGap) +
+          "."
+      );
+    }
+
+    // Startup purchases vs. available cash.
+    var heavyCash =
+      plan.startupPurchases > 0 &&
+      (plan.inputs.startingCash <= 0 ||
+        plan.startupPurchases / plan.inputs.startingCash >= 0.5);
+    if (heavyCash) {
+      notes.push("Startup purchases use a large amount of your available cash.");
+    } else if (plan.startupPurchases > 0) {
+      notes.push(
+        "Startup purchases use a manageable portion of your available cash."
+      );
+    } else {
+      notes.push("This plan has no one-time startup purchases.");
+    }
+
+    notes.forEach(function (text) {
+      var li = document.createElement("li");
+      li.textContent = text;
+      list.appendChild(li);
+    });
+  }
+
+  /** "How This Connects to Accounting" — ties the plan to real statements. */
+  function renderPlanAccounting(plan) {
+    var list = document.getElementById("plan-accounting-list");
+    if (!list) return;
+    list.innerHTML = "";
+
+    var notes = [];
+
+    notes.push(
+      "Your expected revenue (" +
+        formatMoney(plan.inputs.revenue) +
+        ") would appear at the top of the income statement."
+    );
+    notes.push(
+      "Rent, wages, supplies, utilities, marketing, and other monthly costs (" +
+        formatMoney(plan.totalExpenses) +
+        " total) are operating expenses on the income statement."
+    );
+
+    if (plan.inputs.equipment > 0) {
+      notes.push(
+        "Equipment (" +
+          formatMoney(plan.inputs.equipment) +
+          ") is usually recorded as an asset first and may be depreciated over time."
+      );
+    }
+    if (plan.inputs.inventory > 0) {
+      notes.push(
+        "Inventory (" +
+          formatMoney(plan.inputs.inventory) +
+          ") is usually recorded as an asset until it is sold."
+      );
+    }
+
+    notes.push(
+      "Cash available for startup (" +
+        formatMoney(plan.inputs.startingCash) +
+        ") and estimated cash left (" +
+        formatMoney(plan.cashLeft) +
+        ") are part of understanding the business's cash position."
+    );
+
+    notes.forEach(function (text) {
+      var li = document.createElement("li");
+      li.textContent = text;
+      list.appendChild(li);
+    });
+  }
+
+  function validatePlanAll() {
+    var firstInvalid = null;
+    PLAN_REQUIRED_FIELDS.forEach(function (field) {
+      var ok = validateField(field);
+      if (!ok && !firstInvalid) {
+        firstInvalid = document.getElementById(field.id);
+      }
+    });
+    if (firstInvalid) firstInvalid.focus();
+    return !firstInvalid;
+  }
+
+  function clearAllPlanErrors() {
+    PLAN_REQUIRED_FIELDS.forEach(function (field) {
+      var input = document.getElementById(field.id);
+      if (input) clearError(input);
+    });
+  }
+
+  function initPlanLiveValidation() {
+    PLAN_REQUIRED_FIELDS.forEach(function (field) {
+      var input = document.getElementById(field.id);
+      if (!input) return;
+      input.addEventListener("input", function () {
+        var wrapper = getFieldWrapper(input);
+        if (wrapper && wrapper.classList.contains("has-error")) {
+          validateField(field);
+        }
+      });
+    });
+  }
+
+  function initPlanning() {
+    var form = document.getElementById("plan-form");
+    if (!form) return;
+
+    initPlanLiveValidation();
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!validatePlanAll()) return;
+      renderPlanResults(calculatePlan());
+    });
+
+    form.addEventListener("reset", function () {
+      clearAllPlanErrors();
+      var empty = document.getElementById("plan-empty");
+      var dashboard = document.getElementById("plan-dashboard");
+      if (dashboard) dashboard.hidden = true;
+      if (empty) empty.hidden = false;
+    });
+  }
+
+  /** Wire the Assessment / Planning mode tabs to show one panel at a time. */
+  function initModeTabs() {
+    var tabA = document.getElementById("mode-assessment");
+    var tabP = document.getElementById("mode-planning");
+    var panelA = document.getElementById("assessment-panel");
+    var panelP = document.getElementById("planning-panel");
+    var subtitle = document.getElementById("sim-subtitle");
+    if (!tabA || !tabP || !panelA || !panelP) return;
+
+    var ASSESS_SUB = subtitle ? subtitle.textContent : "";
+    var PLAN_SUB =
+      "Use Startup Planning Mode to design a starting budget, set a target profit, " +
+      "and see whether your business plan has enough revenue and cash to work.";
+
+    function activate(planning) {
+      tabA.classList.toggle("is-active", !planning);
+      tabP.classList.toggle("is-active", planning);
+      tabA.setAttribute("aria-selected", planning ? "false" : "true");
+      tabP.setAttribute("aria-selected", planning ? "true" : "false");
+      panelA.hidden = planning;
+      panelP.hidden = !planning;
+      if (subtitle) subtitle.textContent = planning ? PLAN_SUB : ASSESS_SUB;
+    }
+
+    tabA.addEventListener("click", function () {
+      activate(false);
+    });
+    tabP.addEventListener("click", function () {
+      activate(true);
+    });
+  }
+
   /**
    * Force a blank form + default (empty) dashboard.
    * Some browsers restore previously typed values on refresh / bfcache
@@ -718,6 +1135,17 @@
     var dashboard = document.getElementById("sim-dashboard");
     if (dashboard) dashboard.hidden = true;
     if (empty) empty.hidden = false;
+
+    // Planning Mode form + dashboard get the same fresh-start treatment.
+    PLAN_REQUIRED_FIELDS.forEach(function (field) {
+      var input = document.getElementById(field.id);
+      if (input) input.value = "";
+    });
+    clearAllPlanErrors();
+    var planEmpty = document.getElementById("plan-empty");
+    var planDashboard = document.getElementById("plan-dashboard");
+    if (planDashboard) planDashboard.hidden = true;
+    if (planEmpty) planEmpty.hidden = false;
   }
 
   function initSimulator() {
@@ -747,6 +1175,8 @@
     initActiveNav();
     initMoneyInputs();
     initSimulator();
+    initPlanning();
+    initModeTabs();
     resetSimulatorState();
   });
 

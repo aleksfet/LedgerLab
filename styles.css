@@ -583,6 +583,13 @@ a:hover {
   border-radius: 999px;
 }
 
+/* Mode panels: only one (Assessment or Planning) is visible at a time.
+   The [hidden] attribute does the show/hide; this just guards against any
+   inherited display rule keeping a hidden panel on screen. */
+.sim-mode-panel[hidden] {
+  display: none;
+}
+
 /* Give the simulator a bit more horizontal room than other sections so the
    two panels feel less cramped and the report needs less vertical scrolling.
    The section header keeps its own narrower max-width and stays centered. */

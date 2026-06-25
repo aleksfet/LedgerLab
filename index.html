@@ -193,7 +193,7 @@
       <div class="container">
         <header class="section-head">
           <h2>Business Simulator</h2>
-          <p class="section-sub">
+          <p class="section-sub" id="sim-subtitle">
             Use Assessment Mode to enter one month of business activity and see how
             revenue, expenses, cash, and major purchases affect the business's
             financial picture.
@@ -201,17 +201,19 @@
         </header>
 
         <div class="sim-modes" role="tablist" aria-label="Simulator mode">
-          <button type="button" class="sim-mode is-active" role="tab"
-                  aria-selected="true">
+          <button type="button" id="mode-assessment" class="sim-mode is-active"
+                  role="tab" aria-selected="true" aria-controls="assessment-panel">
             Assessment Mode
           </button>
-          <button type="button" class="sim-mode is-disabled" role="tab"
-                  aria-selected="false" aria-disabled="true" disabled>
-            Planning &amp; Budgeting Mode
-            <span class="sim-mode-badge">Coming soon</span>
+          <button type="button" id="mode-planning" class="sim-mode"
+                  role="tab" aria-selected="false" aria-controls="planning-panel">
+            Startup Planning Mode
           </button>
         </div>
 
+        <!-- ===== Assessment Mode panel ===== -->
+        <div id="assessment-panel" class="sim-mode-panel" role="tabpanel"
+             aria-labelledby="mode-assessment">
         <div class="sim-layout">
           <!-- ---- Inputs panel ---- -->
           <form id="sim-form" class="sim-panel sim-form" novalidate autocomplete="off">
@@ -446,6 +448,223 @@
             </div>
           </div>
         </div>
+        </div><!-- /#assessment-panel -->
+
+        <!-- ===== Planning & Budgeting Mode panel ===== -->
+        <div id="planning-panel" class="sim-mode-panel" role="tabpanel"
+             aria-labelledby="mode-planning" hidden>
+          <div class="sim-layout">
+            <!-- ---- Planning inputs panel ---- -->
+            <form id="plan-form" class="sim-panel sim-form" novalidate autocomplete="off">
+              <h3 class="sim-panel-title">Plan Your Startup Budget</h3>
+
+              <div class="field field-full">
+                <label for="plan-biz-name">Business name</label>
+                <input type="text" id="plan-biz-name" name="plan-biz-name"
+                       placeholder="e.g. Riverside Coffee Co." autocomplete="off" />
+              </div>
+
+              <fieldset class="field-group">
+                <legend>Cash &amp; Targets</legend>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="plan-starting-cash">Cash available for startup</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-starting-cash" name="plan-starting-cash"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="plan-target-profit">Target monthly profit</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-target-profit" name="plan-target-profit"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field field-full">
+                    <label for="plan-revenue">Expected monthly revenue</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-revenue" name="plan-revenue"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="field-group">
+                <legend>Monthly Budget</legend>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="plan-rent">Rent budget</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-rent" name="plan-rent"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="plan-wages">Wages budget</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-wages" name="plan-wages"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="plan-supplies">Supplies budget</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-supplies" name="plan-supplies"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="plan-utilities">Utilities budget</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-utilities" name="plan-utilities"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="plan-marketing">Marketing budget</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-marketing" name="plan-marketing"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="plan-other">Other monthly expenses</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-other" name="plan-other"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="field-group">
+                <legend>One-Time Startup Costs</legend>
+                <p class="field-help">
+                  These one-time purchases reduce the cash you have available to start.
+                </p>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="plan-equipment">Equipment cost</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-equipment" name="plan-equipment"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="plan-inventory">Inventory cost</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-inventory" name="plan-inventory"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+
+              <div class="sim-actions">
+                <button type="submit" class="btn btn-primary">Run Startup Plan</button>
+                <button type="reset" class="btn btn-secondary" id="plan-reset">Reset</button>
+              </div>
+            </form>
+
+            <!-- ---- Planning results ---- -->
+            <div class="sim-results" id="plan-results" aria-live="polite">
+              <!-- Empty state (shown before first run) -->
+              <div class="sim-empty" id="plan-empty">
+                <div class="card-icon" aria-hidden="true">🎯</div>
+                <h3>Your startup plan summary appears here</h3>
+                <p>
+                  Fill in your budget and select <strong>Run Startup Plan</strong> to
+                  see your expected profit, target gap, startup cash needs, and
+                  planning advice.
+                </p>
+              </div>
+
+              <!-- Plan dashboard (populated by script.js) -->
+              <div class="sim-dashboard" id="plan-dashboard" hidden>
+                <h3 class="sim-dash-title" id="plan-dash-title">Startup Plan Summary</h3>
+
+                <div class="health-banner" id="plan-banner">
+                  <span class="health-dot" aria-hidden="true"></span>
+                  <span id="plan-banner-message">—</span>
+                </div>
+
+                <!-- Plan figures -->
+                <section class="report-section">
+                  <h4 class="report-heading">Startup Plan Summary</h4>
+                  <div class="stat-grid">
+                    <div class="stat-card">
+                      <span class="stat-label">Expected Revenue</span>
+                      <span class="stat-value" id="plan-out-revenue">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Planned Expenses</span>
+                      <span class="stat-value" id="plan-out-expenses">$0</span>
+                    </div>
+                    <div class="stat-card" id="plan-out-profit-card">
+                      <span class="stat-label">Expected Profit / Loss</span>
+                      <span class="stat-value" id="plan-out-profit">$0</span>
+                    </div>
+                    <div class="stat-card" id="plan-out-gap-card">
+                      <span class="stat-label">Target Profit Gap</span>
+                      <span class="stat-value" id="plan-out-gap">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Startup Cash Needed</span>
+                      <span class="stat-value" id="plan-out-startup">$0</span>
+                    </div>
+                    <div class="stat-card" id="plan-out-cash-card">
+                      <span class="stat-label">Est. Cash Left</span>
+                      <span class="stat-value" id="plan-out-cash">$0</span>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Planning advice -->
+                <section class="report-section">
+                  <h4 class="report-heading">Startup Planning Advice</h4>
+                  <ul class="suggestion-list" id="plan-advice-list">
+                    <!-- advice injected by script.js -->
+                  </ul>
+                </section>
+
+                <!-- Manager's view -->
+                <section class="report-section">
+                  <h4 class="report-heading">Manager's View</h4>
+                  <ul class="suggestion-list" id="plan-manager-list">
+                    <!-- manager notes injected by script.js -->
+                  </ul>
+                </section>
+
+                <!-- Accounting connection -->
+                <section class="report-section">
+                  <h4 class="report-heading">How This Connects to Accounting</h4>
+                  <ul class="explanation-list" id="plan-accounting-list">
+                    <!-- accounting notes injected by script.js -->
+                  </ul>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div><!-- /#planning-panel -->
       </div>
     </section>
 
