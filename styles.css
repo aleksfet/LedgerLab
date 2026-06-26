@@ -1303,6 +1303,131 @@ a:hover {
   border-top: 1px solid var(--border);
 }
 
+/* Compact intro card above the reconciliation form. */
+.br-intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.br-intro-lead {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+/* "Before you start" guidance note (green accent, not error styling). */
+.br-note {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-left: 3px solid var(--green);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.br-callout-lead {
+  margin: 0 0 0.4rem;
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.br-callout-star {
+  color: var(--green-bright);
+  font-weight: 700;
+  margin-right: 0.2rem;
+}
+
+.br-callout-sub {
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Example scenario buttons */
+.br-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.br-example-btn {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.83rem;
+}
+
+/* "How accountants would investigate this" intro line */
+.br-investigate-text {
+  margin: 0 0 0.6rem;
+  font-size: 0.86rem;
+  color: var(--text-soft);
+}
+
+.br-investigate-text:last-child {
+  margin-bottom: 0;
+}
+
+/* Small per-input helper text under a field. */
+.field-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+/* Collapsed "Advanced: Mistake Correction" section (native <details>). */
+.br-advanced {
+  margin: 0 0 1.1rem;
+}
+
+.br-advanced-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text-soft);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  list-style: none; /* hide default marker (we draw our own) */
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.br-advanced-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Custom disclosure caret that rotates when open. */
+.br-advanced-summary::before {
+  content: "▸";
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: transform var(--transition);
+}
+
+.br-advanced[open] .br-advanced-summary::before {
+  transform: rotate(90deg);
+}
+
+.br-advanced-summary:hover {
+  color: var(--blue-bright);
+  border-color: var(--border-strong);
+}
+
+/* When open, the fieldset connects to the summary above it. */
+.br-advanced[open] .br-advanced-group {
+  margin-top: 0.6rem;
+}
+
 /* Two side-statements (bank, book) stacked inside one preview card. */
 .br-statement + .br-statement {
   border-top: 1px solid var(--border-strong);

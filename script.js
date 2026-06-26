@@ -1654,6 +1654,98 @@
 
     renderBrExplanations(result);
     renderBrEntries(inputs);
+    renderBrInvestigation(result);
+  }
+
+  /** "How accountants would investigate this" — adapts to the reconcile result. */
+  function renderBrInvestigation(result) {
+    var text = document.getElementById("br-investigate-text");
+    var list = document.getElementById("br-investigate-list");
+    if (!text || !list) return;
+    list.innerHTML = "";
+
+    if (result.reconciled) {
+      text.textContent =
+        "The adjusted bank balance and adjusted book balance match, so the cash " +
+        "balance is reconciled. An accountant would now record any needed book-side " +
+        "journal entries, such as bank fees or interest.";
+      return;
+    }
+
+    text.textContent =
+      "The balances still do not match. An accountant would recheck the bank " +
+      "statement, book cash records, deposits in transit, outstanding checks, bank " +
+      "fees, interest, and possible errors to find the missing item.";
+
+    [
+      "Recheck the starting bank statement balance.",
+      "Recheck the starting book cash balance.",
+      "Look for a missing deposit in transit.",
+      "Look for a missing outstanding check.",
+      "Check whether bank fees or interest were entered.",
+      "Check for a bank or book error.",
+    ].forEach(function (item) {
+      var li = document.createElement("li");
+      li.textContent = item;
+      list.appendChild(li);
+    });
+  }
+
+  /**
+   * Built-in example scenarios. Each fills the form and runs automatically so a
+   * beginner can see a finished reconciliation before using their own numbers.
+   *   1 — Timing Differences: deposits in transit + outstanding checks; reconciles.
+   *   2 — Fees and Interest: book-side fee + interest entries; reconciles.
+   *   3 — Find What's Missing: leaves a gap; does NOT reconcile.
+   */
+  var BR_EXAMPLES = {
+    "1": {
+      bankBalance: 5000, bookBalance: 5400,
+      depositsInTransit: 1200, outstandingChecks: 800,
+      bankServiceFees: 0, interestEarned: 0,
+    },
+    "2": {
+      bankBalance: 3000, bookBalance: 3040,
+      depositsInTransit: 0, outstandingChecks: 0,
+      bankServiceFees: 50, interestEarned: 10,
+    },
+    "3": {
+      bankBalance: 4000, bookBalance: 4000,
+      depositsInTransit: 600, outstandingChecks: 1000,
+      bankServiceFees: 0, interestEarned: 0,
+    },
+  };
+
+  /** Fill the form with an example's numbers and run the reconciliation. */
+  function applyBrExample(key) {
+    var ex = BR_EXAMPLES[key];
+    if (!ex) return;
+
+    var setVal = function (id, value) {
+      var el = document.getElementById(id);
+      if (el) el.value = String(value);
+    };
+    setVal("br-bank-balance", ex.bankBalance);
+    setVal("br-book-balance", ex.bookBalance);
+    setVal("br-deposits", ex.depositsInTransit);
+    setVal("br-checks", ex.outstandingChecks);
+    setVal("br-fees", ex.bankServiceFees);
+    setVal("br-interest", ex.interestEarned);
+
+    // Examples don't use the advanced mistake correction: reset it.
+    var errorAmount = document.getElementById("br-error-amount");
+    var side = document.getElementById("br-error-side");
+    var direction = document.getElementById("br-error-direction");
+    if (errorAmount) errorAmount.value = "";
+    if (side) side.value = "bank";
+    if (direction) direction.value = "increase";
+
+    // Clear any prior validation errors, then render.
+    BR_MONEY_FIELDS.forEach(function (field) {
+      var input = document.getElementById(field.id);
+      if (input) clearError(input);
+    });
+    renderBankReconciliation(readBrInputs());
   }
 
   function resetBankReconciliation() {
@@ -1700,6 +1792,14 @@
 
     form.addEventListener("reset", function () {
       window.setTimeout(resetBankReconciliation, 0);
+    });
+
+    // Example buttons (outside the form): fill numbers and run automatically.
+    var exampleButtons = document.querySelectorAll(".br-example-btn");
+    exampleButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        applyBrExample(button.getAttribute("data-example"));
+      });
     });
   }
 
