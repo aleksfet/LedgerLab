@@ -1433,6 +1433,102 @@ a:hover {
   border-top: 1px solid var(--border-strong);
 }
 
+/* ===== Depreciation Calculator ===== */
+/* Compact "why depreciation exists" intro card above the form. */
+.dep-intro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.dep-intro-lead {
+  margin: 0 0 0.5rem;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.dep-intro-sub {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--blue-bright);
+}
+
+/* Clickable example boxes that auto-fill the form (greenish accent). */
+.dep-examples-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--green-bright);
+}
+
+.dep-examples {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.dep-example-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition), border-color var(--transition),
+    transform var(--transition), box-shadow var(--transition);
+}
+
+.dep-example-btn:hover {
+  background: rgba(34, 197, 94, 0.14);
+  border-color: var(--green-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px var(--glow-green);
+}
+
+.dep-example-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dep-example-meta {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+/* Schedule scrolls if the useful life is long, keeping the report compact. */
+.dep-schedule-wrap {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.dep-schedule {
+  margin: 0;
+}
+
+/* Keep the schedule header visible while scrolling. */
+.dep-schedule thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  z-index: 1;
+}
+
 .br-table .br-start-row td {
   color: var(--text-soft);
 }
@@ -1506,6 +1602,10 @@ a:hover {
   }
 
   .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dep-examples {
     grid-template-columns: 1fr;
   }
 

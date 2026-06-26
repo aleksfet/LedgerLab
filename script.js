@@ -1803,6 +1803,230 @@
     });
   }
 
+  /* ==========================================================
+     Depreciation Calculator (third Accounting Tool)
+     Reads pure logic from depreciation.js (window.Depreciation)
+     and renders summary cards, the yearly journal entry, a
+     straight-line schedule, and a plain-English explanation.
+     ========================================================== */
+
+  function depValue(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : "";
+  }
+
+  /** Validate one depreciation field; shows/clears the inline error. */
+  function validateDepField(id) {
+    var input = document.getElementById(id);
+    if (!input) return true;
+    var raw = (input.value || "").trim();
+
+    if (id === "dep-name") {
+      if (raw === "") {
+        showError(input, "Asset name is required.");
+        return false;
+      }
+      clearError(input);
+      return true;
+    }
+
+    if (raw === "") {
+      showError(input, "Enter a value.");
+      return false;
+    }
+    var value = Number(raw);
+    if (isNaN(value) || !isFinite(value)) {
+      showError(input, "Enter a valid number.");
+      return false;
+    }
+
+    if (id === "dep-cost") {
+      if (value <= 0) {
+        showError(input, "Cost must be greater than 0.");
+        return false;
+      }
+    } else if (id === "dep-salvage") {
+      if (value < 0) {
+        showError(input, "Enter 0 or more.");
+        return false;
+      }
+      var cost = Number(depValue("dep-cost"));
+      if (isFinite(cost) && value >= cost) {
+        showError(input, "Salvage must be less than the asset cost.");
+        return false;
+      }
+    } else if (id === "dep-life") {
+      if (value < 1 || value > 50 || Math.floor(value) !== value) {
+        showError(input, "Enter a whole number of years (1–50).");
+        return false;
+      }
+    }
+
+    clearError(input);
+    return true;
+  }
+
+  var DEP_FIELDS = ["dep-name", "dep-cost", "dep-salvage", "dep-life"];
+
+  function validateDepAll() {
+    var firstInvalid = null;
+    DEP_FIELDS.forEach(function (id) {
+      var ok = validateDepField(id);
+      if (!ok && !firstInvalid) firstInvalid = document.getElementById(id);
+    });
+    if (firstInvalid) firstInvalid.focus();
+    return !firstInvalid;
+  }
+
+  function renderDepreciation(result) {
+    var empty = document.getElementById("dep-empty");
+    var dashboard = document.getElementById("dep-dashboard");
+    if (empty) empty.hidden = true;
+    if (dashboard) dashboard.hidden = false;
+
+    var setText = function (id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    var name = result.name.trim();
+    setText("dep-title", name ? name + " — Depreciation" : "Depreciation");
+
+    // Summary cards
+    setText("dep-out-annual", formatMoney(result.annual));
+    setText("dep-out-monthly", formatMoney(result.monthly));
+    setText("dep-out-base", formatMoney(result.depreciableBase));
+    setText(
+      "dep-out-life",
+      result.usefulLife + (result.usefulLife === 1 ? " year" : " years")
+    );
+
+    // Journal entry (annual amount)
+    setText("dep-je-debit", formatMoney(result.journal.amount));
+    setText("dep-je-credit", formatMoney(result.journal.amount));
+    setText("dep-je-total-debit", formatMoney(result.journal.amount));
+    setText("dep-je-total-credit", formatMoney(result.journal.amount));
+
+    // Schedule rows
+    var rows = document.getElementById("dep-schedule-rows");
+    if (rows) {
+      rows.innerHTML = "";
+      result.schedule.forEach(function (row) {
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          "<td>" + row.year + "</td>" +
+          '<td class="num">' + formatMoney(row.expense) + "</td>" +
+          '<td class="num">' + formatMoney(row.accumulated) + "</td>" +
+          '<td class="num">' + formatMoney(row.bookValue) + "</td>";
+        rows.appendChild(tr);
+      });
+    }
+
+    // Plain-English explanation
+    var list = document.getElementById("dep-explanation-list");
+    if (list) {
+      list.innerHTML = "";
+      var notes = [
+        "Straight-line depreciation spreads the depreciable cost evenly across the " +
+          "asset's useful life — here the base (cost " +
+          formatMoney(result.cost) +
+          " minus salvage " +
+          formatMoney(result.salvage) +
+          " = " +
+          formatMoney(result.depreciableBase) +
+          ") becomes " +
+          formatMoney(result.annual) +
+          " per year (" +
+          formatMoney(result.monthly) +
+          " per month).",
+        "Depreciation Expense is the part of the asset's cost used up this period — " +
+          formatMoney(result.annual) +
+          " for a full year.",
+        "Accumulated Depreciation is the total depreciation recorded so far. It builds " +
+          "up each year as a contra-asset that lowers the asset's book value.",
+        "Book Value is the asset's cost minus accumulated depreciation. It falls each " +
+          "year until it reaches the salvage value of " +
+          formatMoney(result.salvage) +
+          ".",
+        "Book value is an accounting value, not necessarily the real selling price.",
+      ];
+      notes.forEach(function (text) {
+        var li = document.createElement("li");
+        li.textContent = text;
+        list.appendChild(li);
+      });
+    }
+  }
+
+  function resetDepreciation() {
+    DEP_FIELDS.forEach(function (id) {
+      var input = document.getElementById(id);
+      if (input) {
+        input.value = "";
+        clearError(input);
+      }
+    });
+    var method = document.getElementById("dep-method");
+    if (method) method.value = "straight-line";
+
+    var empty = document.getElementById("dep-empty");
+    var dashboard = document.getElementById("dep-dashboard");
+    if (dashboard) dashboard.hidden = true;
+    if (empty) empty.hidden = false;
+  }
+
+  function initDepreciation() {
+    var form = document.getElementById("dep-form");
+    if (!form) return;
+    if (!window.Depreciation) return; // module missing: keep empty state
+
+    // Live-clear errors as the user fixes a field.
+    DEP_FIELDS.forEach(function (id) {
+      var input = document.getElementById(id);
+      if (!input) return;
+      input.addEventListener("input", function () {
+        var wrapper = getFieldWrapper(input);
+        if (wrapper && wrapper.classList.contains("has-error")) {
+          validateDepField(id);
+        }
+      });
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!validateDepAll()) return;
+      var result = window.Depreciation.calculateDepreciation({
+        name: depValue("dep-name"),
+        cost: Number(depValue("dep-cost")),
+        salvage: Number(depValue("dep-salvage")),
+        usefulLife: Number(depValue("dep-life")),
+      });
+      if (result) renderDepreciation(result);
+    });
+
+    form.addEventListener("reset", function () {
+      window.setTimeout(resetDepreciation, 0);
+    });
+
+    // Example boxes: auto-fill the form fields with the example's values.
+    var exampleButtons = document.querySelectorAll(".dep-example-btn");
+    exampleButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        var setVal = function (id, value) {
+          var el = document.getElementById(id);
+          if (el) {
+            el.value = value;
+            clearError(el);
+          }
+        };
+        setVal("dep-name", button.getAttribute("data-name"));
+        setVal("dep-cost", button.getAttribute("data-cost"));
+        setVal("dep-salvage", button.getAttribute("data-salvage"));
+        setVal("dep-life", button.getAttribute("data-life"));
+      });
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initSmoothScroll();
     initActiveNav();
@@ -1812,9 +2036,11 @@
     initModeTabs();
     initJournalEntry();
     initBankReconciliation();
+    initDepreciation();
     resetSimulatorState();
     resetJournalEntry();
     resetBankReconciliation();
+    resetDepreciation();
   });
 
   // Also clear when the page is shown from the back/forward cache, where the
@@ -1823,5 +2049,6 @@
     resetSimulatorState();
     resetJournalEntry();
     resetBankReconciliation();
+    resetDepreciation();
   });
 })();

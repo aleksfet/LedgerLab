@@ -1025,6 +1025,213 @@
             </div>
           </div>
         </div>
+
+        <!-- ---- Depreciation Calculator ---- -->
+        <div class="je-tool br-tool dep-tool">
+          <h3 class="tool-title">Depreciation Calculator</h3>
+          <p class="tool-sub">
+            Straight-Line Depreciation, explained step by step.
+          </p>
+
+          <!-- Why depreciation exists (compact intro) -->
+          <div class="dep-intro">
+            <p class="dep-intro-lead">
+              When a business buys a long-term asset — like a van, computer, equipment,
+              or furniture — the asset helps the business for more than one year.
+              Depreciation shows how accountants spread the asset's cost across the years
+              it is used, instead of recording the full cost as one expense right away.
+            </p>
+            <p class="dep-intro-sub">
+              This helps show how much of the asset's cost was used up during each year.
+            </p>
+          </div>
+
+          <div class="sim-layout">
+            <!-- Controls -->
+            <form id="dep-form" class="sim-panel sim-form" novalidate autocomplete="off">
+              <h3 class="sim-panel-title">Asset Details</h3>
+
+              <p class="dep-examples-label">Try an example:</p>
+              <div class="dep-examples">
+                <button type="button" class="dep-example-btn"
+                        data-name="Delivery Van" data-cost="30000"
+                        data-salvage="6000" data-life="5">
+                  <span class="dep-example-name">Delivery Van</span>
+                  <span class="dep-example-meta">$30,000 cost · $6,000 salvage · 5 yrs</span>
+                </button>
+                <button type="button" class="dep-example-btn"
+                        data-name="Coffee Machine" data-cost="8000"
+                        data-salvage="1000" data-life="8">
+                  <span class="dep-example-name">Coffee Machine</span>
+                  <span class="dep-example-meta">$8,000 cost · $1,000 salvage · 8 yrs</span>
+                </button>
+                <button type="button" class="dep-example-btn"
+                        data-name="Office Furniture" data-cost="5000"
+                        data-salvage="500" data-life="10">
+                  <span class="dep-example-name">Office Furniture</span>
+                  <span class="dep-example-meta">$5,000 cost · $500 salvage · 10 yrs</span>
+                </button>
+              </div>
+
+              <div class="field field-full">
+                <label for="dep-name">Asset name</label>
+                <input type="text" id="dep-name" name="dep-name"
+                       placeholder="e.g. Delivery Van" autocomplete="off" />
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="dep-cost">Asset cost</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="dep-cost" name="dep-cost"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                  <p class="field-hint">What the business paid for the asset.</p>
+                </div>
+                <div class="field">
+                  <label for="dep-salvage">Salvage value</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="dep-salvage" name="dep-salvage"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                  <p class="field-hint">Estimated value left at the end of its life.</p>
+                </div>
+              </div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label for="dep-life">Useful life (years)</label>
+                  <input type="number" id="dep-life" name="dep-life"
+                         min="1" max="50" step="1" inputmode="numeric" placeholder="0" />
+                  <p class="field-hint">Whole years the asset will be used (1–50).</p>
+                </div>
+                <div class="field">
+                  <label for="dep-method">Method</label>
+                  <select id="dep-method" name="dep-method" class="je-select">
+                    <option value="straight-line" selected>Straight-Line Depreciation</option>
+                  </select>
+                  <p class="field-hint">More methods coming later.</p>
+                </div>
+              </div>
+
+              <div class="sim-actions">
+                <button type="submit" class="btn btn-primary">Calculate</button>
+                <button type="reset" class="btn btn-secondary" id="dep-reset">Reset</button>
+              </div>
+            </form>
+
+            <!-- Output -->
+            <div class="sim-results" id="dep-results" aria-live="polite">
+              <!-- Empty state -->
+              <div class="sim-empty" id="dep-empty">
+                <div class="card-icon" aria-hidden="true">📉</div>
+                <h3>Your depreciation schedule appears here</h3>
+                <p>
+                  Enter the asset cost, salvage value, and useful life, then select
+                  <strong>Calculate</strong>.
+                </p>
+              </div>
+
+              <!-- Depreciation output -->
+              <div class="sim-dashboard" id="dep-dashboard" hidden>
+                <h3 class="sim-dash-title" id="dep-title">Depreciation</h3>
+
+                <!-- Summary -->
+                <section class="report-section">
+                  <h4 class="report-heading">Summary</h4>
+                  <div class="stat-grid">
+                    <div class="stat-card">
+                      <span class="stat-label">Annual Depreciation</span>
+                      <span class="stat-value" id="dep-out-annual">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Monthly Depreciation</span>
+                      <span class="stat-value" id="dep-out-monthly">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Depreciable Base</span>
+                      <span class="stat-value" id="dep-out-base">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Useful Life</span>
+                      <span class="stat-value" id="dep-out-life">—</span>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Journal entry -->
+                <section class="report-section">
+                  <h4 class="report-heading">Journal entry (each year)</h4>
+                  <div class="preview-card">
+                    <div class="preview-head">Recording depreciation</div>
+                    <table class="preview-table">
+                      <thead>
+                        <tr>
+                          <th>Account</th>
+                          <th class="num">Debit</th>
+                          <th class="num">Credit</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Depreciation Expense</td>
+                          <td class="num" id="dep-je-debit">—</td>
+                          <td class="num">—</td>
+                        </tr>
+                        <tr class="je-credit-row">
+                          <td>Accumulated Depreciation</td>
+                          <td class="num">—</td>
+                          <td class="num" id="dep-je-credit">—</td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td>Totals</td>
+                          <td class="num" id="dep-je-total-debit">—</td>
+                          <td class="num" id="dep-je-total-credit">—</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                    <p class="preview-note">
+                      Recorded each year. The final year uses the remaining balance so
+                      book value ends exactly at the salvage value.
+                    </p>
+                  </div>
+                </section>
+
+                <!-- Schedule -->
+                <section class="report-section">
+                  <h4 class="report-heading">Depreciation schedule</h4>
+                  <div class="dep-schedule-wrap">
+                    <table class="preview-table dep-schedule">
+                      <thead>
+                        <tr>
+                          <th>Year</th>
+                          <th class="num">Depreciation</th>
+                          <th class="num">Accumulated</th>
+                          <th class="num">Book value</th>
+                        </tr>
+                      </thead>
+                      <tbody id="dep-schedule-rows">
+                        <!-- injected by script.js -->
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <!-- Explanation -->
+                <div class="explanation dep-explanation">
+                  <h4 class="explanation-title">What depreciation means</h4>
+                  <ul class="explanation-list" id="dep-explanation-list">
+                    <!-- injected by script.js -->
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -1044,6 +1251,7 @@
 
   <script src="journal-entry.js"></script>
   <script src="bank-reconciliation.js"></script>
+  <script src="depreciation.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
