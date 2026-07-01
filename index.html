@@ -482,6 +482,7 @@
                       <input type="number" id="plan-target-profit" name="plan-target-profit"
                              min="0" step="0.01" inputmode="decimal" placeholder="0" />
                     </div>
+                    <p class="field-hint plan-live-hint" id="plan-target-helper"></p>
                   </div>
                 </div>
                 <div class="field-row">
@@ -657,9 +658,9 @@
                 <!-- Accounting connection -->
                 <section class="report-section">
                   <h4 class="report-heading">How This Connects to Accounting</h4>
-                  <ul class="explanation-list" id="plan-accounting-list">
-                    <!-- accounting notes injected by script.js -->
-                  </ul>
+                  <div class="plan-accounting" id="plan-accounting-list">
+                    <!-- grouped accounting notes injected by script.js -->
+                  </div>
                 </section>
               </div>
             </div>
@@ -1036,13 +1037,14 @@
           <!-- Why depreciation exists (compact intro) -->
           <div class="dep-intro">
             <p class="dep-intro-lead">
-              When a business buys a long-term asset — like a van, computer, equipment,
-              or furniture — the asset helps the business for more than one year.
-              Depreciation shows how accountants spread the asset's cost across the years
-              it is used, instead of recording the full cost as one expense right away.
+              When a business buys a long-term asset — like a van, computer, or
+              furniture — it is usually recorded as an asset first, not expensed all at
+              once. Depreciation then shows how much of that asset's cost has been used
+              up during each accounting period.
             </p>
             <p class="dep-intro-sub">
-              This helps show how much of the asset's cost was used up during each year.
+              Under the matching principle, a business spreads an asset's cost across the
+              years it helps generate revenue — so each year carries only its fair share.
             </p>
           </div>
 
@@ -1057,18 +1059,24 @@
                         data-name="Delivery Van" data-cost="30000"
                         data-salvage="6000" data-life="5">
                   <span class="dep-example-name">Delivery Van</span>
+                  <span class="dep-example-purpose">Used for deliveries over several
+                    years, so its cost is spread across its useful life.</span>
                   <span class="dep-example-meta">$30,000 cost · $6,000 salvage · 5 yrs</span>
                 </button>
                 <button type="button" class="dep-example-btn"
                         data-name="Coffee Machine" data-cost="8000"
                         data-salvage="1000" data-life="8">
                   <span class="dep-example-name">Coffee Machine</span>
+                  <span class="dep-example-purpose">Used by a café to help earn revenue
+                    over many years, not just the year it is bought.</span>
                   <span class="dep-example-meta">$8,000 cost · $1,000 salvage · 8 yrs</span>
                 </button>
                 <button type="button" class="dep-example-btn"
                         data-name="Office Furniture" data-cost="5000"
                         data-salvage="500" data-life="10">
                   <span class="dep-example-name">Office Furniture</span>
+                  <span class="dep-example-purpose">Used in the business for years, so
+                    only part of the cost is expensed each year.</span>
                   <span class="dep-example-meta">$5,000 cost · $500 salvage · 10 yrs</span>
                 </button>
               </div>

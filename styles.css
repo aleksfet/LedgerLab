@@ -1151,6 +1151,49 @@ a:hover {
   font-weight: 700;
 }
 
+/* Live "Target: $X per month ($Y per year)" helper under the target field. */
+.plan-live-hint {
+  min-height: 1.05rem; /* reserve space so the layout doesn't jump */
+  color: var(--blue-bright);
+  font-weight: 600;
+}
+
+/* Grouped "How This Connects to Accounting" block (statement-by-statement). */
+.plan-accounting {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.plan-acct-heading {
+  margin: 0.5rem 0 0.1rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+}
+
+.plan-acct-heading:first-child {
+  margin-top: 0;
+}
+
+.plan-accounting .explanation-list {
+  padding-left: 1.05rem;
+}
+
+/* Tailored takeaway under the three statement groups. */
+.plan-acct-note {
+  margin: 0.5rem 0 0;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface-2);
+  border-left: 3px solid var(--blue);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
 /* ===== Journal Entry Helper (Accounting Tool) ===== */
 .je-tool {
   margin-top: 0.5rem;
@@ -1501,6 +1544,13 @@ a:hover {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text);
+}
+
+/* One-line "why this asset depreciates" note that teaches purpose. */
+.dep-example-purpose {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--text-soft);
 }
 
 .dep-example-meta {

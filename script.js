@@ -105,6 +105,24 @@
   }
 
   /**
+   * Compact currency for inline helper text: drops the cents on whole amounts
+   * (2000 -> "$2,000") but keeps them when present (2000.5 -> "$2,000.50").
+   */
+  function formatMoneyCompact(amount) {
+    var sign = amount < 0 ? "-" : "";
+    var abs = Math.abs(amount);
+    var hasCents = Math.round(abs * 100) % 100 !== 0;
+    return (
+      sign +
+      "$" +
+      abs.toLocaleString("en-US", {
+        minimumFractionDigits: hasCents ? 2 : 0,
+        maximumFractionDigits: 2,
+      })
+    );
+  }
+
+  /**
    * Core calculation. Kept deliberately simple for beginners:
    * - Monthly expenses are the recurring operating costs.
    * - Equipment and inventory are one-time purchases that reduce cash now
@@ -816,7 +834,37 @@
     };
   }
 
-  /** Build 1–4 short planning-advice bullets from the numbers. */
+  /**
+   * How much of the startup cash the one-time purchases consume, and a risk band.
+   * Returns null when there are no startup purchases. When there is no startup
+   * cash but there are purchases, the plan is over budget (pct = Infinity).
+   *   0–30%  healthy   · 31–60% watch · 61–80% risky · 81%+ veryRisky
+   */
+  function getStartupCashUsage(plan) {
+    if (plan.startupPurchases <= 0) return null;
+    var cash = plan.inputs.startingCash;
+    var pct = cash > 0 ? (plan.startupPurchases / cash) * 100 : Infinity;
+    var band;
+    if (pct <= 30) band = "healthy";
+    else if (pct <= 60) band = "watch";
+    else if (pct <= 80) band = "risky";
+    else band = "veryRisky";
+    return { pct: pct, band: band, tight: band === "risky" || band === "veryRisky" };
+  }
+
+  /** "Startup purchases use N% of available startup cash" (or "more than 100%"). */
+  function cashUsagePhrase(usage) {
+    if (!isFinite(usage.pct)) {
+      return "Startup purchases use more than all of your available startup cash";
+    }
+    return (
+      "Startup purchases use " +
+      Math.round(usage.pct) +
+      "% of available startup cash"
+    );
+  }
+
+  /** Build action-oriented, managerial planning-advice bullets from the numbers. */
   function renderPlanAdvice(plan, biggest) {
     var list = document.getElementById("plan-advice-list");
     if (!list) return;
@@ -824,39 +872,60 @@
 
     var advice = [];
 
-    // Target profit (always present).
+    // 1) Target profit — framed as what to work on.
     if (plan.targetGap <= 0) {
-      advice.push("Your startup plan meets your target profit.");
+      advice.push(
+        "This plan meets your target monthly profit. A manager would now focus on " +
+          "making these revenue and cost estimates realistic before committing to them."
+      );
     } else {
       advice.push(
-        "You need " +
+        "This plan is below the target profit by " +
           formatMoney(plan.targetGap) +
-          " more revenue to reach your target profit."
+          ". To improve it, focus on raising revenue, reducing fixed expenses, or " +
+          "lowering startup costs before launch."
       );
     }
 
-    // Expenses above revenue.
+    // 2) Revenue vs. expense level — advice, not just a fact.
     if (plan.totalExpenses > plan.inputs.revenue) {
-      advice.push("Your planned expenses are higher than revenue.");
-    }
-
-    // Startup purchases vs. available cash.
-    if (
-      plan.startupPurchases > 0 &&
-      (plan.inputs.startingCash <= 0 ||
-        plan.startupPurchases / plan.inputs.startingCash >= 0.5)
-    ) {
       advice.push(
-        "Your startup purchases use a large portion of your available cash."
+        "Revenue is not high enough to support the planned expense level. A manager " +
+          "would review pricing, expected sales volume, or ways to reduce monthly costs."
       );
     }
 
-    // Largest-budget lever, when the plan isn't already on target.
+    // 3) Startup purchases vs. available cash — show the percentage + guidance.
+    var usage = getStartupCashUsage(plan);
+    if (usage) {
+      var tail;
+      if (usage.band === "healthy") {
+        tail =
+          " — a healthy, flexible level that leaves a solid cash cushion to start.";
+      } else if (usage.band === "watch") {
+        tail =
+          " — watch this carefully, since it leaves less room for slow early months.";
+      } else if (usage.band === "risky") {
+        tail =
+          " — this is risky, and the cash cushion may be tight. A manager may consider " +
+          "delaying purchases, buying used equipment, leasing, or increasing startup funding.";
+      } else {
+        tail =
+          " — this is very risky; the business may start with too little cash left. A " +
+          "manager may consider delaying purchases, buying used equipment, leasing, or " +
+          "increasing startup funding.";
+      }
+      advice.push(cashUsagePhrase(usage) + tail);
+    }
+
+    // 4) Largest-cost lever, when the plan isn't already on target.
     if (biggest && (plan.targetGap > 0 || plan.totalExpenses > plan.inputs.revenue)) {
       advice.push(
-        "Consider lowering your largest budget category (" +
-          biggest.label +
-          ") or increasing expected revenue."
+        "Your largest planned cost is " +
+          biggest.label.toLowerCase() +
+          " (" +
+          formatMoney(biggest.value) +
+          "). Reducing or renegotiating it is often the fastest way to improve the plan."
       );
     }
 
@@ -926,7 +995,7 @@
     renderPlanAccounting(plan);
   }
 
-  /** Short "Manager's View" read on the plan. */
+  /** "Manager's View" — how a manager would read these numbers before launching. */
   function renderPlanManager(plan, biggest) {
     var list = document.getElementById("plan-manager-list");
     if (!list) return;
@@ -934,43 +1003,66 @@
 
     var notes = [];
 
-    // Largest planned expense.
+    // Framing: what a manager weighs before launch.
+    notes.push(
+      "As the manager, you would weigh revenue (" +
+        formatMoney(plan.inputs.revenue) +
+        "), expenses (" +
+        formatMoney(plan.totalExpenses) +
+        "), and cash left (" +
+        formatMoney(plan.cashLeft) +
+        ") against your largest cost to decide what to adjust before launching."
+    );
+
+    // Largest planned expense as a lever.
     if (biggest) {
       notes.push(
-        "Your largest planned expense is " +
+        "Your largest planned cost is " +
           biggest.label.toLowerCase() +
           " at " +
           formatMoney(biggest.value) +
-          "."
+          " — the first place a manager looks when trying to protect profit."
       );
     } else {
-      notes.push("No monthly expenses are budgeted in this plan yet.");
+      notes.push(
+        "No monthly expenses are budgeted yet, so a manager could not judge the cost " +
+          "structure of this plan."
+      );
     }
 
-    // Reaching the target profit.
+    // Reaching the target profit + what to adjust.
     if (plan.targetGap <= 0) {
-      notes.push("This plan reaches your target monthly profit.");
+      notes.push(
+        "The plan reaches your target monthly profit, so a manager would double-check " +
+          "that the revenue estimate is achievable rather than optimistic."
+      );
     } else {
       notes.push(
-        "This plan does not reach your target profit — it is short by " +
+        "The plan is short of your target profit by " +
           formatMoney(plan.targetGap) +
-          "."
+          ", so a manager would decide whether to raise revenue or trim costs to close the gap."
       );
     }
 
-    // Startup purchases vs. available cash.
-    var heavyCash =
-      plan.startupPurchases > 0 &&
-      (plan.inputs.startingCash <= 0 ||
-        plan.startupPurchases / plan.inputs.startingCash >= 0.5);
-    if (heavyCash) {
-      notes.push("Startup purchases use a large amount of your available cash.");
-    } else if (plan.startupPurchases > 0) {
+    // Cash position / runway read.
+    if (plan.cashLeft < 0) {
       notes.push(
-        "Startup purchases use a manageable portion of your available cash."
+        "Cash left is negative, so a manager would not launch this plan without more " +
+          "startup funding or lower upfront spending."
       );
     } else {
-      notes.push("This plan has no one-time startup purchases.");
+      var usage = getStartupCashUsage(plan);
+      if (usage && usage.tight) {
+        notes.push(
+          "Cash left is positive but thin after startup purchases, so a manager would " +
+            "keep a close eye on early-month cash flow."
+        );
+      } else {
+        notes.push(
+          "Cash left stays positive with a reasonable cushion, giving a manager room to " +
+            "absorb slower early months."
+        );
+      }
     }
 
     notes.forEach(function (text) {
@@ -980,53 +1072,100 @@
     });
   }
 
-  /** "How This Connects to Accounting" — ties the plan to real statements. */
+  /**
+   * "How This Connects to Accounting" — grouped by the three core statements,
+   * then one tailored takeaway. Renders into a container div (not a flat list).
+   */
   function renderPlanAccounting(plan) {
-    var list = document.getElementById("plan-accounting-list");
-    if (!list) return;
-    list.innerHTML = "";
+    var container = document.getElementById("plan-accounting-list");
+    if (!container) return;
+    container.innerHTML = "";
 
-    var notes = [];
+    // Append one titled group: heading + a small bulleted list of notes.
+    var addGroup = function (title, notes) {
+      if (!notes.length) return;
+      var heading = document.createElement("p");
+      heading.className = "plan-acct-heading";
+      heading.textContent = title;
+      container.appendChild(heading);
 
-    notes.push(
-      "Your expected revenue (" +
+      var ul = document.createElement("ul");
+      ul.className = "explanation-list";
+      notes.forEach(function (text) {
+        var li = document.createElement("li");
+        li.textContent = text;
+        ul.appendChild(li);
+      });
+      container.appendChild(ul);
+    };
+
+    // Income Statement
+    addGroup("Income Statement Impact", [
+      "Expected revenue (" +
         formatMoney(plan.inputs.revenue) +
-        ") would appear at the top of the income statement."
-    );
-    notes.push(
+        ") sits at the top of the income statement.",
       "Rent, wages, supplies, utilities, marketing, and other monthly costs (" +
         formatMoney(plan.totalExpenses) +
-        " total) are operating expenses on the income statement."
-    );
+        " total) are operating expenses below it.",
+      "The difference is your expected profit or loss of " +
+        formatMoney(plan.expectedProfit) +
+        " — the bottom line of the plan.",
+    ]);
 
+    // Balance Sheet
+    var balanceNotes = [];
     if (plan.inputs.equipment > 0) {
-      notes.push(
+      balanceNotes.push(
         "Equipment (" +
           formatMoney(plan.inputs.equipment) +
-          ") is usually recorded as an asset first and may be depreciated over time."
+          ") is recorded as an asset first, then depreciated over its useful life."
       );
     }
     if (plan.inputs.inventory > 0) {
-      notes.push(
+      balanceNotes.push(
         "Inventory (" +
           formatMoney(plan.inputs.inventory) +
-          ") is usually recorded as an asset until it is sold."
+          ") is recorded as an asset until it is sold."
       );
     }
-
-    notes.push(
-      "Cash available for startup (" +
-        formatMoney(plan.inputs.startingCash) +
-        ") and estimated cash left (" +
-        formatMoney(plan.cashLeft) +
-        ") are part of understanding the business's cash position."
+    balanceNotes.push(
+      "Cash is your main asset here — it moves from cash into equipment, inventory, " +
+        "and day-to-day operations."
     );
+    addGroup("Balance Sheet Impact", balanceNotes);
 
-    notes.forEach(function (text) {
-      var li = document.createElement("li");
-      li.textContent = text;
-      list.appendChild(li);
-    });
+    // Cash Flow
+    addGroup("Cash Flow Impact", [
+      "Startup purchases (" +
+        formatMoney(plan.startupPurchases) +
+        ") reduce cash upfront, before the business earns anything.",
+      "After startup costs and one month of operations, estimated cash left is " +
+        formatMoney(plan.cashLeft) +
+        ".",
+    ]);
+
+    // Tailored takeaway.
+    var note = document.createElement("p");
+    note.className = "plan-acct-note";
+    var usage = getStartupCashUsage(plan);
+    if (plan.cashLeft < 0) {
+      note.textContent =
+        "The plan runs cash negative after startup costs — profit on paper cannot " +
+        "cover a shortfall in the bank, so the plan needs more cash to launch.";
+    } else if (plan.expectedProfit > 0 && usage && usage.tight) {
+      note.textContent =
+        "Even though the plan shows a profit, startup purchases use a large share of " +
+        "cash upfront — a profitable plan can still hit a cash problem early on.";
+    } else if (plan.expectedProfit > 0) {
+      note.textContent =
+        "This plan shows a profit and keeps a reasonable cash cushion — a solid " +
+        "starting point to refine before launch.";
+    } else {
+      note.textContent =
+        "The plan does not yet show a profit, so both the income statement and the cash " +
+        "position need work before launch.";
+    }
+    container.appendChild(note);
   }
 
   function validatePlanAll() {
@@ -1061,11 +1200,36 @@
     });
   }
 
+  /** Live "Target: $X per month ($Y per year)." helper under the target field. */
+  function updatePlanTargetHelper() {
+    var input = document.getElementById("plan-target-profit");
+    var helper = document.getElementById("plan-target-helper");
+    if (!input || !helper) return;
+    var raw = (input.value || "").trim();
+    var value = Number(raw);
+    if (raw === "" || isNaN(value) || value <= 0) {
+      helper.textContent = "";
+      return;
+    }
+    helper.textContent =
+      "Target: " +
+      formatMoneyCompact(value) +
+      " per month (" +
+      formatMoneyCompact(value * 12) +
+      " per year).";
+  }
+
   function initPlanning() {
     var form = document.getElementById("plan-form");
     if (!form) return;
 
     initPlanLiveValidation();
+
+    // Live yearly-equivalent helper as the target profit is typed.
+    var targetInput = document.getElementById("plan-target-profit");
+    if (targetInput) {
+      targetInput.addEventListener("input", updatePlanTargetHelper);
+    }
 
     form.addEventListener("submit", function (event) {
       event.preventDefault();
@@ -1075,6 +1239,8 @@
 
     form.addEventListener("reset", function () {
       clearAllPlanErrors();
+      var helper = document.getElementById("plan-target-helper");
+      if (helper) helper.textContent = "";
       var empty = document.getElementById("plan-empty");
       var dashboard = document.getElementById("plan-dashboard");
       if (dashboard) dashboard.hidden = true;
@@ -1142,6 +1308,8 @@
       if (input) input.value = "";
     });
     clearAllPlanErrors();
+    var planHelper = document.getElementById("plan-target-helper");
+    if (planHelper) planHelper.textContent = "";
     var planEmpty = document.getElementById("plan-empty");
     var planDashboard = document.getElementById("plan-dashboard");
     if (planDashboard) planDashboard.hidden = true;
@@ -1928,7 +2096,8 @@
       list.innerHTML = "";
       var notes = [
         "Straight-line depreciation spreads the depreciable cost evenly across the " +
-          "asset's useful life — here the base (cost " +
+          "asset's useful life, matching part of the cost to each year the asset helps " +
+          "earn revenue — here the base (cost " +
           formatMoney(result.cost) +
           " minus salvage " +
           formatMoney(result.salvage) +
@@ -1941,9 +2110,10 @@
           " per month).",
         "Depreciation Expense is the part of the asset's cost used up this period — " +
           formatMoney(result.annual) +
-          " for a full year.",
+          " for a full year — and it lowers profit on the income statement.",
         "Accumulated Depreciation is the total depreciation recorded so far. It builds " +
-          "up each year as a contra-asset that lowers the asset's book value.",
+          "up each year as a contra-asset that lowers the asset's book value on the " +
+          "balance sheet.",
         "Book Value is the asset's cost minus accumulated depreciation. It falls each " +
           "year until it reaches the salvage value of " +
           formatMoney(result.salvage) +
