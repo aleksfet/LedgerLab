@@ -122,6 +122,16 @@
     );
   }
 
+  /** Escape user-provided text before inserting it into innerHTML. */
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   /**
    * Core calculation. Kept deliberately simple for beginners:
    * - Monthly expenses are the recurring operating costs.
@@ -2197,6 +2207,352 @@
     });
   }
 
+  /* ==========================================================
+     Income Statement Builder (fourth Accounting Tool)
+     Reads pure logic from income-statement.js
+     (window.IncomeStatement). Single-step: revenue - expenses.
+     ========================================================== */
+
+  var IS_FIXED_FIELDS = [
+    "is-revenue", "is-rent", "is-wages", "is-supplies",
+    "is-utilities", "is-depreciation", "is-other",
+  ];
+
+  // Preset scenarios for the compact example buttons (realistic sample numbers).
+  var IS_EXAMPLES = {
+    coffee: {
+      name: "Sunrise Coffee", period: "June 2026", revenue: "18000",
+      rent: "3500", wages: "6000", supplies: "2200",
+      utilities: "700", depreciation: "500", other: "600",
+    },
+    tutoring: {
+      name: "BrightPath Tutoring", period: "June 2026", revenue: "9500",
+      rent: "1200", wages: "3000", supplies: "400",
+      utilities: "250", depreciation: "150", other: "300",
+    },
+    clothing: {
+      name: "Urban Thread", period: "June 2026", revenue: "26000",
+      rent: "4500", wages: "7500", supplies: "6000",
+      utilities: "900", depreciation: "700", other: "1200",
+    },
+  };
+
+  function isValue(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : "";
+  }
+
+  // Apply the same money sanitizing initMoneyInputs() uses, for inputs added
+  // dynamically after page load (custom rows).
+  function attachMoneySanitizer(input) {
+    var blockedKeys = ["e", "E", "+", "-"];
+    input.addEventListener("keydown", function (event) {
+      if (blockedKeys.indexOf(event.key) !== -1) event.preventDefault();
+    });
+    input.addEventListener("input", function () {
+      var cleaned = input.value.replace(/[^0-9.]/g, "");
+      var firstDot = cleaned.indexOf(".");
+      if (firstDot !== -1) {
+        cleaned = cleaned.slice(0, firstDot + 1) +
+          cleaned.slice(firstDot + 1).replace(/\./g, "");
+      }
+      if (cleaned !== input.value) input.value = cleaned;
+    });
+  }
+
+  // Build one custom row (label + amount + remove). `kind` is "revenue"|"expense".
+  function isAddCustomRow(kind) {
+    var container = document.getElementById(
+      kind === "revenue" ? "is-custom-revenue" : "is-custom-expenses"
+    );
+    if (!container) return;
+    var row = document.createElement("div");
+    row.className = "is-row field"; // .field so showError/clearError can attach
+    var placeholder = kind === "revenue" ? "e.g. Interest income" : "e.g. Marketing";
+    row.innerHTML =
+      '<input type="text" class="is-row-label" placeholder="' + placeholder + '" autocomplete="off" />' +
+      '<div class="money-input is-row-amount">' +
+        '<span class="money-symbol">$</span>' +
+        '<input type="number" class="is-row-amount-input" min="0" step="0.01" inputmode="decimal" placeholder="0" />' +
+      "</div>" +
+      '<button type="button" class="is-row-remove" aria-label="Remove row">✕</button>';
+    container.appendChild(row);
+    attachMoneySanitizer(row.querySelector(".is-row-amount-input"));
+    row.querySelector(".is-row-remove").addEventListener("click", function () {
+      row.parentNode.removeChild(row);
+    });
+  }
+
+  // Collect { label, amount } from a custom-row container.
+  function isCollectRows(containerId) {
+    var container = document.getElementById(containerId);
+    if (!container) return [];
+    var rows = [];
+    container.querySelectorAll(".is-row").forEach(function (row) {
+      var label = (row.querySelector(".is-row-label").value || "").trim();
+      var amount = row.querySelector(".is-row-amount-input").value;
+      rows.push({ label: label, amount: amount, _row: row });
+    });
+    return rows;
+  }
+
+  // Validate: fixed money fields >= 0; custom rows need both label and amount
+  // (or be fully blank). Returns true when valid.
+  function validateIncomeStatement() {
+    var ok = true;
+    var firstInvalid = null;
+
+    IS_FIXED_FIELDS.forEach(function (id) {
+      var input = document.getElementById(id);
+      if (!input) return;
+      var raw = (input.value || "").trim();
+      if (raw === "") { clearError(input); return; }
+      var n = Number(raw);
+      if (isNaN(n) || !isFinite(n) || n < 0) {
+        showError(input, "Enter 0 or more.");
+        ok = false;
+        if (!firstInvalid) firstInvalid = input;
+      } else {
+        clearError(input);
+      }
+    });
+
+    ["is-custom-revenue", "is-custom-expenses"].forEach(function (cid) {
+      isCollectRows(cid).forEach(function (r) {
+        var labelInput = r._row.querySelector(".is-row-label");
+        var hasLabel = r.label !== "";
+        var hasAmount = (r.amount || "").trim() !== "" && Number(r.amount) > 0;
+        if (hasLabel !== hasAmount) {
+          showError(labelInput, "Add both a name and an amount, or remove the row.");
+          ok = false;
+          if (!firstInvalid) firstInvalid = labelInput;
+        } else {
+          clearError(labelInput);
+        }
+      });
+    });
+
+    if (firstInvalid) firstInvalid.focus();
+    return ok;
+  }
+
+  function isBandCopy(band) {
+    switch (band) {
+      case "loss": return "This period is a net loss — the business spent more than it earned.";
+      case "thin": return "This is a thin margin — a small buffer between revenue and costs.";
+      case "healthy": return "This is a healthy margin for many small businesses.";
+      case "strong": return "This is a strong margin.";
+      default: return "";
+    }
+  }
+
+  function renderIncomeStatement(result) {
+    var empty = document.getElementById("is-empty");
+    var dashboard = document.getElementById("is-dashboard");
+    if (empty) empty.hidden = true;
+    if (dashboard) dashboard.hidden = false;
+
+    var setText = function (id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    var title = "Income Statement";
+    if (result.name.trim()) title = result.name.trim() + " — Income Statement";
+    if (result.period.trim()) title += " (" + result.period.trim() + ")";
+    setText("is-title", title);
+
+    // Summary cards
+    setText("is-out-revenue", formatMoney(result.totalRevenue));
+    setText("is-out-expenses", formatMoney(result.totalExpenses));
+    setText("is-out-net-label", result.isLoss ? "Net Loss" : "Net Income");
+    setText("is-out-net", result.isLoss
+      ? "(" + formatMoney(Math.abs(result.netIncome)) + ")"
+      : formatMoney(result.netIncome));
+    setText("is-out-margin", result.margin === null
+      ? "—" : Math.round(result.margin * 100) + "%");
+
+    var netCard = document.getElementById("is-out-net");
+    if (netCard) netCard.classList.toggle("is-loss", result.isLoss);
+
+    // Statement body — revenue
+    var revBody = document.getElementById("is-statement-revenue");
+    if (revBody) {
+      revBody.innerHTML = "";
+      if (result.revenueLines.length === 0) {
+        revBody.innerHTML = '<tr><td class="is-empty-line">No revenue entered</td>' +
+          '<td class="num">' + formatMoney(0) + "</td></tr>";
+      } else {
+        result.revenueLines.forEach(function (l) {
+          var tr = document.createElement("tr");
+          tr.innerHTML = "<td>" + escapeHtml(l.label) + "</td>" +
+            '<td class="num">' + formatMoney(l.amount) + "</td>";
+          revBody.appendChild(tr);
+        });
+      }
+    }
+    setText("is-total-revenue", formatMoney(result.totalRevenue));
+
+    // Statement body — expenses
+    var expBody = document.getElementById("is-statement-expenses");
+    if (expBody) {
+      expBody.innerHTML = "";
+      result.expenseLines.forEach(function (l) {
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td>" + escapeHtml(l.label) + "</td>" +
+          '<td class="num">' + formatMoney(l.amount) + "</td>";
+        expBody.appendChild(tr);
+      });
+    }
+    setText("is-total-expenses", formatMoney(result.totalExpenses));
+
+    setText("is-net-line-label", result.isLoss ? "Net loss" : "Net income");
+    setText("is-net-line-amount", result.isLoss
+      ? "(" + formatMoney(Math.abs(result.netIncome)) + ")"
+      : formatMoney(result.netIncome));
+    var netLine = document.getElementById("is-net-line");
+    if (netLine) netLine.classList.toggle("is-loss", result.isLoss);
+
+    // Explanation list
+    var list = document.getElementById("is-explanation-list");
+    if (list) {
+      list.innerHTML = "";
+      var notes = [];
+      if (result.margin !== null) {
+        if (result.isLoss) {
+          notes.push("The business spent more than it earned this period, so there is no profit to keep — expenses were " +
+            formatMoney(result.totalExpenses) + " against " + formatMoney(result.totalRevenue) + " of revenue.");
+        } else {
+          notes.push("You keep " + result.centsKept + "¢ of every $1 of revenue — that's your net profit margin of " +
+            Math.round(result.margin * 100) + "%.");
+        }
+        notes.push(isBandCopy(result.marginBand) +
+          " These margin categories are general planning signals, not industry benchmarks. Healthy margins vary by industry and business model.");
+      } else {
+        notes.push("Profit margin needs revenue to be meaningful — add revenue to see the margin for this period.");
+      }
+      notes.forEach(function (text) {
+        var li = document.createElement("li");
+        li.textContent = text;
+        list.appendChild(li);
+      });
+    }
+
+    // Manager's review (largest expense)
+    var advice = document.getElementById("is-advice");
+    if (advice) {
+      if (result.largestExpense) {
+        var le = result.largestExpense;
+        var lead = le.label + " is the largest expense";
+        if (le.pctOfRevenue !== null) {
+          lead += " at " + Math.round(le.pctOfRevenue * 100) + "% of revenue";
+        }
+        lead += ".";
+        var body = window.IncomeStatement.ADVICE[le.key] || window.IncomeStatement.ADVICE.custom;
+        advice.innerHTML =
+          '<p class="is-advice-lead">Manager’s review</p>' +
+          '<p class="is-advice-body">' + escapeHtml(lead) + " " + escapeHtml(body) + "</p>";
+        advice.hidden = false;
+      } else {
+        advice.innerHTML = "";
+        advice.hidden = true;
+      }
+    }
+
+    // Depreciation note
+    var depNote = document.getElementById("is-dep-note");
+    if (depNote) depNote.hidden = !result.hasDepreciation;
+  }
+
+  function resetIncomeStatement() {
+    IS_FIXED_FIELDS.forEach(function (id) {
+      var input = document.getElementById(id);
+      if (input) { input.value = ""; clearError(input); }
+    });
+    ["is-name", "is-period"].forEach(function (id) {
+      var input = document.getElementById(id);
+      if (input) input.value = "";
+    });
+    ["is-custom-revenue", "is-custom-expenses"].forEach(function (id) {
+      var c = document.getElementById(id);
+      if (c) c.innerHTML = "";
+    });
+    var empty = document.getElementById("is-empty");
+    var dashboard = document.getElementById("is-dashboard");
+    if (dashboard) dashboard.hidden = true;
+    if (empty) empty.hidden = false;
+  }
+
+  function initIncomeStatement() {
+    var form = document.getElementById("is-form");
+    if (!form) return;
+    if (!window.IncomeStatement) return;
+
+    var addRev = document.getElementById("is-add-revenue");
+    var addExp = document.getElementById("is-add-expense");
+    if (addRev) addRev.addEventListener("click", function () { isAddCustomRow("revenue"); });
+    if (addExp) addExp.addEventListener("click", function () { isAddCustomRow("expense"); });
+
+    // Example buttons: reset the form, fill the preset values, then build.
+    function applyIsExample(key) {
+      var ex = IS_EXAMPLES[key];
+      if (!ex) return;
+      resetIncomeStatement();
+      var setVal = function (id, value) {
+        var el = document.getElementById(id);
+        if (el) { el.value = value; clearError(el); }
+      };
+      setVal("is-name", ex.name);
+      setVal("is-period", ex.period);
+      setVal("is-revenue", ex.revenue);
+      setVal("is-rent", ex.rent);
+      setVal("is-wages", ex.wages);
+      setVal("is-supplies", ex.supplies);
+      setVal("is-utilities", ex.utilities);
+      setVal("is-depreciation", ex.depreciation);
+      setVal("is-other", ex.other);
+      if (typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+      } else {
+        form.dispatchEvent(new Event("submit", { cancelable: true }));
+      }
+    }
+    document.querySelectorAll(".is-example-btn").forEach(function (button) {
+      button.addEventListener("click", function () {
+        applyIsExample(button.getAttribute("data-example"));
+      });
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!validateIncomeStatement()) return;
+      var result = window.IncomeStatement.buildIncomeStatement({
+        name: isValue("is-name"),
+        period: isValue("is-period"),
+        revenue: isValue("is-revenue"),
+        rent: isValue("is-rent"),
+        wages: isValue("is-wages"),
+        supplies: isValue("is-supplies"),
+        utilities: isValue("is-utilities"),
+        depreciation: isValue("is-depreciation"),
+        other: isValue("is-other"),
+        customRevenue: isCollectRows("is-custom-revenue"),
+        customExpenses: isCollectRows("is-custom-expenses"),
+      });
+      if (result) {
+        renderIncomeStatement(result);
+      } else {
+        // Nothing entered: keep the empty state, nudge the revenue field.
+        var rev = document.getElementById("is-revenue");
+        if (rev) showError(rev, "Enter some revenue or expenses to build a statement.");
+      }
+    });
+
+    form.addEventListener("reset", function () {
+      window.setTimeout(resetIncomeStatement, 0);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initSmoothScroll();
     initActiveNav();
@@ -2207,10 +2563,12 @@
     initJournalEntry();
     initBankReconciliation();
     initDepreciation();
+    initIncomeStatement();
     resetSimulatorState();
     resetJournalEntry();
     resetBankReconciliation();
     resetDepreciation();
+    resetIncomeStatement();
   });
 
   // Also clear when the page is shown from the back/forward cache, where the
@@ -2220,5 +2578,6 @@
     resetJournalEntry();
     resetBankReconciliation();
     resetDepreciation();
+    resetIncomeStatement();
   });
 })();

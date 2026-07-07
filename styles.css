@@ -1690,3 +1690,111 @@ a:hover {
     flex-direction: column;
   }
 }
+
+/* ===== Income Statement Builder ===== */
+.is-rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem; }
+.is-row { display: flex; gap: 0.5rem; align-items: flex-start; }
+.is-row .is-row-label { flex: 1 1 auto; }
+.is-row .is-row-amount { flex: 0 0 10rem; }
+.is-row-remove {
+  flex: 0 0 auto; align-self: center; border: none; background: transparent;
+  cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 0.25rem 0.4rem;
+  color: var(--text-muted); border-radius: 6px;
+}
+.is-row-remove:hover { color: var(--red-strong); background: var(--surface-hover); }
+.is-add-btn { align-self: flex-start; margin-bottom: 0.5rem; }
+
+.is-statement .is-section-head td {
+  font-weight: 600; padding-top: 0.6rem; border-bottom: none; color: var(--text);
+}
+.is-statement .is-total-row td { font-weight: 600; }
+.is-statement .is-net-row td {
+  font-weight: 700; border-top: 2px solid var(--border-strong);
+}
+.is-statement .is-net-row.is-loss td { color: var(--red); }
+.stat-value.is-loss { color: var(--red); }
+.is-empty-line { color: var(--text-muted); font-style: italic; }
+
+.is-advice {
+  margin-top: 0.75rem; padding: 0.75rem 1rem;
+  background: var(--surface-2);
+  border-left: 3px solid var(--blue); border-radius: 6px;
+}
+.is-advice-lead { font-weight: 600; margin: 0 0 0.25rem; color: var(--text); }
+.is-advice-body { margin: 0; }
+
+/* Compact "How this works" primer inside the intro. */
+.is-how {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+}
+.is-how-title {
+  margin: 0 0 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--blue-bright);
+}
+.is-how-body {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+/* Compact example buttons that auto-fill and build the statement. */
+.is-examples-wrap { margin-bottom: 1.5rem; }
+.is-examples-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--green-bright);
+}
+.is-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.is-example-btn {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.83rem;
+}
+
+/* Short guidance text under section headings and add-row buttons. */
+.is-section-help {
+  margin: -0.9rem 0 1rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+.is-add-help {
+  margin: 0.15rem 0 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* Subtle "common examples" note under each section helper. */
+.is-examples-note {
+  margin: -0.75rem 0 1rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+/* Learning-focused primers in the results. */
+.is-tells {
+  margin-bottom: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.is-purpose-body {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-soft);
+}

@@ -1240,6 +1240,263 @@
             </div>
           </div>
         </div>
+
+        <!-- ---- Income Statement Builder ---- -->
+        <div class="je-tool br-tool is-tool">
+          <h3 class="tool-title">Income Statement Builder</h3>
+          <p class="tool-sub">
+            See how revenue and expenses become net income — or a net loss.
+          </p>
+
+          <div class="dep-intro">
+            <p class="dep-intro-lead">
+              An income statement (also called a profit &amp; loss statement) summarizes what a
+              business earned and spent over a period of time.
+            </p>
+            <div class="is-how">
+              <h4 class="is-how-title">How this works</h4>
+              <p class="is-how-body">
+                Revenue shows what the business earned. Expenses show what the business used or
+                spent to operate during the same period. LedgerLab subtracts total expenses from
+                total revenue to build the income statement.
+              </p>
+            </div>
+          </div>
+
+          <div class="is-examples-wrap">
+            <p class="is-examples-label">New here? Try an example:</p>
+            <div class="is-examples">
+              <button type="button" class="btn btn-secondary is-example-btn" data-example="coffee">
+                Coffee Shop
+              </button>
+              <button type="button" class="btn btn-secondary is-example-btn" data-example="tutoring">
+                Tutoring Business
+              </button>
+              <button type="button" class="btn btn-secondary is-example-btn" data-example="clothing">
+                Clothing Store
+              </button>
+            </div>
+          </div>
+
+          <div class="sim-layout">
+            <!-- Controls -->
+            <form id="is-form" class="sim-panel sim-form" novalidate autocomplete="off">
+              <h3 class="sim-panel-title">Business &amp; period</h3>
+              <div class="field-row">
+                <div class="field">
+                  <label for="is-name">Business name</label>
+                  <input type="text" id="is-name" name="is-name"
+                         placeholder="e.g. Bluebird Cafe" autocomplete="off" />
+                </div>
+                <div class="field">
+                  <label for="is-period">Period</label>
+                  <input type="text" id="is-period" name="is-period"
+                         placeholder="e.g. June 2026" autocomplete="off" />
+                </div>
+              </div>
+
+              <h3 class="sim-panel-title">Revenue</h3>
+              <p class="is-section-help">
+                Enter income earned during this period. Add extra revenue sources if the business
+                earned money in more than one way.
+              </p>
+              <p class="is-examples-note">
+                Common revenue examples: product sales, service revenue, consulting fees,
+                commissions, delivery income, and rental income.
+              </p>
+              <div class="field field-full">
+                <label for="is-revenue">Sales / service revenue</label>
+                <div class="money-input">
+                  <span class="money-symbol">$</span>
+                  <input type="number" id="is-revenue" name="is-revenue"
+                         min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                </div>
+              </div>
+              <div class="is-rows" id="is-custom-revenue"></div>
+              <button type="button" class="btn btn-secondary is-add-btn" id="is-add-revenue">
+                + Add revenue
+              </button>
+              <p class="is-add-help">
+                Use this for another income source, such as delivery income, consulting fees, or
+                commissions.
+              </p>
+
+              <h3 class="sim-panel-title">Expenses</h3>
+              <p class="is-section-help">
+                Enter the costs used to run the business during the same period. Only include
+                expenses for this period.
+              </p>
+              <p class="is-examples-note">
+                Common expense examples: rent, wages, supplies, utilities, advertising, insurance,
+                software, repairs, and depreciation.
+              </p>
+              <div class="field-row">
+                <div class="field">
+                  <label for="is-rent">Rent expense</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="is-rent" name="is-rent"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="is-wages">Wages expense</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="is-wages" name="is-wages"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="is-supplies">Supplies expense</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="is-supplies" name="is-supplies"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="is-utilities">Utilities expense</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="is-utilities" name="is-utilities"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="is-depreciation">Depreciation expense</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="is-depreciation" name="is-depreciation"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="is-other">Other expenses</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="is-other" name="is-other"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </div>
+              <div class="is-rows" id="is-custom-expenses"></div>
+              <button type="button" class="btn btn-secondary is-add-btn" id="is-add-expense">
+                + Add expense
+              </button>
+              <p class="is-add-help">
+                Use this for a cost not already listed, such as advertising, insurance, software,
+                or repairs.
+              </p>
+
+              <div class="sim-actions">
+                <button type="submit" class="btn btn-primary">Build statement</button>
+                <button type="reset" class="btn btn-secondary" id="is-reset">Reset</button>
+              </div>
+            </form>
+
+            <!-- Output -->
+            <div class="sim-results" id="is-results" aria-live="polite">
+              <div class="sim-empty" id="is-empty">
+                <div class="card-icon" aria-hidden="true">📈</div>
+                <h3>Your income statement appears here</h3>
+                <p>
+                  Enter your own numbers or try an example. LedgerLab will organize the revenue
+                  and expenses into a finished income statement, calculate profit or loss, and
+                  explain what the result means.
+                </p>
+              </div>
+
+              <div class="sim-dashboard" id="is-dashboard" hidden>
+                <h3 class="sim-dash-title" id="is-title">Income Statement</h3>
+
+                <section class="report-section">
+                  <h4 class="report-heading">Summary</h4>
+                  <div class="stat-grid">
+                    <div class="stat-card">
+                      <span class="stat-label">Total Revenue</span>
+                      <span class="stat-value" id="is-out-revenue">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Total Expenses</span>
+                      <span class="stat-value" id="is-out-expenses">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label" id="is-out-net-label">Net Income</span>
+                      <span class="stat-value" id="is-out-net">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Profit Margin</span>
+                      <span class="stat-value" id="is-out-margin">—</span>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="report-section">
+                  <h4 class="report-heading">Income statement</h4>
+                  <div class="preview-card">
+                    <table class="preview-table is-statement">
+                      <tbody>
+                        <tr class="is-section-head"><td colspan="2">Revenue</td></tr>
+                      </tbody>
+                      <tbody id="is-statement-revenue"><!-- injected --></tbody>
+                      <tbody>
+                        <tr class="is-total-row">
+                          <td>Total revenue</td>
+                          <td class="num" id="is-total-revenue">—</td>
+                        </tr>
+                        <tr class="is-section-head"><td colspan="2">Expenses</td></tr>
+                      </tbody>
+                      <tbody id="is-statement-expenses"><!-- injected --></tbody>
+                      <tbody>
+                        <tr class="is-total-row">
+                          <td>Total expenses</td>
+                          <td class="num" id="is-total-expenses">—</td>
+                        </tr>
+                        <tr class="is-net-row" id="is-net-line">
+                          <td id="is-net-line-label">Net income</td>
+                          <td class="num" id="is-net-line-amount">—</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <div class="explanation is-explanation">
+                  <div class="is-tells">
+                    <h4 class="explanation-title">Purpose of the Income Statement</h4>
+                    <p class="is-purpose-body">
+                      The income statement shows whether a business earned a profit or had a loss
+                      during a specific period. It helps owners and managers understand revenue,
+                      control expenses, and evaluate operating performance.
+                    </p>
+                  </div>
+                  <div class="is-tells">
+                    <h4 class="explanation-title">What this statement tells you</h4>
+                    <ul class="explanation-list">
+                      <li>The income statement shows whether the business earned more than it
+                        spent during the period.</li>
+                      <li><strong>Net income</strong> means revenue was greater than expenses.</li>
+                      <li><strong>Net loss</strong> means expenses were greater than revenue.</li>
+                    </ul>
+                  </div>
+                  <h4 class="explanation-title">What this means</h4>
+                  <ul class="explanation-list" id="is-explanation-list"><!-- injected --></ul>
+                  <div class="is-advice" id="is-advice"><!-- injected --></div>
+                  <p class="preview-note is-dep-note" id="is-dep-note" hidden>
+                    Depreciation lowers profit but isn't a cash payment this period — your cash
+                    didn't drop by this amount. It spreads the cost of a long-term asset over its
+                    useful life.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -1260,6 +1517,7 @@
   <script src="journal-entry.js"></script>
   <script src="bank-reconciliation.js"></script>
   <script src="depreciation.js"></script>
+  <script src="income-statement.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
