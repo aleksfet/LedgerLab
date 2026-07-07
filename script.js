@@ -2819,6 +2819,77 @@
     });
   }
 
+  /* ==========================================================
+     Tool Windows (full-screen overlays)
+     Show/hide each tool's existing DOM inside a .tool-modal.
+     No tool logic changes here; tools are wired at page load.
+     ========================================================== */
+  function initToolWindows() {
+    var modals = document.querySelectorAll(".tool-modal");
+    if (!modals.length) return;
+
+    var activeModal = null;
+    var lastTrigger = null;
+    var FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]),' +
+      ' select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    function visibleFocusables(modal) {
+      return Array.prototype.slice.call(modal.querySelectorAll(FOCUSABLE))
+        .filter(function (el) { return el.offsetParent !== null; });
+    }
+
+    function openTool(key, trigger) {
+      var modal = document.getElementById("tool-modal-" + key);
+      if (!modal) return;
+      lastTrigger = trigger || null;
+      modal.hidden = false;
+      activeModal = modal;
+      document.body.classList.add("modal-open");
+      var closeBtn = modal.querySelector(".tool-modal-close");
+      if (closeBtn) closeBtn.focus();
+    }
+
+    function closeTool() {
+      if (!activeModal) return;
+      activeModal.hidden = true;
+      activeModal = null;
+      document.body.classList.remove("modal-open");
+      if (lastTrigger && typeof lastTrigger.focus === "function") lastTrigger.focus();
+      lastTrigger = null;
+    }
+
+    document.querySelectorAll("[data-open-tool]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        openTool(btn.getAttribute("data-open-tool"), btn);
+      });
+    });
+
+    modals.forEach(function (modal) {
+      // Backdrop click (the .tool-modal itself, not the panel) closes.
+      modal.addEventListener("click", function (event) {
+        if (event.target === modal) closeTool();
+      });
+      var closeBtn = modal.querySelector(".tool-modal-close");
+      if (closeBtn) closeBtn.addEventListener("click", closeTool);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (!activeModal) return;
+      if (event.key === "Escape") { event.preventDefault(); closeTool(); return; }
+      if (event.key === "Tab") {
+        var items = visibleFocusables(activeModal);
+        if (!items.length) return;
+        var first = items[0];
+        var last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); first.focus();
+        }
+      }
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initSmoothScroll();
     initActiveNav();
@@ -2831,6 +2902,7 @@
     initDepreciation();
     initIncomeStatement();
     initCashFlow();
+    initToolWindows();
     resetSimulatorState();
     resetJournalEntry();
     resetBankReconciliation();

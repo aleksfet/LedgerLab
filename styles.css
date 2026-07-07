@@ -342,10 +342,34 @@ a:hover {
   color: var(--text);
 }
 
+.card {
+  display: flex;
+  flex-direction: column;
+}
+
 .card p {
-  margin: 0;
+  margin: 0 0 1.25rem;
   color: var(--text-soft);
   font-size: 0.97rem;
+}
+
+.card-cta {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.card-badge {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fbbf24;
+  background: rgba(250, 204, 21, 0.12);
+  border: 1px solid rgba(250, 204, 21, 0.35);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
 }
 
 /* ===== Audience section ===== */
@@ -1816,3 +1840,66 @@ a:hover {
 .cf-empty-line { color: var(--text-muted); font-style: italic; }
 .stat-value.cf-pos { color: var(--green); }
 .stat-value.cf-neg { color: var(--red); }
+
+/* ---- Tool Windows (full-screen slim-inset overlays) ---- */
+.tool-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  padding: clamp(0.5rem, 2vh, 1.25rem);
+  background: rgba(5, 10, 20, 0.78);
+}
+.tool-modal[hidden] { display: none; }
+
+.tool-modal-panel {
+  position: relative;
+  flex: 1 1 auto;
+  max-width: 1400px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.tool-modal-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tool-modal-title { margin: 0; font-size: 1.15rem; color: var(--text); }
+
+.tool-modal-close {
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text-soft);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.tool-modal-close:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.tool-modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.5rem 0;
+}
+
+body.modal-open { overflow: hidden; }

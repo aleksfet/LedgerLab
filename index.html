@@ -19,10 +19,9 @@
         <span class="brand-name">LedgerLab</span>
       </a>
       <nav class="nav-links" aria-label="Primary">
-        <a href="#features">Key Concepts</a>
         <a href="#audience">Mission</a>
+        <a href="#features">Key Concepts</a>
         <a href="#simulator">Simulator</a>
-        <a href="#tools">Tools</a>
       </nav>
     </div>
   </header>
@@ -47,76 +46,7 @@
       </div>
     </section>
 
-    <!-- ===== What LedgerLab Helps With ===== -->
-    <section id="features" class="section">
-      <div class="container">
-        <header class="section-head">
-          <h2>Key Concepts of Accounting Through LedgerLab</h2>
-          <p class="section-sub">
-            Six core areas of business accounting, each broken down into something
-            you can practice hands-on.
-          </p>
-        </header>
-
-        <div class="card-grid">
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">📊</div>
-            <h3>Business Financing &amp; Assessment</h3>
-            <p>
-              Understand how money enters a business, how expenses affect performance,
-              and how owners or managers assess financial health.
-            </p>
-          </article>
-
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">📑</div>
-            <h3>Financial Statements</h3>
-            <p>
-              See how managers analyze a business through reports like the income
-              statement, balance sheet, and cash flow statement.
-            </p>
-          </article>
-
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">💵</div>
-            <h3>Cash Flows</h3>
-            <p>
-              Follow how cash moves in and out of a business and why profit and cash
-              are not always the same.
-            </p>
-          </article>
-
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">📒</div>
-            <h3>Journal Entries</h3>
-            <p>
-              Learn how transactions enter a business's books through debits, credits,
-              and balanced records.
-            </p>
-          </article>
-
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">🏦</div>
-            <h3>Bank Reconciliation</h3>
-            <p>
-              Compare book cash records to bank records and understand how businesses
-              prove their cash balance is correct.
-            </p>
-          </article>
-
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">📉</div>
-            <h3>Depreciation Knowledge</h3>
-            <p>
-              Learn how long-term assets lose value over time and how that affects
-              expenses, book value, and financial reports.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== Built for Beginners and Accounting Students ===== -->
+    <!-- ===== Our Mission ===== -->
     <section id="audience" class="section section-alt">
       <div class="container audience-inner">
         <div class="audience-text">
@@ -171,19 +101,88 @@
       </div>
     </section>
 
-    <!-- ===== Get Started ===== -->
-    <section id="get-started" class="section get-started">
+    <!-- ===== Key Concepts ===== -->
+    <section id="features" class="section">
       <div class="container">
-        <div class="get-started-inner">
-          <h2>Get Started</h2>
-          <p class="get-started-lead">
-            Begin by running a business scenario or explore the accounting process
-            behind the numbers.
+        <header class="section-head">
+          <h2>Key Concepts of Accounting Through LedgerLab</h2>
+          <p class="section-sub">
+            Six core areas of business accounting, each broken down into something
+            you can practice hands-on.
           </p>
-          <div class="get-started-actions">
-            <a href="#simulator" class="btn btn-primary">Start Business Simulator</a>
-            <a href="#tools" class="btn btn-secondary">Explore the Accounting Process</a>
-          </div>
+        </header>
+
+        <div class="card-grid">
+          <article class="card">
+            <span class="card-badge">★ Recommended First</span>
+            <div class="card-icon" aria-hidden="true">📊</div>
+            <h3>Business Financing &amp; Assessment</h3>
+            <p>
+              Understand how money enters a business, how expenses affect performance,
+              and how owners or managers assess financial health.
+            </p>
+            <a href="#simulator" class="btn btn-primary card-cta">Go to Business Simulator</a>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">📑</div>
+            <h3>Financial Statements</h3>
+            <p>
+              See how managers analyze a business through reports like the income
+              statement, balance sheet, and cash flow statement.
+            </p>
+            <button type="button" class="btn btn-secondary card-cta" data-open-tool="income">
+              Open Income Statement Builder
+            </button>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">💵</div>
+            <h3>Cash Flows</h3>
+            <p>
+              Follow how cash moves in and out of a business and why profit and cash
+              are not always the same.
+            </p>
+            <button type="button" class="btn btn-secondary card-cta" data-open-tool="cashflow">
+              Learn &amp; Use Tool
+            </button>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">📒</div>
+            <h3>Journal Entries</h3>
+            <p>
+              Learn how transactions enter a business's books through debits, credits,
+              and balanced records.
+            </p>
+            <button type="button" class="btn btn-secondary card-cta" data-open-tool="journal">
+              Learn &amp; Use Tool
+            </button>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">🏦</div>
+            <h3>Bank Reconciliation</h3>
+            <p>
+              Compare book cash records to bank records and understand how businesses
+              prove their cash balance is correct.
+            </p>
+            <button type="button" class="btn btn-secondary card-cta" data-open-tool="bankrec">
+              Learn &amp; Use Tool
+            </button>
+          </article>
+
+          <article class="card">
+            <div class="card-icon" aria-hidden="true">📉</div>
+            <h3>Depreciation Knowledge</h3>
+            <p>
+              Learn how long-term assets lose value over time and how that affects
+              expenses, book value, and financial reports.
+            </p>
+            <button type="button" class="btn btn-secondary card-cta" data-open-tool="depreciation">
+              Learn &amp; Use Tool
+            </button>
+          </article>
         </div>
       </div>
     </section>
@@ -669,17 +668,17 @@
       </div>
     </section>
 
-    <!-- ===== Accounting Tools ===== -->
-    <section id="tools" class="section section-alt">
-      <div class="container">
-        <header class="section-head">
-          <h2>Accounting Tools</h2>
-          <p class="section-sub">
-            Hands-on tools for each accounting topic. First up: turn everyday
-            business transactions into journal entries.
-          </p>
+    <!-- ===== Tool Windows (full-screen overlays) ===== -->
+    <!-- ===== Tool Window: Journal Entry Helper ===== -->
+    <div class="tool-modal" id="tool-modal-journal" role="dialog" aria-modal="true"
+         aria-labelledby="tool-modal-journal-title" hidden>
+      <div class="tool-modal-panel">
+        <header class="tool-modal-header">
+          <h2 class="tool-modal-title" id="tool-modal-journal-title">Journal Entry Helper</h2>
+          <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
         </header>
-
+        <div class="tool-modal-body">
+          <div class="container">
         <!-- ---- Journal Entry Helper ---- -->
         <div class="je-tool">
           <h3 class="tool-title">Journal Entry Helper</h3>
@@ -783,6 +782,21 @@
           </div>
         </div>
 
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tool Window: Bank Reconciliation Helper ===== -->
+    <div class="tool-modal" id="tool-modal-bankrec" role="dialog" aria-modal="true"
+         aria-labelledby="tool-modal-bankrec-title" hidden>
+      <div class="tool-modal-panel">
+        <header class="tool-modal-header">
+          <h2 class="tool-modal-title" id="tool-modal-bankrec-title">Bank Reconciliation Helper</h2>
+          <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
+        </header>
+        <div class="tool-modal-body">
+          <div class="container">
         <!-- ---- Bank Reconciliation Helper ---- -->
         <div class="je-tool br-tool">
           <h3 class="tool-title">Bank Reconciliation Helper</h3>
@@ -1027,6 +1041,21 @@
           </div>
         </div>
 
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tool Window: Depreciation Calculator ===== -->
+    <div class="tool-modal" id="tool-modal-depreciation" role="dialog" aria-modal="true"
+         aria-labelledby="tool-modal-depreciation-title" hidden>
+      <div class="tool-modal-panel">
+        <header class="tool-modal-header">
+          <h2 class="tool-modal-title" id="tool-modal-depreciation-title">Depreciation Calculator</h2>
+          <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
+        </header>
+        <div class="tool-modal-body">
+          <div class="container">
         <!-- ---- Depreciation Calculator ---- -->
         <div class="je-tool br-tool dep-tool">
           <h3 class="tool-title">Depreciation Calculator</h3>
@@ -1241,6 +1270,21 @@
           </div>
         </div>
 
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tool Window: Income Statement Builder ===== -->
+    <div class="tool-modal" id="tool-modal-income" role="dialog" aria-modal="true"
+         aria-labelledby="tool-modal-income-title" hidden>
+      <div class="tool-modal-panel">
+        <header class="tool-modal-header">
+          <h2 class="tool-modal-title" id="tool-modal-income-title">Income Statement Builder</h2>
+          <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
+        </header>
+        <div class="tool-modal-body">
+          <div class="container">
         <!-- ---- Income Statement Builder ---- -->
         <div class="je-tool br-tool is-tool">
           <h3 class="tool-title">Income Statement Builder</h3>
@@ -1498,6 +1542,21 @@
           </div>
         </div>
 
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Tool Window: Cash Flow Helper ===== -->
+    <div class="tool-modal" id="tool-modal-cashflow" role="dialog" aria-modal="true"
+         aria-labelledby="tool-modal-cashflow-title" hidden>
+      <div class="tool-modal-panel">
+        <header class="tool-modal-header">
+          <h2 class="tool-modal-title" id="tool-modal-cashflow-title">Cash Flow Helper</h2>
+          <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
+        </header>
+        <div class="tool-modal-body">
+          <div class="container">
         <!-- ---- Cash Flow Helper ---- -->
         <div class="je-tool br-tool cf-tool">
           <h3 class="tool-title">Cash Flow Helper</h3>
@@ -1693,8 +1752,10 @@
             </div>
           </div>
         </div>
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
   </main>
 
   <!-- ===== Footer ===== -->
