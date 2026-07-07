@@ -1798,3 +1798,21 @@ a:hover {
   line-height: 1.5;
   color: var(--text-soft);
 }
+
+/* ---- Cash Flow Helper ---- */
+.cf-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin-bottom: 0.6rem;
+}
+.cf-row-select { flex: 1 1 auto; }
+.cf-row .is-row-amount { flex: 0 0 9rem; }
+.cf-statement .cf-recon-row td { border-bottom: none; }
+.cf-statement .cf-end-row td {
+  font-weight: 700;
+  border-top: 1px solid var(--border-strong);
+}
+.cf-empty-line { color: var(--text-muted); font-style: italic; }
+.stat-value.cf-pos { color: var(--green); }
+.stat-value.cf-neg { color: var(--red); }

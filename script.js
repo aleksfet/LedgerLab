@@ -2553,6 +2553,272 @@
     });
   }
 
+  /* ==========================================================
+     Cash Flow Helper (fifth Accounting Tool)
+     Reads pure logic from cash-flow.js (window.CashFlow).
+     Simplified direct method: transactions -> 3 activity sections.
+     ========================================================== */
+
+  var CF_EXAMPLES = {
+    healthy: { name: "Bluebird Cafe", period: "June 2026", beginning: "4000", rows: [
+      { type: "cust", amount: "20000" }, { type: "rent", amount: "3500" },
+      { type: "wages", amount: "7000" }, { type: "buy-equip", amount: "5000" },
+      { type: "loan-principal", amount: "1000" },
+    ]},
+    startup: { name: "Nimbus Labs", period: "June 2026", beginning: "1000", rows: [
+      { type: "cust", amount: "2000" }, { type: "rent", amount: "1500" },
+      { type: "wages", amount: "4000" }, { type: "buy-equip", amount: "3000" },
+      { type: "owner-invest", amount: "5000" }, { type: "loan-proceeds", amount: "4000" },
+    ]},
+    upgrade: { name: "Ridgeline Goods", period: "June 2026", beginning: "8000", rows: [
+      { type: "cust", amount: "15000" }, { type: "rent", amount: "3000" },
+      { type: "wages", amount: "5000" }, { type: "buy-equip", amount: "9000" },
+      { type: "sell-equip", amount: "1000" }, { type: "owner-withdraw", amount: "2000" },
+    ]},
+  };
+
+  function cfValue(id) {
+    var el = document.getElementById(id);
+    return el ? el.value : "";
+  }
+
+  // Build one transaction row: catalog <select> (grouped) + amount + remove.
+  function cfAddRow(presetType, presetAmount) {
+    var container = document.getElementById("cf-transactions");
+    if (!container || !window.CashFlow) return;
+    var row = document.createElement("div");
+    row.className = "cf-row field"; // .field so showError/clearError can attach
+
+    var groups = { operating: "Operating", investing: "Investing", financing: "Financing" };
+    var optsByGroup = { operating: "", investing: "", financing: "" };
+    window.CashFlow.CATALOG.forEach(function (c) {
+      optsByGroup[c.category] +=
+        '<option value="' + c.id + '">' + escapeHtml(c.label) + "</option>";
+    });
+    var selectHtml = '<select class="cf-row-select"><option value="">Choose a transaction…</option>';
+    ["operating", "investing", "financing"].forEach(function (g) {
+      selectHtml += '<optgroup label="' + groups[g] + '">' + optsByGroup[g] + "</optgroup>";
+    });
+    selectHtml += "</select>";
+
+    row.innerHTML =
+      selectHtml +
+      '<div class="money-input is-row-amount">' +
+        '<span class="money-symbol">$</span>' +
+        '<input type="number" class="cf-row-amount-input" min="0" step="0.01" inputmode="decimal" placeholder="0" />' +
+      "</div>" +
+      '<button type="button" class="is-row-remove" aria-label="Remove row">✕</button>';
+    container.appendChild(row);
+    attachMoneySanitizer(row.querySelector(".cf-row-amount-input"));
+    row.querySelector(".is-row-remove").addEventListener("click", function () {
+      row.parentNode.removeChild(row);
+    });
+    if (presetType) row.querySelector(".cf-row-select").value = presetType;
+    if (presetAmount != null) row.querySelector(".cf-row-amount-input").value = presetAmount;
+    return row;
+  }
+
+  // Collect { type, amount } from the transaction rows (with _row ref for errors).
+  function cfCollectRows() {
+    var container = document.getElementById("cf-transactions");
+    if (!container) return [];
+    var rows = [];
+    container.querySelectorAll(".cf-row").forEach(function (row) {
+      rows.push({
+        type: row.querySelector(".cf-row-select").value,
+        amount: row.querySelector(".cf-row-amount-input").value,
+        _row: row,
+      });
+    });
+    return rows;
+  }
+
+  // Beginning cash >= 0; each row must have both a type and amount>0, or be fully blank.
+  function validateCashFlow() {
+    var ok = true, firstInvalid = null;
+    var begin = document.getElementById("cf-beginning");
+    if (begin) {
+      var raw = (begin.value || "").trim();
+      if (raw !== "" && (isNaN(Number(raw)) || !isFinite(Number(raw)) || Number(raw) < 0)) {
+        showError(begin, "Enter 0 or more."); ok = false; firstInvalid = begin;
+      } else { clearError(begin); }
+    }
+    cfCollectRows().forEach(function (r) {
+      var sel = r._row.querySelector(".cf-row-select");
+      var hasType = r.type !== "";
+      var hasAmount = (r.amount || "").trim() !== "" && Number(r.amount) > 0;
+      if (hasType !== hasAmount) {
+        showError(sel, "Pick a transaction and enter an amount, or remove the row.");
+        ok = false; if (!firstInvalid) firstInvalid = sel;
+      } else { clearError(sel); }
+    });
+    if (firstInvalid) firstInvalid.focus();
+    return ok;
+  }
+
+  function cfRenderSection(bodyId, lines) {
+    var body = document.getElementById(bodyId);
+    if (!body) return;
+    body.innerHTML = "";
+    if (lines.length === 0) {
+      body.innerHTML = '<tr><td class="cf-empty-line">None this period</td>' +
+        '<td class="num">' + formatMoney(0) + "</td></tr>";
+      return;
+    }
+    lines.forEach(function (l) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td>" + escapeHtml(l.label) + "</td>" +
+        '<td class="num">' + formatMoney(l.amount) + "</td>";
+      body.appendChild(tr);
+    });
+  }
+
+  function renderCashFlow(result) {
+    var empty = document.getElementById("cf-empty");
+    var dashboard = document.getElementById("cf-dashboard");
+    if (empty) empty.hidden = true;
+    if (dashboard) dashboard.hidden = false;
+
+    var setText = function (id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    var title = "Statement of Cash Flows";
+    if (result.name.trim()) title = result.name.trim() + " — Statement of Cash Flows";
+    if (result.period.trim()) title += " (" + result.period.trim() + ")";
+    setText("cf-title", title);
+
+    // Summary cards
+    setText("cf-out-operating", formatMoney(result.operating.subtotal));
+    setText("cf-out-investing", formatMoney(result.investing.subtotal));
+    setText("cf-out-financing", formatMoney(result.financing.subtotal));
+    setText("cf-out-net-label", result.isNetPositive ? "Net Increase in Cash" : "Net Decrease in Cash");
+    setText("cf-out-net", formatMoney(result.netChange));
+    var netCard = document.getElementById("cf-out-net");
+    if (netCard) {
+      netCard.classList.toggle("cf-pos", result.isNetPositive);
+      netCard.classList.toggle("cf-neg", !result.isNetPositive);
+    }
+
+    // Statement sections + subtotals
+    cfRenderSection("cf-stmt-operating", result.operating.lines);
+    cfRenderSection("cf-stmt-investing", result.investing.lines);
+    cfRenderSection("cf-stmt-financing", result.financing.lines);
+    setText("cf-sub-operating", formatMoney(result.operating.subtotal));
+    setText("cf-sub-investing", formatMoney(result.investing.subtotal));
+    setText("cf-sub-financing", formatMoney(result.financing.subtotal));
+
+    // Net change + reconciliation
+    setText("cf-net-line-amount", formatMoney(result.netChange));
+    var netLine = document.getElementById("cf-net-line");
+    if (netLine) netLine.classList.toggle("is-loss", !result.isNetPositive);
+    setText("cf-begin-line", formatMoney(result.beginningCash));
+    setText("cf-end-line", formatMoney(result.endingCash));
+
+    // Tailored callouts (profit != cash)
+    var tailored = document.getElementById("cf-tailored");
+    if (tailored) {
+      var notes = [];
+      if (result.flags.hasEquipmentPurchase) {
+        notes.push("In your statement, equipment purchases reduced cash through Investing Activities.");
+      }
+      if (result.flags.hasOwnerInvestment) {
+        notes.push("In your statement, owner investment increased cash through Financing Activities, not Operating Activities.");
+      }
+      if (notes.length) {
+        tailored.innerHTML = notes.map(function (n) {
+          return '<p class="is-advice-body">' + escapeHtml(n) + "</p>";
+        }).join("");
+        tailored.hidden = false;
+      } else {
+        tailored.innerHTML = ""; tailored.hidden = true;
+      }
+    }
+
+    // Light business insight
+    var insight = document.getElementById("cf-insight");
+    if (insight) {
+      var body;
+      if (result.flags.reliedOnFinancing) {
+        body = "This period, the business relied on owner or loan financing because operating cash flow was negative.";
+      } else if (result.operating.subtotal > 0) {
+        body = "Operating cash flow was positive, so day-to-day operations generated cash this period.";
+      } else {
+        body = "Operating activities were flat or negative this period — watch whether operations can fund the business on their own.";
+      }
+      insight.innerHTML =
+        '<p class="is-advice-lead">Business insight</p>' +
+        '<p class="is-advice-body">' + escapeHtml(body) + "</p>";
+    }
+  }
+
+  function resetCashFlow() {
+    ["cf-name", "cf-period"].forEach(function (id) {
+      var el = document.getElementById(id); if (el) el.value = "";
+    });
+    var begin = document.getElementById("cf-beginning");
+    if (begin) { begin.value = ""; clearError(begin); }
+    var c = document.getElementById("cf-transactions");
+    if (c) c.innerHTML = "";
+    var empty = document.getElementById("cf-empty");
+    var dashboard = document.getElementById("cf-dashboard");
+    if (dashboard) dashboard.hidden = true;
+    if (empty) empty.hidden = false;
+  }
+
+  function initCashFlow() {
+    var form = document.getElementById("cf-form");
+    if (!form || !window.CashFlow) return;
+
+    var add = document.getElementById("cf-add");
+    if (add) add.addEventListener("click", function () { cfAddRow(); });
+
+    function applyCfExample(key) {
+      var ex = CF_EXAMPLES[key];
+      if (!ex) return;
+      resetCashFlow();
+      var setVal = function (id, value) {
+        var el = document.getElementById(id); if (el) { el.value = value; clearError(el); }
+      };
+      setVal("cf-name", ex.name);
+      setVal("cf-period", ex.period);
+      setVal("cf-beginning", ex.beginning);
+      ex.rows.forEach(function (r) { cfAddRow(r.type, r.amount); });
+      if (typeof form.requestSubmit === "function") form.requestSubmit();
+      else form.dispatchEvent(new Event("submit", { cancelable: true }));
+    }
+    document.querySelectorAll(".cf-example-btn").forEach(function (button) {
+      button.addEventListener("click", function () {
+        applyCfExample(button.getAttribute("data-example"));
+      });
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (!validateCashFlow()) return;
+      var result = window.CashFlow.buildCashFlow({
+        name: cfValue("cf-name"),
+        period: cfValue("cf-period"),
+        beginningCash: cfValue("cf-beginning"),
+        transactions: cfCollectRows(),
+      });
+      if (result) {
+        renderCashFlow(result);
+      } else {
+        if (document.getElementById("cf-transactions").querySelectorAll(".cf-row").length === 0) {
+          cfAddRow();
+        }
+        var firstSel = document.querySelector("#cf-transactions .cf-row-select");
+        if (firstSel) showError(firstSel, "Add at least one cash transaction to build a statement.");
+      }
+    });
+
+    form.addEventListener("reset", function () {
+      window.setTimeout(resetCashFlow, 0);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initSmoothScroll();
     initActiveNav();
@@ -2564,11 +2830,13 @@
     initBankReconciliation();
     initDepreciation();
     initIncomeStatement();
+    initCashFlow();
     resetSimulatorState();
     resetJournalEntry();
     resetBankReconciliation();
     resetDepreciation();
     resetIncomeStatement();
+    resetCashFlow();
   });
 
   // Also clear when the page is shown from the back/forward cache, where the
@@ -2579,5 +2847,6 @@
     resetBankReconciliation();
     resetDepreciation();
     resetIncomeStatement();
+    resetCashFlow();
   });
 })();

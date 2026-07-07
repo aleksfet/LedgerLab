@@ -1497,6 +1497,202 @@
             </div>
           </div>
         </div>
+
+        <!-- ---- Cash Flow Helper ---- -->
+        <div class="je-tool br-tool cf-tool">
+          <h3 class="tool-title">Cash Flow Helper</h3>
+          <p class="tool-sub">
+            See how cash actually moves — and why profit isn't the same as cash.
+          </p>
+
+          <div class="dep-intro">
+            <p class="dep-intro-lead">
+              The Statement of Cash Flows groups a business's cash movements into three activities:
+              Operating, Investing, and Financing.
+            </p>
+            <div class="is-how">
+              <h4 class="is-how-title">How this works</h4>
+              <p class="is-how-body">
+                Pick the cash transactions that happened this period. LedgerLab sorts each one into
+                the right activity, subtotals each section, and reconciles your beginning cash to
+                your ending cash.
+              </p>
+            </div>
+          </div>
+
+          <div class="is-examples-wrap">
+            <p class="is-examples-label">New here? Try an example:</p>
+            <div class="is-examples">
+              <button type="button" class="btn btn-secondary cf-example-btn" data-example="healthy">
+                Healthy Month
+              </button>
+              <button type="button" class="btn btn-secondary cf-example-btn" data-example="startup">
+                Startup Launch
+              </button>
+              <button type="button" class="btn btn-secondary cf-example-btn" data-example="upgrade">
+                Equipment Upgrade
+              </button>
+            </div>
+          </div>
+
+          <div class="sim-layout">
+            <!-- Controls -->
+            <form id="cf-form" class="sim-panel sim-form" novalidate autocomplete="off">
+              <h3 class="sim-panel-title">Business &amp; cash</h3>
+              <div class="field-row">
+                <div class="field">
+                  <label for="cf-name">Business name</label>
+                  <input type="text" id="cf-name" name="cf-name"
+                         placeholder="e.g. Bluebird Cafe" autocomplete="off" />
+                </div>
+                <div class="field">
+                  <label for="cf-period">Period</label>
+                  <input type="text" id="cf-period" name="cf-period"
+                         placeholder="e.g. June 2026" autocomplete="off" />
+                </div>
+              </div>
+              <div class="field field-full">
+                <label for="cf-beginning">Beginning cash balance</label>
+                <div class="money-input">
+                  <span class="money-symbol">$</span>
+                  <input type="number" id="cf-beginning" name="cf-beginning"
+                         min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                </div>
+              </div>
+
+              <h3 class="sim-panel-title">Cash transactions</h3>
+              <p class="is-section-help">
+                Add the cash that came in or went out this period. LedgerLab classifies each
+                transaction for you.
+              </p>
+              <div class="cf-rows" id="cf-transactions"></div>
+              <button type="button" class="btn btn-secondary is-add-btn" id="cf-add">
+                + Add transaction
+              </button>
+              <p class="is-add-help">
+                Choose from common cash transactions such as customer payments, rent, wages,
+                equipment, loans, and owner contributions.
+              </p>
+
+              <div class="sim-actions">
+                <button type="submit" class="btn btn-primary">Build cash flow statement</button>
+                <button type="reset" class="btn btn-secondary" id="cf-reset">Reset</button>
+              </div>
+            </form>
+
+            <!-- Output -->
+            <div class="sim-results" id="cf-results" aria-live="polite">
+              <div class="sim-empty" id="cf-empty">
+                <div class="card-icon" aria-hidden="true">💵</div>
+                <h3>Your cash flow statement appears here</h3>
+                <p>
+                  Add a few cash transactions or try an example. LedgerLab will sort them into
+                  Operating, Investing, and Financing activities, total each section, and show how
+                  your cash changed this period.
+                </p>
+              </div>
+
+              <div class="sim-dashboard" id="cf-dashboard" hidden>
+                <h3 class="sim-dash-title" id="cf-title">Statement of Cash Flows</h3>
+
+                <section class="report-section">
+                  <h4 class="report-heading">Summary</h4>
+                  <div class="stat-grid">
+                    <div class="stat-card">
+                      <span class="stat-label">Operating</span>
+                      <span class="stat-value" id="cf-out-operating">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Investing</span>
+                      <span class="stat-value" id="cf-out-investing">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label">Financing</span>
+                      <span class="stat-value" id="cf-out-financing">$0</span>
+                    </div>
+                    <div class="stat-card">
+                      <span class="stat-label" id="cf-out-net-label">Net Change in Cash</span>
+                      <span class="stat-value" id="cf-out-net">$0</span>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="report-section">
+                  <h4 class="report-heading">Statement of Cash Flows</h4>
+                  <div class="preview-card">
+                    <table class="preview-table is-statement cf-statement">
+                      <tbody>
+                        <tr class="is-section-head"><td colspan="2">Operating activities</td></tr>
+                      </tbody>
+                      <tbody id="cf-stmt-operating"><!-- injected --></tbody>
+                      <tbody>
+                        <tr class="is-total-row">
+                          <td>Net cash from operating activities</td>
+                          <td class="num" id="cf-sub-operating">—</td>
+                        </tr>
+                        <tr class="is-section-head"><td colspan="2">Investing activities</td></tr>
+                      </tbody>
+                      <tbody id="cf-stmt-investing"><!-- injected --></tbody>
+                      <tbody>
+                        <tr class="is-total-row">
+                          <td>Net cash from investing activities</td>
+                          <td class="num" id="cf-sub-investing">—</td>
+                        </tr>
+                        <tr class="is-section-head"><td colspan="2">Financing activities</td></tr>
+                      </tbody>
+                      <tbody id="cf-stmt-financing"><!-- injected --></tbody>
+                      <tbody>
+                        <tr class="is-total-row">
+                          <td>Net cash from financing activities</td>
+                          <td class="num" id="cf-sub-financing">—</td>
+                        </tr>
+                        <tr class="is-net-row" id="cf-net-line">
+                          <td>Net change in cash</td>
+                          <td class="num" id="cf-net-line-amount">—</td>
+                        </tr>
+                        <tr class="cf-recon-row">
+                          <td>Beginning cash balance</td>
+                          <td class="num" id="cf-begin-line">—</td>
+                        </tr>
+                        <tr class="cf-recon-row cf-end-row">
+                          <td>Ending cash balance</td>
+                          <td class="num" id="cf-end-line">—</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <div class="explanation is-explanation">
+                  <div class="is-tells">
+                    <h4 class="explanation-title">What each activity means</h4>
+                    <ul class="explanation-list">
+                      <li><strong>Operating</strong> — cash from the day-to-day running of the
+                        business, like selling to customers and paying rent and wages.</li>
+                      <li><strong>Investing</strong> — cash from buying or selling long-term
+                        assets, like equipment.</li>
+                      <li><strong>Financing</strong> — cash from owners and lenders, like owner
+                        contributions, withdrawals, and loans.</li>
+                    </ul>
+                  </div>
+                  <div class="is-tells">
+                    <h4 class="explanation-title">Why profit isn't the same as cash</h4>
+                    <ul class="explanation-list">
+                      <li><strong>Sale on account</strong> — revenue and profit can go up before
+                        the cash is actually collected.</li>
+                      <li><strong>Buy equipment for cash</strong> — cash drops now, but the whole
+                        purchase isn't an immediate expense on the income statement.</li>
+                      <li><strong>Owner invests cash</strong> — cash goes up, but it's financing,
+                        not revenue or profit.</li>
+                    </ul>
+                    <div class="is-advice" id="cf-tailored" hidden><!-- injected --></div>
+                  </div>
+                  <div class="is-advice" id="cf-insight"><!-- injected --></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -1518,6 +1714,7 @@
   <script src="bank-reconciliation.js"></script>
   <script src="depreciation.js"></script>
   <script src="income-statement.js"></script>
+  <script src="cash-flow.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
