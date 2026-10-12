@@ -51,6 +51,135 @@
   --transition: 160ms ease;
 }
 
+/* ===== Redesign tokens (ll-*) =====
+   Used only by the header and the redesigned Page 1 (ll-* classes), so the
+   Simulator and tool windows keep the original tokens above.
+   Dark is the default; light applies with <html data-theme="light">. */
+:root {
+  --ll-font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --ll-maxw: 1232px;
+
+  --ll-hero-bg:
+    radial-gradient(640px 320px at 0% 0%, rgba(34, 197, 139, 0.10), transparent 70%),
+    radial-gradient(640px 340px at 100% 8%, rgba(34, 197, 139, 0.07), transparent 70%),
+    #0d1a2b;
+  --ll-page: #0c1828;
+  --ll-header-bg: rgba(12, 24, 40, 0.92);
+  --ll-line: #1e3048;
+
+  --ll-text: #f3f6fb;
+  --ll-body: #c3cddb;
+  --ll-muted: #8fa0b6;
+  --ll-nav: #d4dce8;
+
+  --ll-green: #2fcf8e;
+  --ll-lab: linear-gradient(90deg, #1fc489, #34d399);
+  --ll-cta-bg: #10a06e;
+  --ll-cta-hover: #12b37b;
+  --ll-cta-text: #ffffff;
+  --ll-tint: rgba(34, 197, 139, 0.12);
+  --ll-tint-border: rgba(34, 197, 139, 0.26);
+  --ll-feature-icon: #34d399;
+
+  --ll-card-bg: #0f1e33;
+  --ll-card-border: #253a55;
+  --ll-card-band: #13253d;
+  --ll-card-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+
+  --ll-bezel-bg: linear-gradient(180deg, #16263c, #0e1b2d);
+  --ll-bezel-border: #34496a;
+  --ll-bezel-shadow: 0 28px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --ll-screen: #0f1f32;
+
+  /* Page 2: Explore the Key Areas */
+  --ll-areas-bg:
+    radial-gradient(1100px 420px at 50% 0%, rgba(34, 197, 139, 0.06), transparent 70%),
+    linear-gradient(180deg, #0c1828, #0a1a24);
+  --ll-areas-accent: #3cc488;
+  --ll-area-bg: #0e1d2a;
+  --ll-area-border: #1d3342;
+  --ll-area-rec-bg: #0f2328;
+  --ll-area-rec-border: #2a7d58;
+  --ll-badge-bg: #1d5a43;
+  --ll-badge-border: #2c7b59;
+  --ll-badge-text: #d5f5e6;
+  --ll-start-bg: #24805a;
+  --ll-start-hover: #1f6f4e;
+  --ll-start-text: #ffffff;
+  --ll-explore: #3cc488;
+  --ll-area-icon-bg: rgba(255, 255, 255, 0.05);
+  --ll-area-icon-border: rgba(255, 255, 255, 0.08);
+  --ll-area-icon: #e3eaf1;
+  --ll-viz-bg: rgba(4, 12, 20, 0.35);
+  --ll-viz-border: #22394a;
+  --ll-viz-rule: #253d4e;
+  --ll-viz-axis: #3a5263;
+  --ll-viz-bar: #2fbf80;
+  --ll-viz-first: #5c6c7a;
+  --ll-viz-curve: #c9d3dd;
+  --ll-pos: #3fd394;
+  --ll-neg: #f2636c;
+}
+
+:root[data-theme="light"] {
+  --ll-hero-bg:
+    radial-gradient(700px 360px at 100% 0%, rgba(15, 127, 92, 0.05), transparent 70%),
+    linear-gradient(180deg, #f8fafc, #f3f6f9);
+  --ll-page: #ffffff;
+  --ll-header-bg: #ffffff;
+  --ll-line: #e3e8ef;
+
+  --ll-text: #0f1d3a;
+  --ll-body: #4a5568;
+  --ll-muted: #64748b;
+  --ll-nav: #1f2a3d;
+
+  --ll-green: #0e875c;
+  --ll-lab: linear-gradient(90deg, #0c7f57, #16a36c);
+  --ll-cta-bg: #0f7f5c;
+  --ll-cta-hover: #0c6c4e;
+  --ll-cta-text: #ffffff;
+  --ll-tint: #e6f5ee;
+  --ll-tint-border: #d2ede0;
+  --ll-feature-icon: #0f8a5f;
+
+  --ll-card-bg: #ffffff;
+  --ll-card-border: #dde4ec;
+  --ll-card-band: #f5f7fa;
+  --ll-card-shadow: 0 12px 32px rgba(16, 32, 60, 0.08);
+
+  --ll-bezel-bg: linear-gradient(180deg, #f5f7fa, #e4e9ef);
+  --ll-bezel-border: #cdd6e1;
+  --ll-bezel-shadow: 0 28px 60px rgba(16, 32, 60, 0.15), 0 2px 6px rgba(16, 32, 60, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --ll-screen: #14273d;
+
+  --ll-areas-bg: #f3f2ee;
+  --ll-areas-accent: #1f5a43;
+  --ll-area-bg: #fbfbf9;
+  --ll-area-border: #e2e4de;
+  --ll-area-rec-bg: #eef5f0;
+  --ll-area-rec-border: #b7d7c4;
+  --ll-badge-bg: #1f4b3b;
+  --ll-badge-border: #1f4b3b;
+  --ll-badge-text: #ffffff;
+  --ll-start-bg: #1f4b3b;
+  --ll-start-hover: #173a2e;
+  --ll-start-text: #ffffff;
+  --ll-explore: #1f4b3b;
+  --ll-area-icon-bg: #e8efe9;
+  --ll-area-icon-border: #dbe6de;
+  --ll-area-icon: #1f4b3b;
+  --ll-viz-bg: #f6f6f2;
+  --ll-viz-border: #e3e5df;
+  --ll-viz-rule: #e1e4dd;
+  --ll-viz-axis: #c9cfca;
+  --ll-viz-bar: #2f9b6c;
+  --ll-viz-first: #c5ccc8;
+  --ll-viz-curve: #6b7b74;
+  --ll-pos: #17784f;
+  --ll-neg: #c8323f;
+}
+
 /* ===== Reset / base ===== */
 *,
 *::before,
@@ -103,9 +232,10 @@ a:hover {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(11, 18, 32, 0.85);
+  font-family: var(--ll-font);
+  background: var(--ll-header-bg);
   backdrop-filter: saturate(160%) blur(10px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--ll-line);
 }
 
 .nav {
@@ -118,26 +248,13 @@ a:hover {
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.7rem;
   font-weight: 700;
-  color: var(--text);
+  color: var(--ll-text);
 }
 
 .brand:hover {
   text-decoration: none;
-}
-
-.brand-mark {
-  display: inline-grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--blue), var(--green));
-  color: var(--white);
-  font-weight: 700;
-  font-size: 1.1rem;
-  box-shadow: 0 0 18px var(--glow-blue);
 }
 
 .brand-name {
@@ -147,85 +264,1296 @@ a:hover {
 
 .nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 2.1rem;
 }
 
 .nav-links a {
-  color: var(--text-muted);
+  color: var(--ll-nav);
   font-size: 0.95rem;
   font-weight: 500;
 }
 
 .nav-links a:hover,
 .nav-links a.is-active {
-  color: var(--blue-bright);
+  color: var(--ll-green);
   text-decoration: none;
 }
 
-/* ===== Hero ===== */
-.hero {
+/* ===== Page 1 (redesign): brand, hero, Our Mission ===== */
+.ll-container {
+  max-width: calc(var(--ll-maxw) + 3rem);
+}
+
+.ll-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ll-num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* "Lab" in the wordmark and hero title */
+.ll-accent {
+  color: var(--ll-green);
+  background: var(--ll-lab);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Brand mark: bar-chart tile (header + preview sidebar) */
+.ll-brand-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #14b8a6, #0f9d63);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(15, 157, 99, 0.25);
+}
+
+.ll-brand-mark svg {
+  width: 24px;
+  height: 24px;
+}
+
+.ll-wordmark {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--ll-text);
+}
+
+/* Page 1 scale: type/components, vertical spacing, and preview zoom.
+   Height-aware media queries below adjust only these values, so light and
+   dark stay dimensionally identical. The preview column tracks the zoom so
+   the scaled app screen keeps its exact internal layout. */
+.ll-hero,
+.ll-mission {
+  --ll-scale: 0.95;
+  --ll-space: 0.92;
+  --ll-zoom: 0.855;
+  /* Scaled app screen (568px wide unzoomed) plus the unscaled bezel (21px). */
+  --ll-col: calc(568px * var(--ll-zoom) + 21px);
+}
+
+/* ---- Hero ---- */
+.ll-hero {
+  font-family: var(--ll-font);
+  background: var(--ll-hero-bg);
+  border-bottom: 1px solid var(--ll-line);
+  padding: calc(2.6rem * var(--ll-space)) 0 calc(1.4rem * var(--ll-space));
+}
+
+.ll-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--ll-col));
+  column-gap: 4rem;
+  align-items: start;
+}
+
+.ll-hero-copy {
+  min-width: 0;
+}
+
+.ll-slogan {
+  margin: 0 0 calc(0.75rem * var(--ll-space));
+  font-size: calc(0.72rem * var(--ll-scale));
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ll-green);
+}
+
+.ll-hero-title {
+  margin: 0 0 calc(0.5rem * var(--ll-space));
+  font-size: calc(clamp(2.5rem, 5vw, 4.75rem) * var(--ll-scale));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ll-text);
+}
+
+.ll-hero-headline {
+  max-width: 14.5em;
+  margin: 0 0 calc(0.7rem * var(--ll-space));
+  font-size: calc(clamp(1.6rem, 2.6vw, 2.4rem) * var(--ll-scale));
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--ll-text);
+}
+
+.ll-hero-lead {
+  max-width: 34rem;
+  margin: 0 0 calc(1.25rem * var(--ll-space));
+  font-size: calc(clamp(1rem, 1.15vw, 1.1rem) * var(--ll-scale));
+  line-height: 1.45;
+  color: var(--ll-body);
+}
+
+.ll-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: calc(2.9rem * var(--ll-scale));
+  padding: 0 calc(2.1rem * var(--ll-scale));
+  border-radius: 8px;
+  background: var(--ll-cta-bg);
+  color: var(--ll-cta-text);
+  font-size: 1.17rem;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(15, 127, 92, 0.22);
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+.ll-cta:hover {
+  background: var(--ll-cta-hover);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.ll-cta:focus-visible,
+.ll-scroll-cue:focus-visible {
+  outline: 2px solid var(--ll-green);
+  outline-offset: 3px;
+}
+
+.ll-cta svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ll-features {
+  display: flex;
+  margin: calc(1.4rem * var(--ll-space)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ll-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.1rem;
+  padding-right: 1.4rem;
+}
+
+.ll-feature + .ll-feature {
+  padding: 0 0 0 1.5rem;
+  border-left: 1px solid var(--ll-line);
+}
+
+.ll-feature-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: calc(3.1rem * var(--ll-scale));
+  height: calc(3.1rem * var(--ll-scale));
+  border-radius: 9px;
+  background: var(--ll-tint);
+  border: 1px solid var(--ll-tint-border);
+  color: var(--ll-feature-icon);
+}
+
+.ll-feature-icon svg {
+  width: calc(26px * var(--ll-scale));
+  height: calc(26px * var(--ll-scale));
+}
+
+.ll-feature-title {
+  margin: 0.05rem 0 0.15rem;
+  font-size: calc(1rem * var(--ll-scale));
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--ll-text);
+}
+
+.ll-feature-text {
+  max-width: calc(10rem * var(--ll-scale));
+  margin: 0;
+  font-size: calc(0.875rem * var(--ll-scale));
+  line-height: 1.3;
+  color: var(--ll-muted);
+}
+
+/* ---- Income Statement Builder frame (static preview) ---- */
+.ll-frame {
+  min-width: 0;
+  margin: 0;
+  padding: 0.6rem;
+  border-radius: 1.15rem;
+  background: var(--ll-bezel-bg);
+  border: 1px solid var(--ll-bezel-border);
+  box-shadow: var(--ll-bezel-shadow);
+}
+
+.ll-frame-screen {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  padding: 0.75rem 0.5rem 0.5rem 0;
+  border-radius: 0.75rem;
+  background: var(--ll-screen);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+  /* Scales the static app UI down proportionally; the bezel stays at full size. */
+  zoom: var(--ll-zoom);
+}
+
+/* Sidebar stays navy and the panel stays white in both themes, like a real app screen. */
+.ll-frame-sidebar {
+  padding: 0 0.45rem;
+  color: #c9d4e2;
+}
+
+.ll-side-brand {
   display: flex;
   align-items: center;
-  /* Fill most of the first screen below the 64px sticky navbar, leaving a
-     ~72px sliver so the next section's title just peeks above the fold. */
-  min-height: calc(100vh - 64px - 72px);
-  min-height: calc(100svh - 64px - 72px);
-  background:
-    radial-gradient(1100px 520px at 85% -20%, var(--glow-blue), transparent 60%),
-    radial-gradient(900px 460px at -10% 5%, var(--glow-green), transparent 55%),
-    linear-gradient(180deg, #0d1729, var(--bg));
-  border-bottom: 1px solid var(--border);
+  gap: 0.55rem;
+  padding: 0.15rem 0.45rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
 }
 
-.hero-inner {
-  width: 100%;
-  padding: 3rem 1.5rem;
-  margin: 0 auto;
-  text-align: center;
-  max-width: 820px;
+.ll-side-brand .ll-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  box-shadow: none;
 }
 
-.eyebrow {
-  display: inline-block;
-  margin: 0 0 1rem;
-  padding: 0.3rem 0.8rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--green-bright);
-  background: rgba(34, 197, 94, 0.10);
-  border: 1px solid rgba(34, 197, 94, 0.28);
-  border-radius: 999px;
+.ll-side-brand .ll-brand-mark svg {
+  width: 18px;
+  height: 18px;
 }
 
-.hero-title {
-  font-size: clamp(2.6rem, 6vw, 4rem);
-  letter-spacing: -0.02em;
-  color: var(--white);
-  margin-bottom: 0.4rem;
-  text-shadow: 0 0 40px rgba(59, 130, 246, 0.25);
+.ll-side-nav {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.hero-subtitle {
-  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 1.1rem;
-}
-
-.hero-description {
-  font-size: 1.05rem;
-  color: var(--text-soft);
-  max-width: 680px;
-  margin: 0 auto 2rem;
-}
-
-.hero-actions {
+.ll-side-nav li {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.9rem;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ll-side-nav svg {
+  flex: none;
+  width: 19px;
+  height: 19px;
+}
+
+.ll-side-nav li.is-current {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  box-shadow: inset 3px 0 0 #22c58b;
+}
+
+.ll-side-nav li.is-current svg {
+  color: #34d399;
+}
+
+.ll-frame-panel {
+  min-width: 0;
+  padding: 0.95rem 0.9rem 0.9rem;
+  border-radius: 0.55rem;
+  background: #ffffff;
+  color: #0f1d3a;
+}
+
+.ll-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.ll-panel-title {
+  margin: 0 0 0.15rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #0f1d3a;
+}
+
+.ll-panel-sub {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: #5b6779;
+}
+
+.ll-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #dfe5ec;
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: #0f1d3a;
+  white-space: nowrap;
+}
+
+.ll-period {
+  flex: none;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.68rem;
+}
+
+.ll-period svg {
+  width: 11px;
+  height: 11px;
+}
+
+.ll-stmt {
+  width: 100%;
+  margin-bottom: 0.7rem;
+  border: 1px solid #e3e8ef;
+  border-radius: 6px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.ll-stmt th,
+.ll-stmt td {
+  padding: 0.4rem 0.8rem;
+  text-align: left;
+}
+
+.ll-stmt th {
+  padding-top: 0.5rem;
+  padding-bottom: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f1d3a;
+}
+
+.ll-stmt .ll-stmt-action {
+  text-align: right;
+}
+
+.ll-stmt td {
+  border-top: 1px solid #edf1f5;
+  color: #1f2a3d;
+}
+
+.ll-stmt .ll-num {
+  text-align: right;
+}
+
+.ll-stmt-total td {
+  background: #eef2f6;
+  font-weight: 700;
+  color: #0f1d3a;
+}
+
+.ll-stmt-total td:first-child {
+  border-bottom-left-radius: 5px;
+}
+
+.ll-stmt-total td:last-child {
+  border-bottom-right-radius: 5px;
+}
+
+.ll-net {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  background: #dcf3e7;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0c7a52;
+}
+
+/* ---- Our Mission ---- */
+.ll-mission {
+  font-family: var(--ll-font);
+  background: var(--ll-page);
+  padding: calc(1.25rem * var(--ll-space)) 0 calc(0.4rem * var(--ll-space));
+}
+
+.ll-mission-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--ll-col));
+  column-gap: 4rem;
+  align-items: start;
+}
+
+.ll-mission-text {
+  min-width: 0;
+  padding-top: calc(0.6rem * var(--ll-space));
+}
+
+.ll-mission-text h2 {
+  margin: 0 0 calc(0.6rem * var(--ll-space));
+  font-size: calc(clamp(1.85rem, 2.7vw, 2.6rem) * var(--ll-scale));
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ll-text);
+}
+
+.ll-mission-text p {
+  max-width: 38rem;
+  margin: 0;
+  font-size: calc(clamp(0.98rem, 1.1vw, 1.06rem) * var(--ll-scale));
+  line-height: 1.5;
+  color: var(--ll-body);
+}
+
+/* Journal-entry preview card */
+.ll-journal {
+  justify-self: center;
+  width: 100%;
+  max-width: calc(456px * var(--ll-scale));
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--ll-card-border);
+  border-radius: 12px;
+  background: var(--ll-card-bg);
+  box-shadow: var(--ll-card-shadow);
+}
+
+.ll-journal-head {
+  margin: 0;
+  padding: calc(0.7rem * var(--ll-scale)) calc(1.15rem * var(--ll-scale));
+  border-bottom: 1px solid var(--ll-card-border);
+  background: var(--ll-card-band);
+  font-size: calc(0.875rem * var(--ll-scale));
+  font-weight: 700;
+  color: var(--ll-text);
+}
+
+.ll-journal-label {
+  margin: 0;
+  padding: calc(0.75rem * var(--ll-scale)) calc(1.15rem * var(--ll-scale)) calc(0.25rem * var(--ll-scale));
+  font-size: calc(0.7rem * var(--ll-scale));
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ll-green);
+}
+
+.ll-journal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: calc(0.84rem * var(--ll-scale));
+  line-height: 1.35;
+}
+
+.ll-journal-table th,
+.ll-journal-table td {
+  padding: calc(0.45rem * var(--ll-scale)) calc(1.15rem * var(--ll-scale));
+  text-align: left;
+}
+
+.ll-journal-table th {
+  padding-top: calc(0.3rem * var(--ll-scale));
+  padding-bottom: calc(0.35rem * var(--ll-scale));
+  font-size: calc(0.66rem * var(--ll-scale));
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ll-muted);
+}
+
+.ll-journal-table td {
+  border-top: 1px solid var(--ll-line);
+  color: var(--ll-text);
+}
+
+.ll-journal-table .ll-num {
+  text-align: right;
+}
+
+.ll-journal-table .ll-indent {
+  padding-left: calc(2.3rem * var(--ll-scale));
+}
+
+.ll-journal-table tfoot td {
+  border-top: 1.5px solid var(--ll-card-border);
+  font-weight: 700;
+}
+
+.ll-journal-note {
+  margin: 0;
+  padding: calc(0.7rem * var(--ll-scale)) calc(1.15rem * var(--ll-scale)) calc(0.8rem * var(--ll-scale));
+  border-top: 1px solid var(--ll-card-border);
+  background: var(--ll-card-band);
+  font-size: calc(0.8rem * var(--ll-scale));
+  line-height: 1.45;
+  color: var(--ll-muted);
+}
+
+/* Downward transition cue */
+.ll-scroll-cue {
+  display: block;
+  width: calc(2.5rem * var(--ll-scale));
+  margin: calc(0.15rem * var(--ll-space)) auto 0;
+  padding: calc(0.25rem * var(--ll-space)) 0;
+  border-radius: 6px;
+  color: var(--ll-muted);
+  opacity: 0.8;
+}
+
+.ll-scroll-cue:hover {
+  color: var(--ll-green);
+  opacity: 1;
+}
+
+.ll-scroll-cue svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Two-column layouts: lift the cue ~20px into the gap between the Mission
+   text and the card. Relative offset only, so no layout or height changes. */
+@media (min-width: 901px) {
+  .ll-scroll-cue {
+    position: relative;
+    top: -1.25rem;
+  }
+}
+
+/* ---- Page 1 responsive ---- */
+@media (max-width: 1180px) {
+  .ll-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    column-gap: 2.5rem;
+  }
+
+  /* Collapse the preview sidebar to icons so the statement keeps its width. */
+  .ll-frame-screen {
+    grid-template-columns: 3.1rem minmax(0, 1fr);
+  }
+
+  .ll-frame-sidebar .ll-side-label {
+    display: none;
+  }
+
+  .ll-side-brand,
+  .ll-side-nav li {
+    justify-content: center;
+  }
+
+  .ll-side-brand {
+    padding: 0.15rem 0 1rem;
+  }
+
+  .ll-mission-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    column-gap: 2.5rem;
+  }
+
+  .ll-journal {
+    max-width: calc(400px * var(--ll-scale));
+  }
+
+  .ll-feature {
+    gap: 0.9rem;
+    padding-right: 1.1rem;
+  }
+
+  .ll-feature + .ll-feature {
+    padding-left: 1.1rem;
+  }
+
+  .ll-feature-icon {
+    width: calc(3rem * var(--ll-scale));
+    height: calc(3rem * var(--ll-scale));
+  }
+
+  .ll-feature-icon svg {
+    width: calc(24px * var(--ll-scale));
+    height: calc(24px * var(--ll-scale));
+  }
+
+  .ll-feature-title {
+    font-size: calc(1rem * var(--ll-scale));
+  }
+
+  .ll-feature-text {
+    font-size: calc(0.875rem * var(--ll-scale));
+  }
+}
+
+/* Height-aware tiers for two-column layouts. Spacing does most of the work;
+   type shrinks only slightly. Below 740px tall nothing shrinks further and
+   the page simply scrolls. */
+@media (min-width: 901px) and (max-height: 900px) {
+  .ll-hero,
+  .ll-mission {
+    --ll-scale: 0.93;
+    --ll-space: 0.78;
+    --ll-zoom: 0.83;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 800px) {
+  .ll-hero,
+  .ll-mission {
+    --ll-scale: 0.9;
+    --ll-space: 0.55;
+    --ll-zoom: 0.76;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 740px) {
+  .ll-hero,
+  .ll-mission {
+    --ll-scale: 0.87;
+    --ll-space: 0.45;
+    --ll-zoom: 0.73;
+  }
+}
+
+@media (max-width: 900px) {
+  .ll-hero {
+    padding: 2.75rem 0 2.25rem;
+  }
+
+  .ll-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2.75rem;
+  }
+
+  .ll-frame {
+    width: 100%;
+    max-width: 540px;
+    justify-self: center;
+  }
+
+  /* A single-column layout has room for the full sidebar again. */
+  .ll-frame-screen {
+    grid-template-columns: 170px minmax(0, 1fr);
+  }
+
+  .ll-frame-sidebar .ll-side-label {
+    display: inline;
+  }
+
+  .ll-side-brand,
+  .ll-side-nav li {
+    justify-content: flex-start;
+  }
+
+  .ll-side-brand {
+    padding: 0.15rem 0.45rem 1rem;
+  }
+
+  .ll-mission {
+    padding-top: 2rem;
+  }
+
+  .ll-mission-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2rem;
+  }
+
+  .ll-mission-text {
+    padding-top: 0;
+  }
+
+  .ll-journal {
+    max-width: 500px;
+  }
+
+  .ll-scroll-cue {
+    margin-top: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ll-wordmark {
+    font-size: 1.35rem;
+  }
+
+  .ll-cta {
+    width: 100%;
+    padding: 0 1.25rem;
+  }
+
+  .ll-features {
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .ll-feature,
+  .ll-feature + .ll-feature {
+    padding: 0;
+    border-left: 0;
+  }
+
+  .ll-feature-text {
+    max-width: none;
+  }
+
+  /* Small screens show only the statement inside the bezel. */
+  .ll-frame-screen {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.5rem;
+    zoom: 1;
+  }
+
+  .ll-frame-sidebar {
+    display: none;
+  }
+
+  .ll-journal-table th,
+  .ll-journal-table td {
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+  }
+
+  .ll-journal-table .ll-indent {
+    padding-left: 1.8rem;
+  }
+
+  .ll-journal-head,
+  .ll-journal-label,
+  .ll-journal-note {
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .ll-frame-panel {
+    padding: 0.8rem 0.6rem 0.7rem;
+  }
+
+  .ll-panel-head {
+    flex-wrap: wrap;
+  }
+
+  .ll-stmt th,
+  .ll-stmt td {
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
+  }
+
+  .ll-journal-table {
+    font-size: 0.84rem;
+  }
+}
+
+/* ===== Page 2 (redesign): Explore the Key Areas ===== */
+.ll-areas {
+  font-family: var(--ll-font);
+  background: var(--ll-areas-bg);
+  padding: 2.75rem 0 3.5rem;
+}
+
+.ll-areas-container {
+  max-width: calc(1472px + 3rem);
+}
+
+.ll-areas-head {
+  max-width: 40rem;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+}
+
+.ll-areas-eyebrow {
+  margin: 0 0 0.55rem;
+  padding-left: 0.32em; /* balances the trailing letter-spacing */
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ll-muted);
+}
+
+.ll-areas-title {
+  margin: 0 0 0.6rem;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 3.2vw, 2.9rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ll-text);
+}
+
+.ll-areas-accent {
+  color: var(--ll-areas-accent);
+}
+
+.ll-areas-sub {
+  margin: 0;
+  font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+  color: var(--ll-body);
+}
+
+.ll-areas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* ---- Card ---- */
+.ll-area {
+  position: relative;
+  min-width: 0;
+  padding: 1.3rem 1.2rem 1.25rem;
+  border: 1px solid var(--ll-area-border);
+  border-radius: 10px;
+  background: var(--ll-area-bg);
+  container-type: inline-size;
+}
+
+.ll-area.is-recommended {
+  border-color: var(--ll-area-rec-border);
+  background: var(--ll-area-rec-bg);
+  box-shadow: inset 0 0 0 0.5px var(--ll-area-rec-border);
+}
+
+.ll-area-badge {
+  position: absolute;
+  top: 0;
+  left: 2.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--ll-badge-border);
+  border-radius: 999px;
+  background: var(--ll-badge-bg);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ll-badge-text);
+  transform: translateY(-50%);
+}
+
+.ll-area-badge svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* Number | content | mini visual. The visual moves below the text on
+   narrow cards (see the container query at the end). */
+.ll-area-inner {
+  display: grid;
+  grid-template-columns: 1.9rem minmax(0, 1fr) clamp(9rem, 38cqi, 10rem);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    "num head visual"
+    ". text visual"
+    ". action visual";
+  column-gap: 0.75rem;
+  height: 100%;
+}
+
+.ll-area.is-recommended .ll-area-inner {
+  grid-template-columns: 1.9rem minmax(0, 1fr) clamp(6rem, 26cqi, 7.5rem);
+}
+
+/* Ledger and reconciliation previews need a little more width. */
+.ll-area.has-wide-viz .ll-area-inner {
+  grid-template-columns: 1.9rem minmax(0, 1fr) clamp(10rem, 40cqi, 11rem);
+}
+
+.ll-area-num {
+  grid-area: num;
+  align-self: center;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ll-text);
+}
+
+.ll-area-head {
+  grid-area: head;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 2.25rem;
+}
+
+.ll-area-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--ll-area-icon-border);
+  border-radius: 7px;
+  background: var(--ll-area-icon-bg);
+  color: var(--ll-area-icon);
+}
+
+.ll-area-icon.is-green {
+  color: var(--ll-pos);
+}
+
+.ll-area-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.ll-area-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ll-text);
+}
+
+.ll-area-text {
+  grid-area: text;
+  margin: 0.7rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--ll-body);
+}
+
+.ll-area-action {
+  grid-area: action;
+  align-self: end;
+  margin-top: 1rem;
+}
+
+/* Cards 02-06: quiet text action */
+.ll-area-explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ll-explore);
+  cursor: pointer;
+  transition: gap var(--transition);
+}
+
+.ll-area-explore:hover {
+  gap: 0.55rem;
+}
+
+.ll-area-explore svg,
+.ll-area-start svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Card 01: the one real button */
+.ll-area-start {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.35rem;
+  padding: 0 2.6rem;
+  border-radius: 5px;
+  background: var(--ll-start-bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ll-start-text);
+  transition: background-color var(--transition);
+}
+
+.ll-area-start:hover {
+  background: var(--ll-start-hover);
+  text-decoration: none;
+}
+
+.ll-area-explore:focus-visible,
+.ll-area-start:focus-visible {
+  outline: 2px solid var(--ll-explore);
+  outline-offset: 3px;
+}
+
+/* ---- Mini visuals ---- */
+.ll-area-visual {
+  grid-area: visual;
+  align-self: start;
+  min-width: 0;
+}
+
+.ll-viz-box {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--ll-viz-border);
+  border-radius: 6px;
+  background: var(--ll-viz-bg);
+  font-size: 0.74rem;
+  color: var(--ll-text);
+}
+
+.ll-viz-box.is-flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ll-viz-rows {
+  display: grid;
+  margin: 0;
+}
+
+.ll-viz-rows > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.38rem 0;
+}
+
+.ll-viz-rows dt {
+  color: var(--ll-body);
+}
+
+.ll-viz-rows dd {
+  margin: 0;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ll-viz-rows .is-total {
+  margin-top: 0.15rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--ll-viz-rule);
+}
+
+.ll-viz-rows .is-total dt {
+  font-weight: 600;
+  color: var(--ll-text);
+}
+
+.ll-viz-rows.is-compact > div {
+  padding: 0.15rem 0;
+}
+
+.ll-viz-rows .is-pos,
+.ll-viz-rows .is-total .is-pos {
+  font-weight: 600;
+  color: var(--ll-pos);
+}
+
+.ll-viz-rows .is-neg {
+  color: var(--ll-neg);
+}
+
+/* 01: ascending business-health bars */
+.ll-viz-growth {
+  align-self: stretch;
+  display: flex;
+  align-items: flex-end;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--ll-viz-rule);
+}
+
+.ll-viz-growth svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 5.5rem;
+}
+
+.ll-viz-growth rect {
+  fill: var(--ll-viz-bar);
+}
+
+.ll-viz-growth .b1 { opacity: 0.35; }
+.ll-viz-growth .b2 { opacity: 0.48; }
+.ll-viz-growth .b3 { opacity: 0.6; }
+.ll-viz-growth .b4 { opacity: 0.75; }
+
+/* 03: cash in (green) above the line, cash out (red) below */
+.ll-viz-cash {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.15rem 0 0.45rem;
+}
+
+.ll-viz-cash .axis,
+.ll-viz-decline .axis {
+  fill: none;
+  stroke: var(--ll-viz-axis);
+  stroke-width: 1;
+}
+
+.ll-viz-cash .pos { fill: var(--ll-pos); }
+.ll-viz-cash .neg { fill: var(--ll-neg); }
+
+/* 04: debit / credit ledger */
+.ll-viz-ledger {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ll-viz-ledger th,
+.ll-viz-ledger td {
+  padding: 0.5rem 0.42rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ll-viz-ledger th:first-child,
+.ll-viz-ledger td:first-child {
+  text-align: left;
+  color: var(--ll-body);
+}
+
+.ll-viz-ledger th {
+  font-weight: 600;
+  color: var(--ll-text);
+  border-bottom: 1px solid var(--ll-viz-rule);
+}
+
+.ll-viz-ledger td {
+  color: var(--ll-text);
+}
+
+.ll-viz-ledger td + td,
+.ll-viz-ledger th + th {
+  border-left: 1px solid var(--ll-viz-rule);
+}
+
+.ll-viz-ledger tbody tr + tr td {
+  border-top: 1px solid var(--ll-viz-rule);
+}
+
+/* 06: declining book value */
+.ll-viz-decline svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ll-viz-decline .first { fill: var(--ll-viz-first); }
+.ll-viz-decline .bar { fill: var(--ll-viz-bar); opacity: 0.85; }
+.ll-viz-decline .b3 { opacity: 0.7; }
+.ll-viz-decline .b4 { opacity: 0.55; }
+.ll-viz-decline .b5 { opacity: 0.45; }
+
+.ll-viz-decline .curve {
+  fill: none;
+  stroke: var(--ll-viz-curve);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+.ll-viz-years {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 0.3rem;
+  font-size: 0.68rem;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--ll-body);
+}
+
+/* ---- Page 2 responsive ---- */
+@media (max-width: 1239px) {
+  .ll-areas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 719px) {
+  .ll-areas {
+    padding: 2.5rem 0 3rem;
+  }
+
+  .ll-areas-head {
+    margin-bottom: 2.25rem;
+  }
+
+  .ll-areas-grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 1.6rem;
+  }
+}
+
+/* Mid-width cards: the title row spans the full card so long titles
+   ("Reconciliation") never run into the visual, which starts beside the
+   description instead. */
+@container (max-width: 26rem) {
+  .ll-area-inner {
+    grid-template-areas:
+      "num head head"
+      ". text visual"
+      ". action visual";
+  }
+
+  .ll-area-visual {
+    margin-top: 0.75rem;
+  }
+}
+
+/* Narrow cards: the mini visual moves below the description. */
+@container (max-width: 21rem) {
+  .ll-area-inner,
+  .ll-area.is-recommended .ll-area-inner,
+  .ll-area.has-wide-viz .ll-area-inner {
+    grid-template-columns: 1.9rem minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "num head"
+      ". text"
+      ". visual"
+      ". action";
+  }
+
+  .ll-area-visual {
+    width: 100%;
+    max-width: 15rem;
+    margin-top: 0.9rem;
+  }
+
+  .ll-viz-growth {
+    max-width: 7.5rem;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  /* Keep the charts near their desktop size so cards stay compact. */
+  .ll-viz-cash {
+    max-width: 8.5rem;
+  }
+
+  .ll-viz-decline {
+    max-width: 11rem;
+  }
 }
 
 /* ===== Buttons ===== */
@@ -298,32 +1626,7 @@ a:hover {
   margin: 0;
 }
 
-/* ===== Card grid ===== */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-}
-
-.card {
-  position: relative;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.6rem;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition), box-shadow var(--transition),
-    border-color var(--transition), background-color var(--transition);
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  background: var(--surface-hover);
-  border-color: var(--border-strong);
-  box-shadow: var(--shadow-md), 0 0 0 1px rgba(59, 130, 246, 0.15),
-    0 12px 30px var(--glow-blue);
-}
-
+/* ===== Card icon (Simulator and tool empty states) ===== */
 .card-icon {
   display: inline-grid;
   place-items: center;
@@ -336,58 +1639,7 @@ a:hover {
   border: 1px solid var(--border);
 }
 
-.card h3 {
-  font-size: 1.2rem;
-  margin-bottom: 0.4rem;
-  color: var(--text);
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-}
-
-.card p {
-  margin: 0 0 1.25rem;
-  color: var(--text-soft);
-  font-size: 0.97rem;
-}
-
-.card-cta {
-  margin-top: auto;
-  align-self: flex-start;
-}
-
-.card-badge {
-  position: absolute;
-  top: 0.9rem;
-  right: 0.9rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: #fbbf24;
-  background: rgba(250, 204, 21, 0.12);
-  border: 1px solid rgba(250, 204, 21, 0.35);
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-}
-
 /* ===== Audience section ===== */
-.audience-inner {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 3rem;
-  align-items: center;
-}
-
-.audience-text h2 {
-  font-size: clamp(1.8rem, 3.5vw, 2.3rem);
-}
-
-.audience-text p {
-  color: var(--text-soft);
-}
-
 .audience-list {
   list-style: none;
   padding: 0;
@@ -414,12 +1666,7 @@ a:hover {
   font-weight: 700;
 }
 
-/* Accounting-style preview card */
-.audience-preview {
-  display: flex;
-  justify-content: center;
-}
-
+/* Accounting-style preview card (used by the tool outputs) */
 .preview-card {
   width: 100%;
   max-width: 380px;
@@ -1648,19 +2895,6 @@ a:hover {
 
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
-  .card-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .audience-inner {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .audience-preview {
-    order: -1;
-  }
-
   .sim-layout {
     grid-template-columns: 1fr;
   }
@@ -1669,14 +2903,6 @@ a:hover {
 @media (max-width: 640px) {
   .nav-links {
     display: none;
-  }
-
-  .hero-inner {
-    padding: 3.5rem 1.25rem 3rem;
-  }
-
-  .card-grid {
-    grid-template-columns: 1fr;
   }
 
   .dep-examples {

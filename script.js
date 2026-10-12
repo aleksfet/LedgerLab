@@ -57,19 +57,28 @@
     if (!sections.length || !navLinks.length) return;
     if (!("IntersectionObserver" in window)) return;
 
-    var observer = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          var id = entry.target.getAttribute("id");
-          navLinks.forEach(function (link) {
-            var isActive = link.getAttribute("href") === "#" + id;
-            link.classList.toggle("is-active", isActive);
-          });
-        });
-      },
-      { rootMargin: "-45% 0px -50% 0px" }
-    );
+    // The current section is the last one whose top has reached a line near
+    // the header. This stays correct for short sections (like Our Mission)
+    // on tall screens, where a fixed viewport band can catch two at once.
+    function updateActive() {
+      // Must match the observer's band below (top 25% of the viewport).
+      var line = window.innerHeight * 0.25;
+      var currentId = null;
+      sections.forEach(function (section) {
+        if (section.getBoundingClientRect().top <= line) {
+          currentId = section.getAttribute("id");
+        }
+      });
+      navLinks.forEach(function (link) {
+        var isActive = link.getAttribute("href") === "#" + currentId;
+        link.classList.toggle("is-active", isActive);
+      });
+    }
+
+    // Fires whenever a section edge crosses into or out of the top 25%.
+    var observer = new IntersectionObserver(updateActive, {
+      rootMargin: "0px 0px -75% 0px",
+    });
 
     sections.forEach(function (section) {
       observer.observe(section);

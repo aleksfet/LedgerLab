@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,15 +8,39 @@
     content="LedgerLab is an interactive accounting and business finance toolkit for beginners, accounting students, and new business owners."
   />
   <title>LedgerLab — Learn accounting by running the numbers of a business</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600&display=swap"
+  />
   <link rel="stylesheet" href="styles.css" />
+  <script>
+    // Dark is the default until the full theme system ships.
+    // Light Page 1 styling can be previewed with ?theme=light.
+    (function () {
+      try {
+        var theme = new URLSearchParams(window.location.search).get("theme");
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <!-- ===== Header / Navigation ===== -->
   <header class="site-header">
-    <div class="container nav">
-      <a href="#top" class="brand">
-        <span class="brand-mark" aria-hidden="true">₪</span>
-        <span class="brand-name">LedgerLab</span>
+    <div class="container ll-container nav">
+      <a href="#top" class="brand ll-brand">
+        <span class="ll-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round">
+            <!-- T-account: ledger rule, debit | credit divider, entries -->
+            <path d="M3.5 5.5h17M12 5.5V20.5" stroke-width="2.2" />
+            <path d="M5.5 12.5h4M14.5 12.5h4" stroke-width="1.8" />
+          </svg>
+        </span>
+        <span class="ll-wordmark">Ledger<span class="ll-accent">Lab</span></span>
       </a>
       <nav class="nav-links" aria-label="Primary">
         <a href="#audience">Mission</a>
@@ -28,28 +52,175 @@
 
   <main id="top">
     <!-- ===== Hero / Landing ===== -->
-    <section class="hero">
-      <div class="container hero-inner">
-        <p class="eyebrow">Accounting &amp; business finance, made approachable</p>
-        <h1 class="hero-title">LedgerLab</h1>
-        <p class="hero-subtitle">
-          Learn accounting by running the numbers of a business.
-        </p>
-        <p class="hero-description">
-          LedgerLab helps you actually understand how accounting works. Here, you can
-          learn and work through core accounting concepts and even produce your own
-          outputs like a true accountant would.
-        </p>
-        <div class="hero-actions">
-          <a href="#features" class="btn btn-primary">Learn the Key Concepts</a>
+    <section class="ll-hero">
+      <div class="container ll-container ll-hero-grid">
+        <div class="ll-hero-copy">
+          <p class="ll-slogan">Learn and use accounting tools like a true accountant.</p>
+          <h1 class="ll-hero-title">Ledger<span class="ll-accent">Lab</span></h1>
+          <p class="ll-hero-headline">Learn accounting by running the numbers of a business.</p>
+          <p class="ll-hero-lead">
+            LedgerLab helps you actually understand how accounting works. Learn core
+            concepts, explore real-world examples, and use interactive tools to see how
+            the numbers of a business fit together.
+          </p>
+          <a href="#features" class="ll-cta">
+            Learn the Key Concepts
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </a>
+          <ul class="ll-features">
+            <li class="ll-feature">
+              <span class="ll-feature-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="4" y="13" width="4" height="7" rx="1" />
+                  <rect x="10" y="9" width="4" height="11" rx="1" />
+                  <rect x="16" y="4" width="4" height="16" rx="1" />
+                </svg>
+              </span>
+              <div>
+                <p class="ll-feature-title">Interactive tools</p>
+                <p class="ll-feature-text">See how the numbers actually work.</p>
+              </div>
+            </li>
+            <li class="ll-feature">
+              <span class="ll-feature-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z" />
+                  <path d="M12 6.5v13" />
+                </svg>
+              </span>
+              <div>
+                <p class="ll-feature-title">Real business context</p>
+                <p class="ll-feature-text">Build skills you can use in the real world.</p>
+              </div>
+            </li>
+          </ul>
         </div>
+
+        <!-- Static example of the Income Statement Builder (no live tool IDs) -->
+        <figure class="ll-frame"
+                aria-label="Example income statement in LedgerLab's Income Statement Builder">
+          <div class="ll-frame-screen">
+            <div class="ll-frame-sidebar" aria-hidden="true">
+              <div class="ll-side-brand">
+                <span class="ll-brand-mark">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round">
+                    <!-- T-account: ledger rule, debit | credit divider, entries -->
+                    <path d="M3.5 5.5h17M12 5.5V20.5" stroke-width="2.2" />
+                    <path d="M5.5 12.5h4M14.5 12.5h4" stroke-width="1.8" />
+                  </svg>
+                </span>
+                <span class="ll-side-label">LedgerLab</span>
+              </div>
+              <ul class="ll-side-nav">
+                <li class="is-current">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /><path d="M10 13h6M10 17h6" />
+                  </svg>
+                  <span class="ll-side-label">Income Statement</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 4H5v15h15v-7" /><path d="M17.5 3.5l3 3L12 15H9v-3z" />
+                  </svg>
+                  <span class="ll-side-label">Journal Entries</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 20V5M3.5 8.5 7 5l3.5 3.5" /><path d="M17 4v15M13.5 15.5 17 19l3.5-3.5" />
+                  </svg>
+                  <span class="ll-side-label">Cash Flow</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9.5 12 4l9 5.5" /><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8" /><path d="M3 20.5h18" />
+                  </svg>
+                  <span class="ll-side-label">Bank Reconciliation</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6l6 6 4-4 8 8" /><path d="M21 10v6h-6" />
+                  </svg>
+                  <span class="ll-side-label">Depreciation</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
+                    <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" /><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
+                  </svg>
+                  <span class="ll-side-label">Business Simulator</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="ll-frame-panel">
+              <div class="ll-panel-head">
+                <div>
+                  <p class="ll-panel-title">Income Statement Builder</p>
+                  <p class="ll-panel-sub">Add revenue and expenses below to see your net income.</p>
+                </div>
+                <span class="ll-pill ll-period" aria-hidden="true">
+                  January
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                       stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                </span>
+              </div>
+
+              <table class="ll-stmt">
+                <thead>
+                  <tr>
+                    <th scope="col">Revenue</th>
+                    <th scope="col" class="ll-stmt-action">
+                      <span class="ll-sr-only">Amount</span>
+                      <span class="ll-pill" aria-hidden="true">+ Add revenue</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Sales revenue</td><td class="ll-num">$&nbsp;12,400</td></tr>
+                  <tr><td>Service revenue</td><td class="ll-num">$&nbsp;2,300</td></tr>
+                  <tr class="ll-stmt-total"><td>Total revenue</td><td class="ll-num">$&nbsp;14,700</td></tr>
+                </tbody>
+              </table>
+
+              <table class="ll-stmt">
+                <thead>
+                  <tr>
+                    <th scope="col">Expenses</th>
+                    <th scope="col" class="ll-stmt-action">
+                      <span class="ll-sr-only">Amount</span>
+                      <span class="ll-pill" aria-hidden="true">+ Add expense</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Rent expense</td><td class="ll-num">$&nbsp;2,000</td></tr>
+                  <tr><td>Wages expense</td><td class="ll-num">$&nbsp;3,200</td></tr>
+                  <tr><td>Supplies expense</td><td class="ll-num">$&nbsp;1,100</td></tr>
+                  <tr class="ll-stmt-total"><td>Total expenses</td><td class="ll-num">$&nbsp;6,300</td></tr>
+                </tbody>
+              </table>
+
+              <p class="ll-net"><span>Net income</span><span class="ll-num">$&nbsp;8,400</span></p>
+            </div>
+          </div>
+        </figure>
       </div>
     </section>
 
     <!-- ===== Our Mission ===== -->
-    <section id="audience" class="section section-alt">
-      <div class="container audience-inner">
-        <div class="audience-text">
+    <section id="audience" class="ll-mission">
+      <div class="container ll-container ll-mission-grid">
+        <div class="ll-mission-text">
           <h2>Our Mission</h2>
           <p>
             This website is more than a simple teaching of accounting. It is not like
@@ -60,128 +231,291 @@
             building understanding through this website can go a long way.
           </p>
         </div>
-        <aside class="audience-preview" aria-label="Example accounting output">
-          <div class="preview-card">
-            <div class="preview-head">Preview: Accounting Output</div>
-            <p class="preview-label">Responsible Journal Entry</p>
-            <table class="preview-table">
-              <thead>
-                <tr>
-                  <th>Account</th>
-                  <th class="num">Debit</th>
-                  <th class="num">Credit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Office Equipment</td>
-                  <td class="num">1,200.00</td>
-                  <td class="num">—</td>
-                </tr>
-                <tr>
-                  <td>&nbsp;&nbsp;&nbsp;&nbsp;Cash</td>
-                  <td class="num">—</td>
-                  <td class="num">1,200.00</td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td>Totals</td>
-                  <td class="num">1,200.00</td>
-                  <td class="num">1,200.00</td>
-                </tr>
-              </tfoot>
-            </table>
-            <p class="preview-note">
-              Plain English: the business bought equipment with cash. One side goes up,
-              the other goes down — and the entry balances.
-            </p>
-          </div>
+        <aside class="ll-journal" aria-label="Example accounting output">
+          <p class="ll-journal-head">Preview: Accounting Output</p>
+          <p class="ll-journal-label">Responsible Journal Entry</p>
+          <table class="ll-journal-table">
+            <thead>
+              <tr>
+                <th scope="col">Account</th>
+                <th scope="col" class="ll-num">Debit</th>
+                <th scope="col" class="ll-num">Credit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Office Equipment</td>
+                <td class="ll-num">1,200.00</td>
+                <td class="ll-num">—</td>
+              </tr>
+              <tr>
+                <td class="ll-indent">Cash</td>
+                <td class="ll-num">—</td>
+                <td class="ll-num">1,200.00</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Totals</td>
+                <td class="ll-num">1,200.00</td>
+                <td class="ll-num">1,200.00</td>
+              </tr>
+            </tfoot>
+          </table>
+          <p class="ll-journal-note">
+            Plain English: the business bought equipment with cash. One side goes up,
+            the other goes down — and the entry balances.
+          </p>
         </aside>
       </div>
+      <a href="#features" class="ll-scroll-cue" aria-label="Scroll to Key Concepts">
+        <svg viewBox="0 0 32 16" fill="none" stroke="currentColor" stroke-width="1.6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 4l11 8 11-8" />
+        </svg>
+      </a>
     </section>
 
-    <!-- ===== Key Concepts ===== -->
-    <section id="features" class="section">
-      <div class="container">
-        <header class="section-head">
-          <h2>Key Concepts of Accounting Through LedgerLab</h2>
-          <p class="section-sub">
-            Six core areas of business accounting, each broken down into something
-            you can practice hands-on.
-          </p>
+    <!-- ===== Key Concepts: Explore the Key Areas ===== -->
+    <section id="features" class="ll-areas">
+      <div class="container ll-areas-container">
+        <header class="ll-areas-head">
+          <p class="ll-areas-eyebrow">Explore</p>
+          <h2 class="ll-areas-title">Explore the <span class="ll-areas-accent">Key Areas</span></h2>
+          <p class="ll-areas-sub">Learn the concepts. Use the tools. Build real understanding.</p>
         </header>
 
-        <div class="card-grid">
-          <article class="card">
-            <span class="card-badge">★ Recommended First</span>
-            <div class="card-icon" aria-hidden="true">📊</div>
-            <h3>Business Financing &amp; Assessment</h3>
-            <p>
-              Understand how money enters a business, how expenses affect performance,
-              and how owners or managers assess financial health.
-            </p>
-            <a href="#simulator" class="btn btn-primary card-cta">Go to Business Simulator</a>
+        <div class="ll-areas-grid">
+          <!-- 01 Business Financing & Assessment -> Business Simulator -->
+          <article class="ll-area is-recommended">
+            <span class="ll-area-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />
+              </svg>
+              Recommended First
+            </span>
+            <div class="ll-area-inner">
+              <span class="ll-area-num">01</span>
+              <div class="ll-area-head">
+                <span class="ll-area-icon is-green" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="4" y="13" width="4" height="7" rx="1" />
+                    <rect x="10" y="9" width="4" height="11" rx="1" />
+                    <rect x="16" y="4" width="4" height="16" rx="1" />
+                  </svg>
+                </span>
+                <h3 class="ll-area-title">Business Financing &amp; Assessment</h3>
+              </div>
+              <p class="ll-area-text">
+                Understand how businesses get capital and assess financial health.
+              </p>
+              <div class="ll-area-action">
+                <a href="#simulator" class="ll-area-start">
+                  Start Here
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+              </div>
+              <div class="ll-area-visual ll-viz-growth" aria-hidden="true">
+                <svg viewBox="0 0 100 80" preserveAspectRatio="xMidYMax meet">
+                  <rect class="b1" x="2" y="54" width="13" height="26" rx="1.5" />
+                  <rect class="b2" x="22" y="46" width="13" height="34" rx="1.5" />
+                  <rect class="b3" x="42" y="42" width="13" height="38" rx="1.5" />
+                  <rect class="b4" x="62" y="32" width="13" height="48" rx="1.5" />
+                  <rect class="b5" x="82" y="6" width="13" height="74" rx="1.5" />
+                </svg>
+              </div>
+            </div>
           </article>
 
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">📑</div>
-            <h3>Financial Statements</h3>
-            <p>
-              See how managers analyze a business through reports like the income
-              statement, balance sheet, and cash flow statement.
-            </p>
-            <button type="button" class="btn btn-secondary card-cta" data-open-tool="income">
-              Open Income Statement Builder
-            </button>
+          <!-- 02 Financial Statements -> Income Statement Builder -->
+          <article class="ll-area">
+            <div class="ll-area-inner">
+              <span class="ll-area-num">02</span>
+              <div class="ll-area-head">
+                <span class="ll-area-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /><path d="M10 13h6M10 17h6" />
+                  </svg>
+                </span>
+                <h3 class="ll-area-title">Financial Statements</h3>
+              </div>
+              <p class="ll-area-text">
+                Learn the Income Statement, Balance Sheet, and Statement of Cash Flows.
+              </p>
+              <div class="ll-area-action">
+                <button type="button" class="ll-area-explore" data-open-tool="income">
+                  Explore<span class="ll-sr-only"> Financial Statements: open the Income Statement Builder</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+              <div class="ll-area-visual ll-viz-box" aria-hidden="true">
+                <dl class="ll-viz-rows">
+                  <div><dt>Revenue</dt><dd>$12,000</dd></div>
+                  <div><dt>Expenses</dt><dd class="is-neg">(8,000)</dd></div>
+                  <div class="is-total"><dt>Net Income</dt><dd class="is-pos">$4,000</dd></div>
+                </dl>
+              </div>
+            </div>
           </article>
 
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">💵</div>
-            <h3>Cash Flows</h3>
-            <p>
-              Follow how cash moves in and out of a business and why profit and cash
-              are not always the same.
-            </p>
-            <button type="button" class="btn btn-secondary card-cta" data-open-tool="cashflow">
-              Learn &amp; Use Tool
-            </button>
+          <!-- 03 Cash Flows -> Cash Flow Helper -->
+          <article class="ll-area">
+            <div class="ll-area-inner">
+              <span class="ll-area-num">03</span>
+              <div class="ll-area-head">
+                <span class="ll-area-icon is-green" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v18" />
+                    <path d="M16.5 7.5C16.5 5.8 14.5 5 12 5s-4.5 1-4.5 3 2 2.6 4.5 3.2 4.5 1.3 4.5 3.3-2 3-4.5 3-4.5-.9-4.5-2.8" />
+                  </svg>
+                </span>
+                <h3 class="ll-area-title">Cash Flows</h3>
+              </div>
+              <p class="ll-area-text">See how cash moves in and out of a business.</p>
+              <div class="ll-area-action">
+                <button type="button" class="ll-area-explore" data-open-tool="cashflow">
+                  Explore<span class="ll-sr-only"> Cash Flows: open the Cash Flow Helper</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+              <div class="ll-area-visual ll-viz-box" aria-hidden="true">
+                <svg class="ll-viz-cash" viewBox="0 0 120 52">
+                  <path class="axis" d="M2 2v48M2 26h116" />
+                  <rect class="pos" x="8" y="22" width="9" height="4" />
+                  <rect class="pos" x="21" y="15" width="9" height="11" />
+                  <rect class="pos" x="34" y="7" width="9" height="19" />
+                  <rect class="pos" x="47" y="2" width="9" height="24" />
+                  <rect class="pos" x="60" y="9" width="9" height="17" />
+                  <rect class="neg" x="78" y="26" width="9" height="8" />
+                  <rect class="neg" x="91" y="26" width="9" height="13" />
+                  <rect class="neg" x="104" y="26" width="9" height="10" />
+                </svg>
+                <dl class="ll-viz-rows is-compact">
+                  <div><dt>Cash In</dt><dd class="is-pos">+$8,000</dd></div>
+                  <div><dt>Cash Out</dt><dd class="is-neg">&minus;$5,000</dd></div>
+                </dl>
+              </div>
+            </div>
           </article>
 
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">📒</div>
-            <h3>Journal Entries</h3>
-            <p>
-              Learn how transactions enter a business's books through debits, credits,
-              and balanced records.
-            </p>
-            <button type="button" class="btn btn-secondary card-cta" data-open-tool="journal">
-              Learn &amp; Use Tool
-            </button>
+          <!-- 04 Journal Entries -> Journal Entry Helper -->
+          <article class="ll-area has-wide-viz">
+            <div class="ll-area-inner">
+              <span class="ll-area-num">04</span>
+              <div class="ll-area-head">
+                <span class="ll-area-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5V19c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z" />
+                    <path d="M12 6v13.5" />
+                  </svg>
+                </span>
+                <h3 class="ll-area-title">Journal Entries</h3>
+              </div>
+              <p class="ll-area-text">Learn how to record transactions using debits and credits.</p>
+              <div class="ll-area-action">
+                <button type="button" class="ll-area-explore" data-open-tool="journal">
+                  Explore<span class="ll-sr-only"> Journal Entries: open the Journal Entry Helper</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+              <div class="ll-area-visual ll-viz-box is-flush" aria-hidden="true">
+                <table class="ll-viz-ledger">
+                  <thead>
+                    <tr><th></th><th>Debit</th><th>Credit</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Cash</td><td>1,000</td><td></td></tr>
+                    <tr><td>Revenue</td><td></td><td>1,000</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </article>
 
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">🏦</div>
-            <h3>Bank Reconciliation</h3>
-            <p>
-              Compare book cash records to bank records and understand how businesses
-              prove their cash balance is correct.
-            </p>
-            <button type="button" class="btn btn-secondary card-cta" data-open-tool="bankrec">
-              Learn &amp; Use Tool
-            </button>
+          <!-- 05 Bank Reconciliation -> Bank Reconciliation Helper -->
+          <article class="ll-area has-wide-viz">
+            <div class="ll-area-inner">
+              <span class="ll-area-num">05</span>
+              <div class="ll-area-head">
+                <span class="ll-area-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9.5 12 4l9 5.5" /><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8" /><path d="M3 20.5h18" />
+                  </svg>
+                </span>
+                <h3 class="ll-area-title">Bank Reconciliation</h3>
+              </div>
+              <p class="ll-area-text">Match your records with your bank statement.</p>
+              <div class="ll-area-action">
+                <button type="button" class="ll-area-explore" data-open-tool="bankrec">
+                  Explore<span class="ll-sr-only"> Bank Reconciliation: open the Bank Reconciliation Helper</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+              <div class="ll-area-visual ll-viz-box" aria-hidden="true">
+                <dl class="ll-viz-rows">
+                  <div><dt>Book Balance</dt><dd>$7,200</dd></div>
+                  <div><dt>Adjustments</dt><dd>+300</dd></div>
+                  <div class="is-total"><dt>Adjusted Balance</dt><dd class="is-pos">$7,500</dd></div>
+                </dl>
+              </div>
+            </div>
           </article>
 
-          <article class="card">
-            <div class="card-icon" aria-hidden="true">📉</div>
-            <h3>Depreciation Knowledge</h3>
-            <p>
-              Learn how long-term assets lose value over time and how that affects
-              expenses, book value, and financial reports.
-            </p>
-            <button type="button" class="btn btn-secondary card-cta" data-open-tool="depreciation">
-              Learn &amp; Use Tool
-            </button>
+          <!-- 06 Depreciation -> Depreciation Calculator -->
+          <article class="ll-area">
+            <div class="ll-area-inner">
+              <span class="ll-area-num">06</span>
+              <div class="ll-area-head">
+                <span class="ll-area-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4v16h16" /><path d="M7 9l4 4 3-3 5 5" />
+                  </svg>
+                </span>
+                <h3 class="ll-area-title">Depreciation</h3>
+              </div>
+              <p class="ll-area-text">Learn how to allocate the cost of long-term assets.</p>
+              <div class="ll-area-action">
+                <button type="button" class="ll-area-explore" data-open-tool="depreciation">
+                  Explore<span class="ll-sr-only"> Depreciation: open the Depreciation Calculator</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+              <div class="ll-area-visual ll-viz-decline" aria-hidden="true">
+                <svg viewBox="0 0 150 80">
+                  <path class="axis" d="M1 0v79h149" />
+                  <rect class="first" x="7" y="22" width="16" height="57" />
+                  <rect class="bar" x="37" y="40" width="16" height="39" />
+                  <rect class="bar b3" x="67" y="53" width="16" height="26" />
+                  <rect class="bar b4" x="97" y="64" width="16" height="15" />
+                  <rect class="bar b5" x="127" y="73" width="16" height="6" />
+                  <path class="curve" d="M8 4C38 30 72 52 146 72" />
+                </svg>
+                <div class="ll-viz-years"><span>Year 1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+              </div>
+            </div>
           </article>
         </div>
       </div>
