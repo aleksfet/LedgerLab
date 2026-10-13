@@ -532,27 +532,32 @@
     </section>
 
     <!-- ===== Business Simulator (MVP) ===== -->
-    <section id="simulator" class="section">
-      <div class="container">
-        <header class="section-head">
-          <h2>Business Simulator</h2>
-          <p class="section-sub" id="sim-subtitle">
-            Use Assessment Mode to enter one month of business activity and see how
-            revenue, expenses, cash, and major purchases affect the business's
-            financial picture.
-          </p>
+    <section id="simulator" class="ll-sim">
+      <div class="container ll-sim-container">
+        <header class="ll-sim-head">
+          <div class="ll-sim-intro">
+            <p class="ll-sim-eyebrow">Workspace</p>
+            <h2 class="ll-sim-title">Business Simulator</h2>
+            <p class="ll-sim-sub" id="sim-subtitle">
+              Use Assessment Mode to enter one month of business activity and see how
+              revenue, expenses, cash, and major purchases affect the business's
+              financial picture.
+            </p>
+          </div>
+
+          <div class="ll-sim-modes" role="tablist" aria-label="Simulator mode">
+            <button type="button" id="mode-assessment" class="ll-sim-mode is-active"
+                    role="tab" aria-selected="true" aria-controls="assessment-panel">
+              Assessment Mode
+            </button>
+            <button type="button" id="mode-planning" class="ll-sim-mode"
+                    role="tab" aria-selected="false" aria-controls="planning-panel">
+              Startup Planning Mode
+            </button>
+          </div>
         </header>
 
-        <div class="sim-modes" role="tablist" aria-label="Simulator mode">
-          <button type="button" id="mode-assessment" class="sim-mode is-active"
-                  role="tab" aria-selected="true" aria-controls="assessment-panel">
-            Assessment Mode
-          </button>
-          <button type="button" id="mode-planning" class="sim-mode"
-                  role="tab" aria-selected="false" aria-controls="planning-panel">
-            Startup Planning Mode
-          </button>
-        </div>
+        <div class="ll-sim-frame">
 
         <!-- ===== Assessment Mode panel ===== -->
         <div id="assessment-panel" class="sim-mode-panel" role="tabpanel"
@@ -676,12 +681,22 @@
           <div class="sim-results" id="sim-results" aria-live="polite">
             <!-- Empty state (shown before first run) -->
             <div class="sim-empty" id="sim-empty">
-              <div class="card-icon" aria-hidden="true">📈</div>
+              <span class="ll-sim-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                     stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 20h16" /><path d="M7.5 17v-5M12 17V6M16.5 17V9" />
+                </svg>
+              </span>
               <h3>Your dashboard appears here</h3>
               <p>
                 Fill in your numbers and select <strong>Run Simulation</strong> to see
                 your monthly profit, cash position, and a plain-English summary.
               </p>
+              <dl class="ll-sim-empty-preview" aria-hidden="true">
+                <div><dt>Net income</dt><dd>—</dd></div>
+                <div><dt>Ending cash</dt><dd>—</dd></div>
+                <div><dt>Health status</dt><dd>—</dd></div>
+              </dl>
             </div>
 
             <!-- Dashboard (populated by script.js after running) -->
@@ -933,13 +948,24 @@
             <div class="sim-results" id="plan-results" aria-live="polite">
               <!-- Empty state (shown before first run) -->
               <div class="sim-empty" id="plan-empty">
-                <div class="card-icon" aria-hidden="true">🎯</div>
+                <span class="ll-sim-empty-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                       stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="4" />
+                    <circle cx="12" cy="12" r="0.6" fill="currentColor" />
+                  </svg>
+                </span>
                 <h3>Your startup plan summary appears here</h3>
                 <p>
                   Fill in your budget and select <strong>Run Startup Plan</strong> to
                   see your expected profit, target gap, startup cash needs, and
                   planning advice.
                 </p>
+                <dl class="ll-sim-empty-preview" aria-hidden="true">
+                  <div><dt>Expected profit</dt><dd>—</dd></div>
+                  <div><dt>Target profit gap</dt><dd>—</dd></div>
+                  <div><dt>Est. cash left</dt><dd>—</dd></div>
+                </dl>
               </div>
 
               <!-- Plan dashboard (populated by script.js) -->
@@ -1009,6 +1035,7 @@
             </div>
           </div>
         </div><!-- /#planning-panel -->
+        </div><!-- /.ll-sim-frame -->
       </div>
     </section>
 

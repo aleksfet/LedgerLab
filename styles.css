@@ -2530,6 +2530,617 @@ a:hover {
   color: var(--text-soft);
 }
 
+/* ===== Business Simulator: Ledger Workspace shell =====
+   Everything below is scoped to #simulator / ll-sim-* so the five tool
+   windows, which share the older sim-* / stat-* / field classes, are not
+   affected. Tokens derive from the ll-* system, so they follow ?theme=light
+   automatically; only values with no ll-* equivalent are overridden. */
+#simulator {
+  --ll-sim-bg: var(--ll-page);
+  --ll-sim-frame-bg: var(--ll-card-bg);
+  --ll-sim-frame-border: var(--ll-card-border);
+  --ll-sim-frame-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  --ll-sim-band: var(--ll-card-band);
+  --ll-sim-rule: var(--ll-line);
+  --ll-sim-text: var(--ll-text);
+  --ll-sim-body: var(--ll-body);
+  --ll-sim-muted: var(--ll-muted);
+  --ll-sim-accent: var(--ll-green);
+  --ll-sim-tint: var(--ll-tint);
+  --ll-sim-tint-border: var(--ll-tint-border);
+  --ll-sim-pos: var(--ll-pos);
+  --ll-sim-neg: var(--ll-neg);
+  --ll-sim-warn: #e0b04a;
+  --ll-sim-input-bg: var(--ll-viz-bg);
+  --ll-sim-bar: var(--ll-viz-bar);
+  --ll-sim-cta-bg: var(--ll-cta-bg);
+  --ll-sim-cta-hover: var(--ll-cta-hover);
+  --ll-sim-cta-text: var(--ll-cta-text);
+  --ll-sim-radius: 10px;
+  --ll-sim-radius-sm: 6px;
+}
+
+:root[data-theme="light"] #simulator {
+  --ll-sim-frame-shadow: 0 12px 32px rgba(16, 32, 60, 0.06);
+  --ll-sim-warn: #9a6a00;
+}
+
+.ll-sim {
+  background: var(--ll-sim-bg);
+  border-top: 1px solid var(--ll-sim-rule);
+  padding: 4.5rem 0 5rem;
+}
+
+/* Same content width as Page 1 (overrides the older 1280px #simulator rule). */
+#simulator .ll-sim-container {
+  max-width: calc(var(--ll-maxw) + 3rem);
+}
+
+/* ---- Header: intro on the left, mode switch on the right ---- */
+.ll-sim-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 2.5rem;
+  margin-bottom: 1.75rem;
+  font-family: var(--ll-font);
+}
+
+.ll-sim-intro {
+  min-width: 0;
+  max-width: 40rem;
+}
+
+.ll-sim-eyebrow {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ll-sim-muted);
+}
+
+.ll-sim-title {
+  margin: 0 0 0.6rem;
+  font-size: clamp(1.9rem, 2.6vw, 2.3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ll-sim-text);
+}
+
+.ll-sim-sub {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--ll-sim-body);
+}
+
+/* ---- Mode switch: restrained two-segment control ---- */
+.ll-sim-modes {
+  display: inline-flex;
+  flex: none;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--ll-sim-frame-border);
+  border-radius: 8px;
+  background: var(--ll-sim-frame-bg);
+}
+
+.ll-sim-mode {
+  padding: 0.55rem 1.05rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ll-sim-body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--transition), background-color var(--transition);
+}
+
+.ll-sim-mode:hover {
+  color: var(--ll-sim-text);
+}
+
+.ll-sim-mode.is-active {
+  background: var(--ll-sim-tint);
+  color: var(--ll-sim-accent);
+  box-shadow: inset 0 0 0 1px var(--ll-sim-tint-border);
+  cursor: default;
+}
+
+.ll-sim-mode:focus-visible {
+  outline: 2px solid var(--ll-sim-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Inner content on the LedgerLab palette ----
+   The form and dashboard still use the original global tokens. Remapping
+   them here (and only here) moves the Simulator onto the ll-* palette and
+   makes it follow ?theme=light; the tool windows sit outside #simulator and
+   keep the original values. Blue maps to the green accent. */
+#simulator {
+  --bg: var(--ll-sim-input-bg);
+  --bg-2: var(--ll-sim-frame-bg);
+  --surface: var(--ll-sim-frame-bg);
+  --surface-2: var(--ll-sim-band);
+  --surface-hover: var(--ll-sim-band);
+  --border: var(--ll-sim-rule);
+  --border-strong: var(--ll-sim-frame-border);
+  --text: var(--ll-sim-text);
+  --text-soft: var(--ll-sim-body);
+  --text-muted: var(--ll-sim-muted);
+  --blue: var(--ll-sim-accent);
+  --blue-bright: var(--ll-sim-accent);
+  --blue-dark: var(--ll-sim-accent);
+  --green: var(--ll-sim-pos);
+  --green-bright: var(--ll-sim-pos);
+  --red: var(--ll-sim-neg);
+  --red-strong: var(--ll-sim-neg);
+  --glow-blue: var(--ll-sim-tint);
+  --glow-green: transparent;
+  --glow-red: rgba(242, 99, 108, 0.16);
+  --shadow-sm: none;
+  --shadow-md: none;
+  font-family: var(--ll-font);
+}
+
+#simulator input,
+#simulator button {
+  font-family: inherit;
+}
+
+/* ---- Frame: one surface, inputs | output split by a thin rule ---- */
+.ll-sim-frame {
+  border: 1px solid var(--ll-sim-frame-border);
+  border-radius: var(--ll-sim-radius);
+  background: var(--ll-sim-frame-bg);
+  box-shadow: var(--ll-sim-frame-shadow);
+  overflow: hidden;
+}
+
+/* Both columns share the same padding so their headings start on one line. */
+#simulator .ll-sim-frame .sim-layout {
+  --ll-sim-pad-y: 1.75rem;
+  --ll-sim-pad-x: 2rem;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 0;
+  align-items: stretch;
+}
+
+#simulator .ll-sim-frame .sim-form {
+  padding: var(--ll-sim-pad-y) var(--ll-sim-pad-x);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+#simulator .ll-sim-frame .sim-results {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--ll-sim-pad-y) var(--ll-sim-pad-x);
+  border-left: 1px solid var(--ll-sim-rule);
+  background: var(--ll-sim-bg);
+}
+
+/* ---- Column headings: one size, one rhythm, both columns ---- */
+#simulator .sim-panel-title,
+#simulator .sim-dash-title {
+  margin: 0 0 1.25rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ll-sim-text);
+}
+
+/* ---- Form sections: aligned boxes with an inside heading ---- */
+/* Spacing below the business name only; full-width fields inside a row
+   (e.g. Other expenses) follow the row rhythm instead. */
+#simulator .sim-form > .field-full {
+  margin-bottom: 1rem;
+}
+
+#simulator .field-row > .field-full {
+  margin-bottom: 0;
+}
+
+#simulator .field-group {
+  margin: 0 0 1rem;
+  padding: 0.95rem 1.1rem 1.1rem;
+  border: 1px solid var(--ll-sim-rule);
+  border-radius: 8px;
+  background: var(--ll-sim-bg);
+}
+
+/* Floating the legend puts it inside the box, so every box's top edge and
+   heading line up instead of the legend notching the border. */
+#simulator .field-group legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 0.85rem;
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--ll-sim-muted);
+}
+
+#simulator .field-group legend + * {
+  clear: both;
+}
+
+#simulator .field-help {
+  margin: 0 0 0.85rem;
+  color: var(--ll-sim-muted);
+}
+
+/* Rows of two fields share label / control / hint / error tracks, so a label
+   that wraps to two lines no longer pushes its input below its neighbour. */
+#simulator .field-row {
+  grid-template-rows: repeat(4, auto);
+  column-gap: 0.9rem;
+  row-gap: 0;
+}
+
+#simulator .field-row + .field-row {
+  margin-top: 0.85rem;
+}
+
+#simulator .field-row > .field {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+}
+
+#simulator .field-row > .field > label {
+  align-self: end;
+}
+
+#simulator .field label {
+  margin-bottom: 0.4rem;
+  font-size: 0.84rem;
+  color: var(--ll-sim-body);
+}
+
+#simulator .plan-live-hint {
+  color: var(--ll-sim-muted);
+}
+
+/* ---- Buttons: solid accent primary, quiet secondary, no glow ---- */
+#simulator .sim-actions {
+  margin-top: 1.25rem;
+}
+
+#simulator .btn {
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--ll-sim-radius-sm);
+  font-size: 0.95rem;
+}
+
+#simulator .btn:hover {
+  transform: none;
+}
+
+#simulator .btn-primary {
+  background: var(--ll-sim-cta-bg);
+  color: var(--ll-sim-cta-text);
+  box-shadow: none;
+}
+
+#simulator .btn-primary:hover {
+  background: var(--ll-sim-cta-hover);
+  box-shadow: none;
+}
+
+#simulator .btn-secondary {
+  background: transparent;
+  border-color: var(--ll-sim-frame-border);
+  color: var(--ll-sim-body);
+}
+
+#simulator .btn-secondary:hover {
+  border-color: var(--ll-sim-muted);
+  color: var(--ll-sim-text);
+  box-shadow: none;
+}
+
+#simulator .btn:focus-visible {
+  outline: 2px solid var(--ll-sim-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Empty state: fills the output column, content centred ---- */
+#simulator .sim-empty {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  border: 1px solid var(--ll-sim-rule);
+  border-radius: 8px;
+  background: var(--ll-sim-frame-bg);
+}
+
+#simulator .sim-empty[hidden],
+#simulator .sim-dashboard[hidden] {
+  display: none;
+}
+
+.ll-sim-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--ll-sim-tint-border);
+  border-radius: 8px;
+  background: var(--ll-sim-tint);
+  color: var(--ll-sim-accent);
+}
+
+.ll-sim-empty-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+#simulator .sim-empty h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ll-sim-text);
+}
+
+#simulator .sim-empty p {
+  max-width: 26rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ll-sim-muted);
+}
+
+#simulator .sim-empty strong {
+  color: var(--ll-sim-body);
+}
+
+/* A faint ledger preview of what the run will fill in. */
+.ll-sim-empty-preview {
+  width: 100%;
+  max-width: 18rem;
+  margin: 1.5rem 0 0;
+  border-top: 1px solid var(--ll-sim-rule);
+  font-size: 0.82rem;
+}
+
+.ll-sim-empty-preview div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--ll-sim-rule);
+}
+
+.ll-sim-empty-preview dt {
+  color: var(--ll-sim-muted);
+}
+
+.ll-sim-empty-preview dd {
+  margin: 0;
+  color: var(--ll-sim-muted);
+  opacity: 0.6;
+}
+
+/* ---- Dashboard: no outer card; the column is the surface ---- */
+#simulator .sim-dashboard {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+#simulator .report-section {
+  margin-top: 1.4rem;
+}
+
+#simulator .report-heading {
+  color: var(--ll-sim-muted);
+}
+
+#simulator .stat-grid {
+  gap: 0.6rem;
+}
+
+#simulator .stat-card {
+  border-radius: 8px;
+  background: var(--ll-sim-frame-bg);
+}
+
+#simulator .stat-card.is-positive,
+#simulator .stat-card.status-strong {
+  border-color: var(--ll-sim-tint-border);
+}
+
+#simulator .stat-card.is-negative,
+#simulator .stat-card.status-risk {
+  border-color: rgba(242, 99, 108, 0.35);
+}
+
+/* "Stable" is neutral, not an accent. */
+#simulator .stat-card.status-stable {
+  border-color: var(--ll-sim-rule);
+}
+
+#simulator .stat-card.status-stable .stat-value {
+  color: var(--ll-sim-text);
+}
+
+#simulator .stat-card.status-watch {
+  border-color: rgba(224, 176, 74, 0.4);
+}
+
+#simulator .stat-card.status-watch .stat-value {
+  color: var(--ll-sim-warn);
+}
+
+#simulator .stat-card.status-risk .stat-value {
+  color: var(--ll-sim-neg);
+}
+
+/* Status line: tinted, with a plain dot (no glow). */
+#simulator .health-banner {
+  border-radius: 8px;
+}
+
+#simulator .health-dot {
+  width: 9px;
+  height: 9px;
+  box-shadow: none;
+}
+
+#simulator .health-good {
+  border-color: var(--ll-sim-tint-border);
+  background: var(--ll-sim-tint);
+  color: var(--ll-sim-pos);
+}
+
+#simulator .health-warn {
+  border-color: rgba(224, 176, 74, 0.4);
+  background: rgba(224, 176, 74, 0.08);
+  color: var(--ll-sim-warn);
+}
+
+#simulator .health-warn .health-dot {
+  background: var(--ll-sim-warn);
+}
+
+#simulator .health-danger {
+  border-color: rgba(242, 99, 108, 0.4);
+  background: rgba(242, 99, 108, 0.08);
+  color: var(--ll-sim-neg);
+}
+
+#simulator .health-danger .health-dot {
+  background: var(--ll-sim-neg);
+}
+
+#simulator .health-neutral {
+  border-color: var(--ll-sim-frame-border);
+  background: var(--ll-sim-band);
+  color: var(--ll-sim-body);
+}
+
+#simulator .health-neutral .health-dot {
+  background: var(--ll-sim-muted);
+}
+
+#simulator .yearly-trend {
+  background: var(--ll-sim-frame-bg);
+}
+
+#simulator .breakdown-bar {
+  border: 0;
+  background: var(--ll-sim-rule);
+}
+
+#simulator .breakdown-fill {
+  background: var(--ll-sim-bar);
+  box-shadow: none;
+}
+
+#simulator .explanation,
+#simulator .plan-acct-note {
+  background: var(--ll-sim-frame-bg);
+  border-left-color: var(--ll-sim-tint-border);
+}
+
+/* ---- Responsive tiers ---- */
+/* Large monitors: a little more room for the two columns. */
+@media (min-width: 1600px) {
+  #simulator .ll-sim-container {
+    max-width: calc(1392px + 3rem);
+  }
+}
+
+/* Laptops and small desktops: even columns, slightly tighter padding. */
+@media (max-width: 1179px) {
+  #simulator .ll-sim-frame .sim-layout {
+    --ll-sim-pad-y: 1.5rem;
+    --ll-sim-pad-x: 1.5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .ll-sim {
+    padding: 3.25rem 0 3.5rem;
+  }
+
+  .ll-sim-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ll-sim-modes {
+    display: flex;
+  }
+
+  .ll-sim-mode {
+    flex: 1 1 0;
+    white-space: normal;
+  }
+
+  #simulator .ll-sim-frame .sim-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #simulator .ll-sim-frame .sim-results {
+    border-left: 0;
+    border-top: 1px solid var(--ll-sim-rule);
+  }
+
+  #simulator .sim-empty {
+    padding: 2rem 1.25rem;
+  }
+}
+
+/* Phone: 16px gutters; the frame runs edge to edge with only top/bottom rules. */
+@media (max-width: 640px) {
+  #simulator .ll-sim-container {
+    padding: 0 1rem;
+  }
+
+  .ll-sim-frame {
+    margin: 0 -1rem;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  #simulator .ll-sim-frame .sim-layout {
+    --ll-sim-pad-y: 1.25rem;
+    --ll-sim-pad-x: 1rem;
+  }
+
+  #simulator .field-group {
+    padding: 0.85rem 0.9rem 1rem;
+  }
+
+  /* Rows stack to one field each; let each field size itself again. */
+  #simulator .field-row > .field {
+    display: flex;
+    grid-row: auto;
+  }
+
+  #simulator .field-row > .field > label {
+    align-self: auto;
+  }
+}
+
 /* ===== Journal Entry Helper (Accounting Tool) ===== */
 .je-tool {
   margin-top: 0.5rem;
