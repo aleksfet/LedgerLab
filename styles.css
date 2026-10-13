@@ -731,6 +731,75 @@ a:hover {
   color: var(--ll-body);
 }
 
+/* Mission disclosure: one summary line, the full paragraph on request. */
+.ll-mission-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: calc(0.7rem * var(--ll-space));
+  padding: 0.15rem 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  font: inherit;
+  font-size: calc(0.9rem * var(--ll-scale));
+  font-weight: 600;
+  color: var(--ll-explore);
+  cursor: pointer;
+}
+
+.ll-mission-toggle svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 240ms ease;
+}
+
+.ll-mission-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.ll-mission-toggle:hover .ll-mission-toggle-label {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ll-mission-toggle:focus-visible {
+  outline: 2px solid var(--ll-explore);
+  outline-offset: 3px;
+}
+
+/* Animates height via grid rows; visibility keeps the collapsed text out of
+   the accessibility tree once the closing transition finishes. */
+.ll-mission-more {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 280ms ease, visibility 0s linear 280ms;
+}
+
+.ll-mission-more.is-open {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows 280ms ease, visibility 0s;
+}
+
+.ll-mission-more-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ll-mission-more-inner p {
+  padding: calc(0.75rem * var(--ll-space)) 0 calc(1rem * var(--ll-space));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-mission-more,
+  .ll-mission-more.is-open,
+  .ll-mission-toggle svg {
+    transition: none;
+  }
+}
+
 /* Journal-entry preview card */
 .ll-journal {
   justify-self: center;
@@ -843,6 +912,11 @@ a:hover {
   .ll-scroll-cue {
     position: relative;
     top: -1.25rem;
+  }
+
+  /* The expanded Mission text runs past the card, so drop the lift. */
+  .ll-mission:has(.ll-mission-more.is-open) .ll-scroll-cue {
+    top: 0;
   }
 }
 
@@ -1162,36 +1236,27 @@ a:hover {
   height: 10px;
 }
 
-/* Number | content | mini visual. The visual moves below the text on
-   narrow cards (see the container query at the end). */
+/* Content | mini visual. The visual moves below the text on narrow cards
+   (see the container query at the end). */
 .ll-area-inner {
   display: grid;
-  grid-template-columns: 1.9rem minmax(0, 1fr) clamp(9rem, 38cqi, 10rem);
+  grid-template-columns: minmax(0, 1fr) clamp(9rem, 38cqi, 10rem);
   grid-template-rows: auto auto 1fr;
   grid-template-areas:
-    "num head visual"
-    ". text visual"
-    ". action visual";
-  column-gap: 0.75rem;
+    "head visual"
+    "text visual"
+    "action visual";
+  column-gap: 1rem;
   height: 100%;
 }
 
 .ll-area.is-recommended .ll-area-inner {
-  grid-template-columns: 1.9rem minmax(0, 1fr) clamp(6rem, 26cqi, 7.5rem);
+  grid-template-columns: minmax(0, 1fr) clamp(6rem, 26cqi, 7.5rem);
 }
 
 /* Ledger and reconciliation previews need a little more width. */
 .ll-area.has-wide-viz .ll-area-inner {
-  grid-template-columns: 1.9rem minmax(0, 1fr) clamp(10rem, 40cqi, 11rem);
-}
-
-.ll-area-num {
-  grid-area: num;
-  align-self: center;
-  font-size: 1.05rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--ll-text);
+  grid-template-columns: minmax(0, 1fr) clamp(10rem, 40cqi, 11rem);
 }
 
 .ll-area-head {
@@ -1510,9 +1575,9 @@ a:hover {
 @container (max-width: 26rem) {
   .ll-area-inner {
     grid-template-areas:
-      "num head head"
-      ". text visual"
-      ". action visual";
+      "head head"
+      "text visual"
+      "action visual";
   }
 
   .ll-area-visual {
@@ -1525,13 +1590,13 @@ a:hover {
   .ll-area-inner,
   .ll-area.is-recommended .ll-area-inner,
   .ll-area.has-wide-viz .ll-area-inner {
-    grid-template-columns: 1.9rem minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto;
     grid-template-areas:
-      "num head"
-      ". text"
-      ". visual"
-      ". action";
+      "head"
+      "text"
+      "visual"
+      "action";
   }
 
   .ll-area-visual {

@@ -48,6 +48,25 @@
   }
 
   /**
+   * "Read our mission" disclosure: toggles the full Mission paragraph
+   * under the one-line summary. Collapsed by default.
+   */
+  function initMissionToggle() {
+    var toggle = document.querySelector(".ll-mission-toggle");
+    if (!toggle) return;
+    var panel = document.getElementById(toggle.getAttribute("aria-controls"));
+    var label = toggle.querySelector(".ll-mission-toggle-label");
+    if (!panel || !label) return;
+
+    toggle.addEventListener("click", function () {
+      var open = toggle.getAttribute("aria-expanded") !== "true";
+      toggle.setAttribute("aria-expanded", String(open));
+      panel.classList.toggle("is-open", open);
+      label.textContent = open ? "Hide mission" : "Read our mission";
+    });
+  }
+
+  /**
    * Highlight the current section in the nav as the user scrolls.
    * Purely cosmetic; safe to remove later.
    */
@@ -2902,6 +2921,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     initSmoothScroll();
     initActiveNav();
+    initMissionToggle();
     initMoneyInputs();
     initSimulator();
     initPlanning();

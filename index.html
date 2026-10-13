@@ -222,14 +222,30 @@
       <div class="container ll-container ll-mission-grid">
         <div class="ll-mission-text">
           <h2>Our Mission</h2>
-          <p>
-            This website is more than a simple teaching of accounting. It is not like
-            textbooks or courses that may overcomplicate things or assume deep prior
-            knowledge. Key areas of accounting are presented with clear,
-            easy-to-understand explanations, with interactivity and outputs that show
-            you how everything works. Whether you are a beginner or a business owner,
-            building understanding through this website can go a long way.
+          <p class="ll-mission-summary">
+            LedgerLab makes accounting easier to understand through clear explanations,
+            real examples, and interactive tools.
           </p>
+          <button type="button" class="ll-mission-toggle" aria-expanded="false"
+                  aria-controls="mission-full">
+            <span class="ll-mission-toggle-label">Read our mission</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 5v14M6 13l6 6 6-6" />
+            </svg>
+          </button>
+          <div id="mission-full" class="ll-mission-more">
+            <div class="ll-mission-more-inner">
+              <p>
+                This website is more than a simple teaching of accounting. It is not like
+                textbooks or courses that may overcomplicate things or assume deep prior
+                knowledge. Key areas of accounting are presented with clear,
+                easy-to-understand explanations, with interactivity and outputs that show
+                you how everything works. Whether you are a beginner or a business owner,
+                building understanding through this website can go a long way.
+              </p>
+            </div>
+          </div>
         </div>
         <aside class="ll-journal" aria-label="Example accounting output">
           <p class="ll-journal-head">Preview: Accounting Output</p>
@@ -295,7 +311,6 @@
               Recommended First
             </span>
             <div class="ll-area-inner">
-              <span class="ll-area-num">01</span>
               <div class="ll-area-head">
                 <span class="ll-area-icon is-green" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -333,7 +348,6 @@
           <!-- 02 Financial Statements -> Income Statement Builder -->
           <article class="ll-area">
             <div class="ll-area-inner">
-              <span class="ll-area-num">02</span>
               <div class="ll-area-head">
                 <span class="ll-area-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
@@ -368,7 +382,6 @@
           <!-- 03 Cash Flows -> Cash Flow Helper -->
           <article class="ll-area">
             <div class="ll-area-inner">
-              <span class="ll-area-num">03</span>
               <div class="ll-area-head">
                 <span class="ll-area-icon is-green" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -412,7 +425,6 @@
           <!-- 04 Journal Entries -> Journal Entry Helper -->
           <article class="ll-area has-wide-viz">
             <div class="ll-area-inner">
-              <span class="ll-area-num">04</span>
               <div class="ll-area-head">
                 <span class="ll-area-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
@@ -450,7 +462,6 @@
           <!-- 05 Bank Reconciliation -> Bank Reconciliation Helper -->
           <article class="ll-area has-wide-viz">
             <div class="ll-area-inner">
-              <span class="ll-area-num">05</span>
               <div class="ll-area-head">
                 <span class="ll-area-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
@@ -483,7 +494,6 @@
           <!-- 06 Depreciation -> Depreciation Calculator -->
           <article class="ll-area">
             <div class="ll-area-inner">
-              <span class="ll-area-num">06</span>
               <div class="ll-area-head">
                 <span class="ll-area-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
