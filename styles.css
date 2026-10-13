@@ -3141,6 +3141,645 @@ a:hover {
   }
 }
 
+/* ===== Startup Planning: header control + Interactive Mode ===== */
+/* A restrained blue marks the guided feature only (entry button, guide label,
+   progress). Green stays the accent for actions and results everywhere else. */
+#simulator {
+  --ll-sim-guide: #8db2f5;
+  --ll-sim-guide-bg: rgba(77, 124, 224, 0.13);
+  --ll-sim-guide-border: rgba(120, 160, 240, 0.38);
+  --ll-sim-guide-bar: #5b8def;
+}
+
+:root[data-theme="light"] #simulator {
+  --ll-sim-guide: #2457c5;
+  --ll-sim-guide-bg: #edf3fe;
+  --ll-sim-guide-border: #c6d6f5;
+  --ll-sim-guide-bar: #3a6fd8;
+}
+
+/* Anything given the hidden attribute stays hidden, whatever its display. */
+#simulator [hidden] {
+  display: none !important;
+}
+
+#simulator .ll-plan-standard > .field-full {
+  margin-bottom: 1rem;
+}
+
+/* Heading with the Interactive Mode group right after it (wraps below when
+   the column is narrow), never pushed to the far edge. */
+#simulator .ll-plan-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+#simulator .ll-plan-head .sim-panel-title {
+  margin: 0;
+}
+
+.ll-guide-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.ll-guide-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.8rem;
+  border: 1px solid var(--ll-sim-guide-border);
+  border-radius: 7px;
+  background: var(--ll-sim-guide-bg);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--ll-sim-guide);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+
+.ll-guide-open:hover {
+  border-color: var(--ll-sim-guide);
+}
+
+.ll-guide-open svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ll-guide-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ll-sim-muted);
+}
+
+.ll-guide-badge svg {
+  width: 10px;
+  height: 10px;
+  color: var(--ll-sim-guide);
+}
+
+/* Optional tag on the standard form's target label. */
+.ll-opt {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--ll-sim-rule);
+  border-radius: 4px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+  color: var(--ll-sim-muted);
+}
+
+/* ---- Tooltip: hover + keyboard focus, Escape dismisses ---- */
+.ll-tip {
+  position: relative;
+  display: inline-flex;
+  margin-left: -0.2rem;
+}
+
+.ll-tip-btn {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ll-sim-muted);
+  cursor: help;
+}
+
+.ll-tip-btn:hover,
+.ll-tip-btn:focus-visible {
+  color: var(--ll-sim-text);
+}
+
+.ll-tip-btn:focus-visible,
+.ll-guide-open:focus-visible,
+.ll-guide-exit:focus-visible,
+.ll-guide-alt:focus-visible,
+.ll-guide-edit:focus-visible {
+  outline: 2px solid var(--ll-sim-accent);
+  outline-offset: 2px;
+}
+
+.ll-tip-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ll-tip-text {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  z-index: 5;
+  width: max-content;
+  max-width: min(17rem, 80vw);
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--ll-sim-frame-border);
+  border-radius: 7px;
+  background: var(--ll-sim-frame-bg);
+  box-shadow: var(--ll-sim-frame-shadow);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+  color: var(--ll-sim-body);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%);
+  transition: opacity 120ms ease, visibility 0s linear 120ms;
+}
+
+/* Bridges the gap so the pointer can move onto the tooltip. */
+.ll-tip-text::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: -0.5rem;
+  height: 0.5rem;
+}
+
+.ll-tip:hover .ll-tip-text,
+.ll-tip:focus-within .ll-tip-text {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms ease, visibility 0s;
+}
+
+.ll-tip.is-dismissed .ll-tip-text {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ---- Guided flow ---- */
+.ll-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ll-guide-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--ll-sim-rule);
+}
+
+.ll-guide-name {
+  display: inline-flex;
+  flex: none;
+  white-space: nowrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ll-sim-guide);
+}
+
+.ll-guide-name svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Exit: a quiet close button, top right on every screen of the guide. */
+.ll-guide-exit {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--ll-sim-rule);
+  border-radius: 6px;
+  background: none;
+  color: var(--ll-sim-muted);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+/* Right end of the guide bar: the quiet reminder, then the close button. */
+.ll-guide-top-end {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ll-guide-reminder {
+  margin: 0;
+  max-width: 17rem;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  text-align: right;
+  color: var(--ll-sim-muted);
+}
+
+.ll-guide-exit {
+  flex: none;
+}
+
+.ll-guide-exit:hover {
+  border-color: var(--ll-sim-muted);
+  color: var(--ll-sim-text);
+}
+
+.ll-guide-exit svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ll-guide-count {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ll-sim-body);
+}
+
+.ll-guide-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ll-sim-rule);
+  overflow: hidden;
+}
+
+.ll-guide-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--ll-sim-guide-bar);
+  transition: width 300ms ease;
+}
+
+.ll-guide-step {
+  padding: 1.5rem 1.4rem;
+  border: 1px solid var(--ll-sim-rule);
+  border-radius: 10px;
+  background: var(--ll-sim-bg);
+}
+
+.ll-guide-group {
+  margin: 0 0 0.9rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ll-sim-muted);
+}
+
+#simulator .ll-guide-field .ll-guide-q {
+  display: block;
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ll-sim-text);
+}
+
+.ll-guide-help {
+  margin: 0 0 1.1rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ll-sim-muted);
+}
+
+/* "• Required" / "• Optional": spelled out, so meaning never rests on colour. */
+.ll-guide-need {
+  margin-left: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ll-sim-body);
+}
+
+.ll-guide-need::before {
+  content: "•";
+  margin-right: 0.3rem;
+  color: var(--ll-sim-guide);
+}
+
+.ll-guide-need.is-optional {
+  font-weight: 500;
+  color: var(--ll-sim-muted);
+}
+
+#simulator .ll-guide-field input[type="text"],
+#simulator .ll-guide-field .money-input input[type="number"],
+#simulator .ll-guide-field .money-symbol {
+  font-size: 1.1rem;
+}
+
+#simulator .ll-guide-field input[type="text"] {
+  padding: 0.75rem 0.85rem;
+}
+
+#simulator .ll-guide-field .money-input input[type="number"],
+#simulator .ll-guide-field .money-symbol {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Back (left, secondary) · No / None (centre, tertiary) · Continue (right, primary). */
+.ll-guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.4rem;
+}
+
+#simulator .ll-guide-actions .btn-secondary {
+  margin-right: auto;
+}
+
+#simulator .ll-guide-actions .ll-guide-next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+
+.ll-guide-next svg {
+  width: 15px;
+  height: 15px;
+}
+
+.ll-guide-alt {
+  padding: 0.7rem 0.95rem;
+  border: 0;
+  border-radius: var(--ll-sim-radius-sm);
+  background: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ll-sim-body);
+  text-decoration: underline;
+  text-decoration-color: var(--ll-sim-frame-border);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.ll-guide-alt:hover {
+  color: var(--ll-sim-text);
+  text-decoration-color: currentColor;
+}
+
+/* Confirms a "No — no target" answer when the profit-goal question is revisited. */
+.ll-guide-chosen {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--ll-sim-body);
+}
+
+/* ---- Review: an accounting summary, not a card grid ---- */
+.ll-guide-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ll-sim-accent);
+}
+
+.ll-guide-done svg {
+  width: 20px;
+  height: 20px;
+  padding: 3px;
+  border: 1px solid var(--ll-sim-tint-border);
+  border-radius: 50%;
+  background: var(--ll-sim-tint);
+}
+
+.ll-guide-review-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ll-sim-text);
+}
+
+.ll-guide-review-title:focus,
+#plan-dash-title:focus {
+  outline: none;
+}
+
+.ll-guide-section {
+  padding: 1rem 0 1.1rem;
+  border-top: 1px solid var(--ll-sim-frame-border);
+}
+
+.ll-guide-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.ll-guide-sheet-title {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ll-sim-muted);
+}
+
+.ll-guide-rows {
+  margin: 0;
+}
+
+.ll-guide-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.42rem 0;
+  border-bottom: 1px solid var(--ll-sim-rule);
+  font-size: 0.9rem;
+}
+
+.ll-guide-row dt {
+  color: var(--ll-sim-body);
+}
+
+.ll-guide-row dd {
+  margin: 0;
+  max-width: 16rem;
+  overflow-wrap: anywhere;
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ll-sim-text);
+}
+
+.ll-guide-row dd.is-empty {
+  font-weight: 500;
+  color: var(--ll-sim-muted);
+}
+
+/* Subtotal: the line above it is drawn a little stronger, and the total
+   closes with a double rule. */
+.ll-guide-row:has(+ .ll-guide-row.is-total) {
+  border-bottom-color: var(--ll-sim-frame-border);
+}
+
+.ll-guide-row.is-total {
+  padding-top: 0.55rem;
+  border-bottom: 3px double var(--ll-sim-frame-border);
+}
+
+/* A section closed by a total needs no extra divider after it. */
+.ll-guide-section:has(.is-total) + .ll-guide-section {
+  border-top: 0;
+}
+
+.ll-guide-row.is-total dt,
+.ll-guide-row.is-total dd {
+  font-weight: 700;
+  color: var(--ll-sim-text);
+}
+
+.ll-guide-edit {
+  padding: 0.2rem 0.1rem;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ll-sim-accent);
+  cursor: pointer;
+}
+
+.ll-guide-edit:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ll-guide-review .ll-guide-actions {
+  margin-top: 0.4rem;
+}
+
+/* ---- Light, satisfying step transitions ---- */
+.ll-guide .is-entering {
+  animation: ll-guide-in 220ms ease both;
+}
+
+@keyframes ll-guide-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-guide .is-entering {
+    animation: none;
+  }
+
+  .ll-guide-fill,
+  .ll-tip-text {
+    transition: none;
+  }
+}
+
+/* The live target helper only takes space when it has something to say. */
+#simulator .plan-live-hint:empty {
+  display: none;
+}
+
+/* ---- Interactive Mode responsive ---- */
+/* Until the input column is wide enough for one line, the reminder sits on
+   its own line under the bar, still aligned with the close button. */
+@media (max-width: 1599px) {
+  .ll-guide-top {
+    flex-wrap: wrap;
+    row-gap: 0.35rem;
+  }
+
+  .ll-guide-top-end {
+    display: contents;
+  }
+
+  .ll-guide-reminder {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Stacked Planning fields: one even gap between every field. */
+  #plan-form .field-row + .field-row {
+    margin-top: 0;
+  }
+
+  .ll-guide-step {
+    padding: 1.15rem 1rem;
+  }
+
+  #simulator .ll-guide-field .ll-guide-q {
+    font-size: 1.15rem;
+  }
+
+  /* Continue on its own full-width row; Back and Skip share the next. */
+  #simulator .ll-guide-actions .ll-guide-next {
+    order: -1;
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+
+  #simulator .ll-guide-actions .btn-secondary {
+    flex: 1 1 0;
+    margin-right: 0;
+  }
+
+  .ll-guide-alt {
+    flex: 1 1 0;
+    white-space: normal;
+  }
+
+  .ll-guide-reminder {
+    text-align: left;
+  }
+
+  /* Keep the tooltip inside narrow screens: open towards the left. */
+  .ll-tip-text {
+    left: auto;
+    right: -0.5rem;
+    transform: none;
+  }
+}
+
 /* ===== Journal Entry Helper (Accounting Tool) ===== */
 .je-tool {
   margin-top: 0.5rem;

@@ -6,8 +6,81 @@
    and a small active-nav highlight.
    ============================================================ */
 
+/* ==========================================================
+   Startup Planning math (pure, no DOM)
+   Shared by the browser (window.StartupPlanCore) and the Node
+   tests (require("../script.js")). Blank optional amounts are
+   treated as 0 by the caller before they reach this code.
+   ========================================================== */
+(function (root) {
+  "use strict";
+
+  function num(value) {
+    return typeof value === "number" && isFinite(value) ? value : 0;
+  }
+
+  /**
+   *  - Planned expenses   = rent + wages + supplies + utilities + marketing + other
+   *  - Expected profit    = expected revenue - planned expenses
+   *  - Target profit gap  = target profit - expected profit   (> 0 means short)
+   *  - Startup purchases  = equipment + inventory + other startup costs
+   *  - Estimated cash left = cash to start - startup purchases + expected profit
+   * hasTarget records whether the user entered a target at all, so a real $0
+   * target can be told apart from "no target".
+   */
+  function computeStartupPlan(inputs) {
+    var i = inputs || {};
+    var totalExpenses =
+      num(i.rent) + num(i.wages) + num(i.supplies) +
+      num(i.utilities) + num(i.marketing) + num(i.other);
+    var expectedProfit = num(i.revenue) - totalExpenses;
+    var targetGap = num(i.targetProfit) - expectedProfit;
+    var startupPurchases = num(i.equipment) + num(i.inventory) + num(i.otherStartup);
+    var cashLeft = num(i.startingCash) - startupPurchases + expectedProfit;
+
+    return {
+      totalExpenses: totalExpenses,
+      expectedProfit: expectedProfit,
+      targetGap: targetGap,
+      startupPurchases: startupPurchases,
+      cashLeft: cashLeft,
+      hasTarget: i.hasTarget === true,
+    };
+  }
+
+  /**
+   * Share of startup cash used by one-time startup purchases, plus a risk band.
+   * Returns null when there are no startup purchases. With purchases but no
+   * startup cash, the plan is over budget (pct = Infinity).
+   *   0–30%  healthy   · 31–60% watch · 61–80% risky · 81%+ veryRisky
+   */
+  function startupCashUsage(startupPurchases, startingCash) {
+    if (num(startupPurchases) <= 0) return null;
+    var cash = num(startingCash);
+    var pct = cash > 0 ? (startupPurchases / cash) * 100 : Infinity;
+    var band;
+    if (pct <= 30) band = "healthy";
+    else if (pct <= 60) band = "watch";
+    else if (pct <= 80) band = "risky";
+    else band = "veryRisky";
+    return { pct: pct, band: band, tight: band === "risky" || band === "veryRisky" };
+  }
+
+  var api = { computeStartupPlan: computeStartupPlan, startupCashUsage: startupCashUsage };
+
+  // Dual export: Node (tests) + browser (window.StartupPlanCore).
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = api;
+  } else {
+    root.StartupPlanCore = api;
+  }
+})(typeof self !== "undefined" ? self : this);
+
 (function () {
   "use strict";
+
+  // Everything below drives the page; under Node (tests) only the core above loads.
+  if (typeof document === "undefined") return;
 
   /**
    * Smoothly scroll to a target section by its element id.
@@ -637,7 +710,8 @@
      border on the offending field; valid input clears them.
      ========================================================== */
 
-  // type: "text" (business name) or "money" (numeric, >= 0).
+  // type: "text" (business name), "money" (required, numeric, >= 0) or
+  // "money-optional" (blank allowed and treated as $0; otherwise as "money").
   var REQUIRED_FIELDS = [
     { id: "biz-name", type: "text" },
     { id: "starting-cash", type: "money" },
@@ -696,6 +770,12 @@
         showError(input, "Business name is required.");
         return false;
       }
+      clearError(input);
+      return true;
+    }
+
+    // Optional money field: blank is fine (it counts as $0).
+    if (field.type === "money-optional" && raw === "") {
       clearError(input);
       return true;
     }
@@ -760,35 +840,36 @@
      Assessment Mode is untouched by anything below.
      ========================================================== */
 
-  // Same validation contract as Assessment: name required, money >= 0.
+  // Every Planning field. Only the business name, starting cash and expected
+  // revenue are required; the rest may be left blank (treated as $0, and a
+  // blank target means "no target"). Any value that is entered must be valid.
   var PLAN_REQUIRED_FIELDS = [
     { id: "plan-biz-name", type: "text" },
     { id: "plan-starting-cash", type: "money" },
-    { id: "plan-target-profit", type: "money" },
+    { id: "plan-target-profit", type: "money-optional" },
     { id: "plan-revenue", type: "money" },
-    { id: "plan-rent", type: "money" },
-    { id: "plan-wages", type: "money" },
-    { id: "plan-supplies", type: "money" },
-    { id: "plan-utilities", type: "money" },
-    { id: "plan-marketing", type: "money" },
-    { id: "plan-other", type: "money" },
-    { id: "plan-equipment", type: "money" },
-    { id: "plan-inventory", type: "money" },
+    { id: "plan-rent", type: "money-optional" },
+    { id: "plan-wages", type: "money-optional" },
+    { id: "plan-supplies", type: "money-optional" },
+    { id: "plan-utilities", type: "money-optional" },
+    { id: "plan-marketing", type: "money-optional" },
+    { id: "plan-other", type: "money-optional" },
+    { id: "plan-equipment", type: "money-optional" },
+    { id: "plan-inventory", type: "money-optional" },
+    { id: "plan-other-startup", type: "money-optional" },
   ];
 
   /**
-   * Planning math (separate from Assessment):
-   *  - Planned expenses = rent + wages + supplies + utilities + marketing + other
-   *  - Expected profit/loss = expected revenue − planned expenses
-   *  - Target profit gap = target profit − expected profit  (> 0 means short)
-   *  - Startup cash needed = equipment + inventory
-   *  - Estimated cash left = cash to start − startup purchases + expected profit
+   * Read the Planning form and run the shared core (StartupPlanCore above).
+   * Blank optional amounts read as 0; a blank target means "no target".
    */
   function calculatePlan() {
+    var targetEl = document.getElementById("plan-target-profit");
     var inputs = {
       name: (document.getElementById("plan-biz-name") || {}).value || "",
       startingCash: readMoney("plan-starting-cash"),
       targetProfit: readMoney("plan-target-profit"),
+      hasTarget: !!targetEl && targetEl.value.trim() !== "",
       revenue: readMoney("plan-revenue"),
       rent: readMoney("plan-rent"),
       wages: readMoney("plan-wages"),
@@ -798,28 +879,19 @@
       other: readMoney("plan-other"),
       equipment: readMoney("plan-equipment"),
       inventory: readMoney("plan-inventory"),
+      otherStartup: readMoney("plan-other-startup"),
     };
 
-    var totalExpenses =
-      inputs.rent +
-      inputs.wages +
-      inputs.supplies +
-      inputs.utilities +
-      inputs.marketing +
-      inputs.other;
-
-    var expectedProfit = inputs.revenue - totalExpenses;
-    var targetGap = inputs.targetProfit - expectedProfit;
-    var startupPurchases = inputs.equipment + inputs.inventory;
-    var cashLeft = inputs.startingCash - startupPurchases + expectedProfit;
+    var core = window.StartupPlanCore.computeStartupPlan(inputs);
 
     return {
       inputs: inputs,
-      totalExpenses: totalExpenses,
-      expectedProfit: expectedProfit,
-      targetGap: targetGap,
-      startupPurchases: startupPurchases,
-      cashLeft: cashLeft,
+      totalExpenses: core.totalExpenses,
+      expectedProfit: core.expectedProfit,
+      targetGap: core.targetGap,
+      startupPurchases: core.startupPurchases,
+      cashLeft: core.cashLeft,
+      hasTarget: core.hasTarget,
     };
   }
 
@@ -872,22 +944,12 @@
     };
   }
 
-  /**
-   * How much of the startup cash the one-time purchases consume, and a risk band.
-   * Returns null when there are no startup purchases. When there is no startup
-   * cash but there are purchases, the plan is over budget (pct = Infinity).
-   *   0–30%  healthy   · 31–60% watch · 61–80% risky · 81%+ veryRisky
-   */
+  /** Startup cash usage for a plan (see StartupPlanCore.startupCashUsage). */
   function getStartupCashUsage(plan) {
-    if (plan.startupPurchases <= 0) return null;
-    var cash = plan.inputs.startingCash;
-    var pct = cash > 0 ? (plan.startupPurchases / cash) * 100 : Infinity;
-    var band;
-    if (pct <= 30) band = "healthy";
-    else if (pct <= 60) band = "watch";
-    else if (pct <= 80) band = "risky";
-    else band = "veryRisky";
-    return { pct: pct, band: band, tight: band === "risky" || band === "veryRisky" };
+    return window.StartupPlanCore.startupCashUsage(
+      plan.startupPurchases,
+      plan.inputs.startingCash
+    );
   }
 
   /** "Startup purchases use N% of available startup cash" (or "more than 100%"). */
@@ -1275,14 +1337,477 @@
       renderPlanResults(calculatePlan());
     });
 
+    initPlanGuide();
+
     form.addEventListener("reset", function () {
       clearAllPlanErrors();
+      resetPlanGuide();
       var helper = document.getElementById("plan-target-helper");
       if (helper) helper.textContent = "";
       var empty = document.getElementById("plan-empty");
       var dashboard = document.getElementById("plan-dashboard");
       if (dashboard) dashboard.hidden = true;
       if (empty) empty.hidden = false;
+    });
+  }
+
+  /* ==========================================================
+     Startup Planning — Interactive Mode
+     A guided, one-question-at-a-time view of the SAME plan-*
+     fields. Every answer is written straight into its plan-*
+     input as it is typed, so the standard form and the guide
+     always show the same values. Running the plan submits the
+     real #plan-form, i.e. the existing validation, calculatePlan()
+     and renderPlanResults() path. Nothing is calculated here.
+
+     need: "required" — must be answered; no alternative action
+           "answer"   — must be answered; $0 is a valid answer
+           "choice"   — must be answered, either with an amount or with the
+                        question's own alternative ("No — none", "None — $0",
+                        "No — no target")
+     In the guide a blank answer always means "not answered yet", never $0.
+     ========================================================== */
+
+  var GUIDE_ZERO_HINT = " Enter $0 if this does not apply.";
+  var GUIDE_ZERO_MSG = "Enter an amount, or enter $0 if there is none.";
+
+  var GUIDE_STEPS = [
+    { id: "plan-biz-name", kind: "text", need: "required", group: "The basics", label: "Business name",
+      q: "What is your business called?",
+      help: "This name appears at the top of your plan." },
+    { id: "plan-starting-cash", kind: "money", need: "required", group: "The basics", label: "Starting cash",
+      q: "How much cash will you have available when you start?",
+      help: "Savings, loans or investment you can spend before the business earns any money." },
+    { id: "plan-revenue", kind: "money", need: "required", group: "The basics", label: "Expected monthly revenue",
+      q: "Roughly how much monthly revenue do you expect to generate?",
+      help: "An estimate is okay — use what you realistically expect in a typical month." },
+    { id: "plan-rent", kind: "money", need: "answer", group: "Monthly costs", label: "Rent",
+      q: "What will you pay in rent each month?",
+      help: "Rent for a shop, office, studio or kitchen." + GUIDE_ZERO_HINT },
+    { id: "plan-wages", kind: "money", need: "answer", group: "Monthly costs", label: "Wages",
+      q: "How much will you pay in wages each month?",
+      help: "Pay for anyone who works for the business." + GUIDE_ZERO_HINT },
+    { id: "plan-supplies", kind: "money", need: "answer", group: "Monthly costs", label: "Supplies",
+      q: "What will supplies cost each month?",
+      help: "Everyday items you use up, such as packaging, ingredients or materials." + GUIDE_ZERO_HINT },
+    { id: "plan-utilities", kind: "money", need: "answer", group: "Monthly costs", label: "Utilities",
+      q: "What do you expect utilities to cost each month?",
+      help: "Electricity, water, internet and phone." + GUIDE_ZERO_HINT },
+    { id: "plan-marketing", kind: "money", need: "answer", group: "Monthly costs", label: "Marketing",
+      q: "How much will you spend on marketing each month?",
+      help: "Ads, flyers, sponsored posts and promotions." + GUIDE_ZERO_HINT },
+    { id: "plan-other", kind: "money", need: "choice", group: "Monthly costs", label: "Other monthly expenses",
+      q: "Any other monthly expenses?",
+      help: "Insurance, software, bank fees — anything else that repeats every month.",
+      alt: "No — none", altValue: "0",
+      blankMsg: "Enter an amount, or choose No if there are none." },
+    { id: "plan-equipment", kind: "money", need: "choice", group: "Startup costs", label: "Equipment",
+      q: "How much will you spend on equipment?",
+      help: "Long-lasting items such as machines, computers or furniture. Accounting records these as assets.",
+      alt: "None — $0", altValue: "0",
+      blankMsg: "Enter an amount, or choose None if you will not have this cost." },
+    { id: "plan-inventory", kind: "money", need: "choice", group: "Startup costs", label: "Inventory",
+      q: "How much inventory will you buy to get started?",
+      help: "Goods you plan to sell. Inventory stays an asset until it is sold.",
+      alt: "None — $0", altValue: "0",
+      blankMsg: "Enter an amount, or choose None if you will not have this cost." },
+    { id: "plan-other-startup", kind: "money", need: "choice", group: "Startup costs", label: "Other startup costs",
+      q: "Any other one-time startup costs?",
+      help: "Licenses, permits, deposits, signage or website setup — paid once before launch.",
+      alt: "No — none", altValue: "0",
+      blankMsg: "Enter an amount, or choose No if there are none." },
+    { id: "plan-target-profit", kind: "money", need: "choice", group: "Your goal", label: "Profit target",
+      q: "Do you have a monthly profit goal you’d like to reach?",
+      help: "Now that you’ve estimated your monthly revenue and costs, do you have a profit goal you’d like the business to reach?",
+      alt: "No — no target", altValue: "", noTarget: true,
+      blankMsg: "Enter a target amount, or choose No if you do not have one." },
+  ];
+
+  // Review sheet: section title, the step ids it lists (in question order),
+  // and the calculatePlan() total shown under it (if any).
+  var GUIDE_REVIEW = [
+    { title: "Basics", ids: ["plan-biz-name", "plan-starting-cash", "plan-revenue"] },
+    { title: "Monthly costs", total: { label: "Total monthly costs", key: "totalExpenses" },
+      ids: ["plan-rent", "plan-wages", "plan-supplies", "plan-utilities", "plan-marketing", "plan-other"] },
+    { title: "Startup costs", total: { label: "Total startup costs", key: "startupPurchases" },
+      ids: ["plan-equipment", "plan-inventory", "plan-other-startup"] },
+    { title: "Goal", ids: ["plan-target-profit"] },
+  ];
+
+  // editEnd: while editing a review section, the index of that section's last
+  // question; reaching it returns to the review instead of continuing on.
+  // noTarget: the user answered the profit-goal question with "No — no target".
+  // The plan itself stores "no target" as a blank target field (hasTarget), so
+  // this flag is what lets the guide tell "chose No" apart from "not answered".
+  var guideState = { index: 0, atReview: false, editEnd: null, noTarget: false };
+
+  function guideEl(id) {
+    return document.getElementById(id);
+  }
+
+  function guideStepIndex(id) {
+    for (var i = 0; i < GUIDE_STEPS.length; i++) {
+      if (GUIDE_STEPS[i].id === id) return i;
+    }
+    return -1;
+  }
+
+  function guideField(id) {
+    for (var i = 0; i < PLAN_REQUIRED_FIELDS.length; i++) {
+      if (PLAN_REQUIRED_FIELDS[i].id === id) return PLAN_REQUIRED_FIELDS[i];
+    }
+    return null;
+  }
+
+  /** The guide input currently in use (text for the name, money otherwise). */
+  function guideInput() {
+    var step = GUIDE_STEPS[guideState.index];
+    return guideEl(step.kind === "text" ? "plan-guide-text" : "plan-guide-money");
+  }
+
+  /** True when the current question ends the flow (or the section being edited). */
+  function guideAtEnd() {
+    var last = guideState.editEnd !== null ? guideState.editEnd : GUIDE_STEPS.length - 1;
+    return guideState.index >= last;
+  }
+
+  /** Write a value into the canonical plan-* input and notify its listeners. */
+  function guideWrite(id, value) {
+    var target = guideEl(id);
+    if (!target) return;
+    target.value = value;
+    target.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+
+  /** Copy the canonical field's error state (if any) onto the guide input. */
+  function guideMirrorError(id) {
+    var input = guideInput();
+    var source = guideEl(id);
+    var wrapper = source ? getFieldWrapper(source) : null;
+    if (wrapper && wrapper.classList.contains("has-error")) {
+      var msg = wrapper.querySelector(".field-error");
+      showError(input, msg ? msg.textContent : "Please enter a valid number.");
+    } else {
+      clearError(input);
+    }
+  }
+
+  /** True when a question still has no answer (blank, and no "No" choice made). */
+  function guideUnanswered(step) {
+    if (guideEl(step.id).value.trim() !== "") return false;
+    return !(step.noTarget && guideState.noTarget);
+  }
+
+  /** First question without an answer, or -1 when every question is answered. */
+  function guideFirstUnanswered() {
+    for (var i = 0; i < GUIDE_STEPS.length; i++) {
+      if (guideUnanswered(GUIDE_STEPS[i])) return i;
+    }
+    return -1;
+  }
+
+  /**
+   * Validate the current answer. Required questions use the existing Planning
+   * rules and messages. Every other question must also be answered here: a
+   * blank never silently becomes $0 (the standard form still allows blanks).
+   */
+  function guideValidate() {
+    var step = GUIDE_STEPS[guideState.index];
+    if (step.need !== "required" && guideUnanswered(step)) {
+      showError(guideInput(), step.blankMsg || GUIDE_ZERO_MSG);
+      return false;
+    }
+    var ok = validateField(guideField(step.id));
+    guideMirrorError(step.id);
+    return ok;
+  }
+
+  function guideSetProgress(position, label) {
+    var total = GUIDE_STEPS.length;
+    guideEl("plan-guide-count").textContent = label;
+    var track = guideEl("plan-guide-track");
+    track.setAttribute("aria-valuenow", String(position));
+    track.setAttribute("aria-valuetext", label);
+    guideEl("plan-guide-fill").style.width = (position / total) * 100 + "%";
+  }
+
+  /** Replay the short entrance transition (skipped for reduced motion in CSS). */
+  function guideAnimate(el) {
+    el.classList.remove("is-entering");
+    void el.offsetWidth;
+    el.classList.add("is-entering");
+  }
+
+  function showGuideStep(index) {
+    var step = GUIDE_STEPS[index];
+    var total = GUIDE_STEPS.length;
+    guideState.index = index;
+    guideState.atReview = false;
+
+    guideEl("plan-guide-review").hidden = true;
+    var panel = guideEl("plan-guide-step");
+    panel.hidden = false;
+
+    guideSetProgress(index + 1, "Question " + (index + 1) + " of " + total);
+    guideEl("plan-guide-group").textContent = step.group;
+    guideEl("plan-guide-q").textContent = step.q;
+    guideEl("plan-guide-help").textContent = step.help;
+    var need = guideEl("plan-guide-need");
+    need.textContent = step.need === "choice" ? "Optional" : "Required";
+    need.className = "ll-guide-need" + (step.need === "choice" ? " is-optional" : "");
+
+    var isText = step.kind === "text";
+    guideEl("plan-guide-text").hidden = !isText;
+    guideEl("plan-guide-money-wrap").hidden = isText;
+    var input = guideInput();
+    guideEl("plan-guide-q").setAttribute("for", input.id);
+    input.value = guideEl(step.id).value;
+    guideMirrorError(step.id);
+
+    var alt = guideEl("plan-guide-alt");
+    alt.hidden = step.need !== "choice";
+    alt.textContent = step.alt || "";
+    guideUpdateChosen();
+
+    guideEl("plan-guide-back").hidden = index === 0;
+    guideEl("plan-guide-next-label").textContent = guideState.editEnd !== null && guideAtEnd()
+      ? "Back to review"
+      : index === total - 1
+        ? "Review answers"
+        : "Continue";
+
+    guideAnimate(panel);
+    input.focus();
+  }
+
+  /** On the profit-goal question, note that "No — no target" was chosen. */
+  function guideUpdateChosen() {
+    var step = GUIDE_STEPS[guideState.index];
+    guideEl("plan-guide-chosen").hidden =
+      !(step.noTarget && guideState.noTarget && guideEl(step.id).value.trim() === "");
+  }
+
+  /** The value shown for one answer on the review sheet. */
+  function guideReviewValue(step) {
+    var raw = guideEl(step.id).value.trim();
+    if (step.kind === "text") return { text: raw };
+    if (raw === "") {
+      return step.id === "plan-target-profit"
+        ? { text: "No target set", empty: true }
+        : { text: formatMoneyCompact(0), empty: true };
+    }
+    return { text: formatMoneyCompact(readMoney(step.id)) };
+  }
+
+  function guideReviewRow(label, value, extraClass) {
+    var row = document.createElement("div");
+    row.className = "ll-guide-row" + (extraClass ? " " + extraClass : "");
+    var dt = document.createElement("dt");
+    dt.textContent = label;
+    var dd = document.createElement("dd");
+    dd.textContent = value.text;
+    if (value.empty) dd.className = "is-empty";
+    row.appendChild(dt);
+    row.appendChild(dd);
+    return row;
+  }
+
+  function showGuideReview() {
+    guideState.atReview = true;
+    guideState.editEnd = null;
+    guideEl("plan-guide-step").hidden = true;
+
+    var plan = calculatePlan(); // same engine as the results; used for totals only
+    var sheet = guideEl("plan-guide-sheet");
+    sheet.innerHTML = "";
+
+    GUIDE_REVIEW.forEach(function (section) {
+      var wrap = document.createElement("section");
+      wrap.className = "ll-guide-section";
+
+      var head = document.createElement("div");
+      head.className = "ll-guide-section-head";
+      var title = document.createElement("h5");
+      title.className = "ll-guide-sheet-title";
+      title.textContent = section.title;
+      var edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "ll-guide-edit";
+      edit.textContent = "Edit";
+      edit.setAttribute("aria-label", "Edit " + section.title.toLowerCase());
+      edit.addEventListener("click", function () {
+        var first = guideStepIndex(section.ids[0]);
+        guideState.editEnd = guideStepIndex(section.ids[section.ids.length - 1]);
+        showGuideStep(first);
+      });
+      head.appendChild(title);
+      head.appendChild(edit);
+      wrap.appendChild(head);
+
+      var dl = document.createElement("dl");
+      dl.className = "ll-guide-rows";
+      section.ids.forEach(function (id) {
+        var step = GUIDE_STEPS[guideStepIndex(id)];
+        dl.appendChild(guideReviewRow(step.label, guideReviewValue(step)));
+      });
+      if (section.total) {
+        dl.appendChild(guideReviewRow(section.total.label,
+          { text: formatMoneyCompact(plan[section.total.key]) }, "is-total"));
+      }
+      wrap.appendChild(dl);
+      sheet.appendChild(wrap);
+    });
+
+    guideSetProgress(GUIDE_STEPS.length, "Review: all " + GUIDE_STEPS.length + " questions answered");
+    var review = guideEl("plan-guide-review");
+    review.hidden = false;
+    guideAnimate(review);
+    guideEl("plan-guide-review-title").focus();
+  }
+
+  function guideAdvance() {
+    if (guideAtEnd()) showGuideReview();
+    else showGuideStep(guideState.index + 1);
+  }
+
+  function guideContinue() {
+    if (!guideValidate()) {
+      guideInput().focus();
+      return;
+    }
+    guideAdvance();
+  }
+
+  /** The question's own alternative answer: "No — none", "None — $0", "No — no target". */
+  function guideChooseAlt() {
+    var step = GUIDE_STEPS[guideState.index];
+    if (step.need !== "choice") return;
+    guideInput().value = step.altValue;
+    guideWrite(step.id, step.altValue);
+    if (step.noTarget) guideState.noTarget = true;
+    validateField(guideField(step.id)); // clears any earlier error on the field
+    guideMirrorError(step.id);
+    guideAdvance();
+  }
+
+  function guideBack() {
+    if (guideState.index > 0) showGuideStep(guideState.index - 1);
+  }
+
+  function openPlanGuide() {
+    guideEl("plan-standard").hidden = true;
+    guideEl("plan-guide-entry").hidden = true;
+    guideEl("plan-guide-open").setAttribute("aria-expanded", "true");
+    guideEl("plan-guide").hidden = false;
+    // The standard form may have been edited meanwhile: go back to the first
+    // unanswered question instead of a review with gaps.
+    var gap = guideFirstUnanswered();
+    if (guideState.atReview && gap === -1) showGuideReview();
+    else if (guideState.atReview) showGuideStep(gap);
+    else showGuideStep(guideState.index);
+  }
+
+  /** Leave the guide. Answers already live in the plan-* fields, so nothing is lost. */
+  function closePlanGuide(restoreFocus) {
+    var panel = guideEl("plan-guide");
+    if (!panel) return;
+    panel.hidden = true;
+    guideEl("plan-standard").hidden = false;
+    guideEl("plan-guide-entry").hidden = false;
+    var open = guideEl("plan-guide-open");
+    open.setAttribute("aria-expanded", "false");
+    if (restoreFocus) open.focus();
+  }
+
+  /** Back to question 1 with the standard form showing (used by Reset). */
+  function resetPlanGuide() {
+    guideState.index = 0;
+    guideState.atReview = false;
+    guideState.editEnd = null;
+    guideState.noTarget = false;
+    ["plan-guide-text", "plan-guide-money"].forEach(function (id) {
+      var input = guideEl(id);
+      if (input) {
+        input.value = "";
+        clearError(input);
+      }
+    });
+    closePlanGuide(false);
+  }
+
+  /** Run the plan through the real form submission, then show the results. */
+  function guideRun() {
+    var form = guideEl("plan-form");
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+    } else {
+      form.dispatchEvent(new Event("submit", { cancelable: true }));
+    }
+
+    var invalid = guideEl("plan-standard").querySelector(".field.has-error input");
+    if (invalid) {
+      var at = guideStepIndex(invalid.id);
+      guideState.editEnd = at;
+      showGuideStep(at);
+      return;
+    }
+
+    closePlanGuide(false);
+    var title = guideEl("plan-dash-title");
+    if (title) title.focus();
+  }
+
+  function initPlanGuide() {
+    var panel = guideEl("plan-guide");
+    if (!panel) return;
+
+    guideEl("plan-guide-open").addEventListener("click", openPlanGuide);
+    guideEl("plan-guide-exit").addEventListener("click", function () {
+      closePlanGuide(true);
+    });
+    guideEl("plan-guide-next").addEventListener("click", guideContinue);
+    guideEl("plan-guide-back").addEventListener("click", guideBack);
+    guideEl("plan-guide-alt").addEventListener("click", guideChooseAlt);
+
+    // Typing a target (here or in the standard form) replaces a "No" choice.
+    guideEl("plan-target-profit").addEventListener("input", function () {
+      if (this.value.trim() !== "") guideState.noTarget = false;
+    });
+    guideEl("plan-guide-review-back").addEventListener("click", function () {
+      showGuideStep(GUIDE_STEPS.length - 1);
+    });
+    guideEl("plan-guide-run").addEventListener("click", guideRun);
+
+    ["plan-guide-text", "plan-guide-money"].forEach(function (id) {
+      var input = guideEl(id);
+      // Write-through: the plan-* field always holds the current answer.
+      input.addEventListener("input", function () {
+        var step = GUIDE_STEPS[guideState.index];
+        guideWrite(step.id, input.value);
+        if (getFieldWrapper(input).classList.contains("has-error")) guideValidate();
+        guideUpdateChosen();
+      });
+      // Enter continues instead of submitting the whole form mid-flow.
+      input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          guideContinue();
+        }
+      });
+    });
+
+    // Tooltip: shown on hover and keyboard focus (CSS); Escape hides it
+    // without moving focus or touching any answers.
+    var tipBtn = guideEl("plan-guide-info");
+    var tip = tipBtn.parentNode;
+    tipBtn.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") tip.classList.add("is-dismissed");
+    });
+    tipBtn.addEventListener("blur", function () {
+      tip.classList.remove("is-dismissed");
+    });
+    tip.addEventListener("mouseleave", function () {
+      tip.classList.remove("is-dismissed");
     });
   }
 
@@ -1348,6 +1873,7 @@
     clearAllPlanErrors();
     var planHelper = document.getElementById("plan-target-helper");
     if (planHelper) planHelper.textContent = "";
+    resetPlanGuide();
     var planEmpty = document.getElementById("plan-empty");
     var planDashboard = document.getElementById("plan-dashboard");
     if (planDashboard) planDashboard.hidden = true;

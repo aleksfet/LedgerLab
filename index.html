@@ -814,12 +814,47 @@
           <div class="sim-layout">
             <!-- ---- Planning inputs panel ---- -->
             <form id="plan-form" class="sim-panel sim-form" novalidate autocomplete="off">
-              <h3 class="sim-panel-title">Plan Your Startup Budget</h3>
+              <div class="ll-plan-head">
+                <h3 class="sim-panel-title">Plan Your Startup Budget</h3>
+                <div class="ll-guide-entry" id="plan-guide-entry">
+                  <button type="button" class="ll-guide-open" id="plan-guide-open"
+                          aria-controls="plan-guide" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z" />
+                      <path d="M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" />
+                    </svg>
+                    Interactive Mode
+                  </button>
+                  <span class="ll-guide-badge">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />
+                    </svg>
+                    Game-like
+                  </span>
+                  <span class="ll-tip">
+                    <button type="button" class="ll-tip-btn" id="plan-guide-info"
+                            aria-label="About Interactive Mode" aria-describedby="plan-guide-tip">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                           stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="8.5" /><path d="M12 11v5" /><path d="M12 7.6v.1" />
+                      </svg>
+                    </button>
+                    <span class="ll-tip-text" role="tooltip" id="plan-guide-tip">
+                      Beginner-friendly guided setup. Answer one question at a time, skip costs
+                      that do not apply, review your answers, then run the same Startup Plan.
+                    </span>
+                  </span>
+                </div>
+              </div>
 
+              <!-- Standard worksheet (default). The plan-* inputs below are the single
+                   source of truth; Interactive Mode reads and writes these same fields. -->
+              <div class="ll-plan-standard" id="plan-standard">
               <div class="field field-full">
                 <label for="plan-biz-name">Business name</label>
                 <input type="text" id="plan-biz-name" name="plan-biz-name"
-                       placeholder="e.g. Riverside Coffee Co." autocomplete="off" />
+                       placeholder="e.g. Riverside Coffee Co." autocomplete="off" aria-required="true" />
               </div>
 
               <fieldset class="field-group">
@@ -830,15 +865,17 @@
                     <div class="money-input">
                       <span class="money-symbol">$</span>
                       <input type="number" id="plan-starting-cash" name="plan-starting-cash"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" aria-required="true" />
                     </div>
                   </div>
                   <div class="field">
-                    <label for="plan-target-profit">Target monthly profit</label>
+                    <label for="plan-target-profit">
+                      Target monthly profit <span class="ll-opt">Optional</span>
+                    </label>
                     <div class="money-input">
                       <span class="money-symbol">$</span>
                       <input type="number" id="plan-target-profit" name="plan-target-profit"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                             min="0" step="0.01" inputmode="decimal" placeholder="No target" />
                     </div>
                     <p class="field-hint plan-live-hint" id="plan-target-helper"></p>
                   </div>
@@ -849,7 +886,7 @@
                     <div class="money-input">
                       <span class="money-symbol">$</span>
                       <input type="number" id="plan-revenue" name="plan-revenue"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" aria-required="true" />
                     </div>
                   </div>
                 </div>
@@ -857,6 +894,7 @@
 
               <fieldset class="field-group">
                 <legend>Monthly Budget</legend>
+                <p class="field-help">Optional. Leave any cost blank if it does not apply ($0).</p>
                 <div class="field-row">
                   <div class="field">
                     <label for="plan-rent">Rent budget</label>
@@ -916,7 +954,7 @@
               <fieldset class="field-group">
                 <legend>One-Time Startup Costs</legend>
                 <p class="field-help">
-                  These one-time purchases reduce the cash you have available to start.
+                  Optional. These one-time costs reduce the cash you have available to start.
                 </p>
                 <div class="field-row">
                   <div class="field">
@@ -936,11 +974,111 @@
                     </div>
                   </div>
                 </div>
+                <div class="field-row">
+                  <div class="field field-full">
+                    <label for="plan-other-startup">Other startup costs</label>
+                    <div class="money-input">
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-other-startup" name="plan-other-startup"
+                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                    </div>
+                  </div>
+                </div>
               </fieldset>
 
               <div class="sim-actions">
                 <button type="submit" class="btn btn-primary">Run Startup Plan</button>
                 <button type="reset" class="btn btn-secondary" id="plan-reset">Reset</button>
+              </div>
+              </div><!-- /#plan-standard -->
+
+              <!-- Interactive Mode: one question at a time, writing into the plan-* fields above. -->
+              <div class="ll-guide" id="plan-guide" hidden>
+                <div class="ll-guide-top">
+                  <span class="ll-guide-name">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z" />
+                    </svg>
+                    Interactive Mode
+                  </span>
+                  <div class="ll-guide-top-end">
+                    <p class="ll-guide-reminder">Reminder: estimates are okay — this plan can be hypothetical.</p>
+                    <button type="button" class="ll-guide-exit" id="plan-guide-exit"
+                            aria-label="Exit Interactive Mode" title="Exit Interactive Mode">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           stroke-linecap="round" aria-hidden="true">
+                        <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="ll-guide-progress">
+                  <p class="ll-guide-count" id="plan-guide-count">Question 1 of 13</p>
+                  <div class="ll-guide-track" id="plan-guide-track" role="progressbar"
+                       aria-labelledby="plan-guide-count" aria-valuemin="0" aria-valuemax="13" aria-valuenow="1">
+                    <span class="ll-guide-fill" id="plan-guide-fill"></span>
+                  </div>
+                </div>
+
+                <div class="ll-guide-step" id="plan-guide-step">
+                  <p class="ll-guide-group" id="plan-guide-group">The basics</p>
+                  <div class="field ll-guide-field">
+                    <label class="ll-guide-q" id="plan-guide-q" for="plan-guide-text">What is your business called?</label>
+                    <p class="ll-guide-help">
+                      <span id="plan-guide-help"></span>
+                      <span class="ll-guide-need" id="plan-guide-need">Required</span>
+                    </p>
+                    <input type="text" class="ll-guide-text" id="plan-guide-text" autocomplete="off"
+                           aria-describedby="plan-guide-count plan-guide-help plan-guide-need plan-guide-chosen plan-guide-error" />
+                    <div class="money-input" id="plan-guide-money-wrap" hidden>
+                      <span class="money-symbol">$</span>
+                      <input type="number" id="plan-guide-money" min="0" step="0.01" inputmode="decimal"
+                             placeholder="0"
+                             aria-describedby="plan-guide-count plan-guide-help plan-guide-need plan-guide-chosen plan-guide-error" />
+                    </div>
+                    <p class="ll-guide-chosen" id="plan-guide-chosen" hidden>
+                      You chose No — no target. Enter an amount if you want to set one.
+                    </p>
+                    <p class="field-error" id="plan-guide-error" role="alert"></p>
+                  </div>
+                  <div class="ll-guide-actions">
+                    <button type="button" class="btn btn-secondary" id="plan-guide-back" hidden>Back</button>
+                    <button type="button" class="ll-guide-alt" id="plan-guide-alt" hidden>None — $0</button>
+                    <button type="button" class="btn btn-primary ll-guide-next" id="plan-guide-next">
+                      <span id="plan-guide-next-label">Continue</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="ll-guide-review" id="plan-guide-review" hidden>
+                  <p class="ll-guide-done">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12.5l4.2 4.2L19 7" />
+                    </svg>
+                    All questions answered
+                  </p>
+                  <h4 class="ll-guide-review-title" id="plan-guide-review-title" tabindex="-1">Review your startup plan</h4>
+                  <div class="ll-guide-sheet" id="plan-guide-sheet">
+                    <!-- review sections built by script.js from the plan-* fields -->
+                  </div>
+                  <div class="ll-guide-actions">
+                    <button type="button" class="btn btn-secondary" id="plan-guide-review-back">Back</button>
+                    <button type="button" class="btn btn-primary ll-guide-next" id="plan-guide-run">
+                      Run Startup Plan
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
 
@@ -970,7 +1108,7 @@
 
               <!-- Plan dashboard (populated by script.js) -->
               <div class="sim-dashboard" id="plan-dashboard" hidden>
-                <h3 class="sim-dash-title" id="plan-dash-title">Startup Plan Summary</h3>
+                <h3 class="sim-dash-title" id="plan-dash-title" tabindex="-1">Startup Plan Summary</h3>
 
                 <div class="health-banner" id="plan-banner">
                   <span class="health-dot" aria-hidden="true"></span>
