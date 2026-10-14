@@ -919,6 +919,9 @@
                   <div class="stat-card">
                     <span class="stat-label">Break-even Revenue</span>
                     <span class="stat-value" id="out-breakeven">—</span>
+                    <span class="stat-help">
+                      The revenue needed to cover all monthly expenses. At this amount, profit is $0.
+                    </span>
                   </div>
                 </div>
               </section>
@@ -927,7 +930,7 @@
               <section class="report-section">
                 <h4 class="report-heading">
                   Projected Yearly Results
-                  <span class="report-note">if this month repeats × 12</span>
+                  <span class="report-note">if this month repeated for 12 months</span>
                 </h4>
                 <div class="stat-grid">
                   <div class="stat-card">
@@ -943,33 +946,46 @@
                     <span class="stat-value" id="out-year-profit">$0</span>
                   </div>
                   <div class="stat-card" id="out-year-cash-card">
-                    <span class="stat-label">Est. Year-End Cash</span>
+                    <span class="stat-label">Estimated Year-End Cash</span>
                     <span class="stat-value" id="out-year-cash">$0</span>
                   </div>
                 </div>
                 <p class="yearly-trend" id="yearly-trend">—</p>
+                <p class="ll-res-footnote">
+                  A projection, not a forecast: it simply repeats this month 12 times. Real months
+                  usually vary.
+                </p>
               </section>
 
-              <!-- Expense Breakdown -->
-              <section class="report-section">
-                <h4 class="report-heading">Expense Breakdown</h4>
-                <ul class="breakdown-list" id="breakdown-list">
-                  <!-- rows injected by script.js -->
-                </ul>
+              <!-- Monthly expense breakdown: donut + legend (script.js) -->
+              <section class="report-section" aria-labelledby="breakdown-title">
+                <h4 class="report-heading" id="breakdown-title">Monthly Expense Breakdown</h4>
+                <div class="ll-donut" id="breakdown-chart">
+                  <!-- chart + legend injected by script.js -->
+                </div>
               </section>
 
-              <div class="explanation" id="explanation">
-                <h4 class="explanation-title">What This Means</h4>
-                <ul class="explanation-list" id="explanation-list">
+              <!-- The arithmetic behind the numbers, with the user's values -->
+              <section class="report-section ll-res-block" aria-labelledby="calc-title">
+                <h4 class="ll-res-title" id="calc-title">How This Was Calculated</h4>
+                <div id="calc-body">
+                  <!-- two worked calculations injected by script.js -->
+                </div>
+              </section>
+
+              <!-- Interpretation in plain English -->
+              <section class="report-section ll-res-block" id="explanation" aria-labelledby="meaning-title">
+                <h4 class="ll-res-title" id="meaning-title">What This Means</h4>
+                <ul class="ll-res-notes" id="explanation-list">
                   <!-- notes injected by script.js -->
                 </ul>
-              </div>
+              </section>
 
-              <!-- Improvement Suggestions -->
-              <section class="report-section">
-                <h4 class="report-heading">Assessment Improvement Suggestions</h4>
-                <ul class="suggestion-list" id="suggestion-list">
-                  <!-- suggestions injected by script.js -->
+              <!-- Practical observations -->
+              <section class="report-section ll-res-block" aria-labelledby="suggest-title">
+                <h4 class="ll-res-title" id="suggest-title">What to Look at Next</h4>
+                <ul class="ll-res-notes ll-res-notes--next" id="suggestion-list">
+                  <!-- observations injected by script.js -->
                 </ul>
               </section>
             </div>

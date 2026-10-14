@@ -285,63 +285,94 @@
     };
   }
 
-  /** Build the expense-breakdown rows (label, amount, % of total expenses). */
+  /** The five monthly expense categories, in the order the form lists them. */
+  function expenseItems(result) {
+    return [
+      { key: "rent", label: "Rent", value: result.inputs.rent },
+      { key: "wages", label: "Wages", value: result.inputs.wages },
+      { key: "supplies", label: "Supplies", value: result.inputs.supplies },
+      { key: "utilities", label: "Utilities", value: result.inputs.utilities },
+      { key: "other", label: "Other", value: result.inputs.other },
+    ];
+  }
+
+  /** A category as the subject of a sentence, with a matching verb. */
+  function expenseSubject(item) {
+    if (item.key === "rent") return "Rent is";
+    if (item.key === "other") return "Other expenses are";
+    return item.label + " are";
+  }
+
+  /** Share of total monthly expenses, as a whole-number percent string. */
+  function expensePct(value, total) {
+    return total > 0 ? ((value / total) * 100).toFixed(0) + "%" : "0%";
+  }
+
+  /**
+   * Expense breakdown as a donut chart plus a legend with each category's
+   * amount and share. The legend is the readable version of the chart; the
+   * SVG carries a one-line summary for screen readers.
+   */
   function renderBreakdown(result) {
-    var list = document.getElementById("breakdown-list");
-    if (!list) return;
-    list.innerHTML = "";
+    var box = document.getElementById("breakdown-chart");
+    if (!box) return;
+    box.innerHTML = "";
 
     var total = result.totalExpenses;
-
-    // Empty state: nothing to chart when there are no expenses.
     if (total <= 0) {
-      var emptyRow = document.createElement("li");
-      emptyRow.className = "breakdown-empty";
-      emptyRow.textContent = "No monthly expenses entered yet.";
-      list.appendChild(emptyRow);
+      var empty = document.createElement("p");
+      empty.className = "breakdown-empty";
+      empty.textContent = "No monthly expenses entered yet.";
+      box.appendChild(empty);
       return;
     }
 
-    var items = [
-      { label: "Rent", value: result.inputs.rent },
-      { label: "Wages", value: result.inputs.wages },
-      { label: "Supplies", value: result.inputs.supplies },
-      { label: "Utilities", value: result.inputs.utilities },
-      { label: "Other", value: result.inputs.other },
-    ];
+    var items = expenseItems(result);
+    var radius = 46;
+    var circumference = 2 * Math.PI * radius;
+    var shown = items.filter(function (item) { return item.value > 0; });
+    // A thin gap between segments, only when there is more than one.
+    var gap = shown.length > 1 ? 1.6 : 0;
 
-    items.forEach(function (item) {
-      var pct = (item.value / total) * 100;
-
-      var li = document.createElement("li");
-      li.className = "breakdown-row";
-
-      var head = document.createElement("div");
-      head.className = "breakdown-head";
-
-      var label = document.createElement("span");
-      label.className = "breakdown-label";
-      label.textContent = item.label;
-
-      var amount = document.createElement("span");
-      amount.className = "breakdown-amount";
-      amount.textContent =
-        formatMoney(item.value) + " · " + pct.toFixed(0) + "%";
-
-      head.appendChild(label);
-      head.appendChild(amount);
-
-      var bar = document.createElement("div");
-      bar.className = "breakdown-bar";
-      var fill = document.createElement("div");
-      fill.className = "breakdown-fill";
-      fill.style.width = pct.toFixed(1) + "%";
-      bar.appendChild(fill);
-
-      li.appendChild(head);
-      li.appendChild(bar);
-      list.appendChild(li);
+    var arcs = "";
+    var offset = 0;
+    shown.forEach(function (item) {
+      var length = (item.value / total) * circumference;
+      var dash = Math.max(length - gap, 0.01);
+      arcs +=
+        '<circle class="ll-donut-arc ll-donut--' + item.key + '" cx="60" cy="60" r="' + radius +
+        '" stroke-dasharray="' + dash.toFixed(3) + " " + (circumference - dash).toFixed(3) +
+        '" stroke-dashoffset="' + (-offset).toFixed(3) + '" />';
+      offset += length;
     });
+
+    var summary = "Monthly expenses: " + items.map(function (item) {
+      return item.label + " " + expensePct(item.value, total);
+    }).join(", ") + ".";
+
+    var legend = items.map(function (item) {
+      return (
+        '<li class="' + (item.value > 0 ? "" : "is-zero") + '">' +
+          '<span class="ll-donut-key ll-donut--' + item.key + '" aria-hidden="true"></span>' +
+          '<span class="ll-donut-name">' + item.label + "</span>" +
+          '<span class="ll-donut-amt">' + formatMoney(item.value) + "</span>" +
+          '<span class="ll-donut-pct">' + expensePct(item.value, total) + "</span>" +
+        "</li>"
+      );
+    }).join("");
+
+    box.innerHTML =
+      '<div class="ll-donut-figure">' +
+        '<svg viewBox="0 0 120 120" role="img" aria-label="' + summary + '">' +
+          '<circle class="ll-donut-track" cx="60" cy="60" r="' + radius + '" />' +
+          '<g transform="rotate(-90 60 60)">' + arcs + "</g>" +
+        "</svg>" +
+        '<div class="ll-donut-center" aria-hidden="true">' +
+          '<span class="ll-donut-total">' + formatMoneyCompact(total) + "</span>" +
+          '<span class="ll-donut-caption">per month</span>' +
+        "</div>" +
+      "</div>" +
+      '<ul class="ll-donut-legend">' + legend + "</ul>";
   }
 
   /** Choose a business-health state from profit and remaining cash. */
@@ -373,51 +404,139 @@
     return {
       state: "neutral",
       message:
-        "Your business is breaking even this month — revenue and expenses are " +
+        "Your business is breaking even this month: revenue and expenses are " +
         "exactly equal.",
     };
   }
 
-  /** Build the short plain-English explanation bullets (kept brief on purpose). */
+  /** "is-pos" / "is-neg" for a signed amount; zero stays neutral. */
+  function signClass(amount) {
+    if (amount > 0) return "is-pos";
+    if (amount < 0) return "is-neg";
+    return "";
+  }
+
+  /** One line of a worked calculation: operator, label (+ hint), amount. */
+  function calcRow(op, label, hint, amount, total) {
+    return (
+      '<tr class="' + (total ? "ll-calc-total" : "") + '">' +
+        '<td class="ll-calc-op" aria-hidden="true">' + op + "</td>" +
+        '<th scope="row">' + label +
+          (hint ? '<span class="ll-calc-hint">' + hint + "</span>" : "") + "</th>" +
+        '<td class="ll-calc-amt' + (total ? " " + signClass(amount) : "") + '">' +
+          formatMoney(amount) + "</td>" +
+      "</tr>"
+    );
+  }
+
+  /**
+   * "How This Was Calculated": the two relationships behind the results,
+   * written out with the user's own numbers.
+   */
+  function renderCalculation(result) {
+    var box = document.getElementById("calc-body");
+    if (!box) return;
+    var p = result.profit;
+    var resultWord = p < 0 ? "Loss" : "Profit";
+
+    var profitTable =
+      '<table class="ll-calc">' +
+        '<caption>Profit for the month</caption>' +
+        "<tbody>" +
+          calcRow("", "Revenue", "what the business earned this month", result.inputs.revenue) +
+          calcRow("−", "Monthly expenses", "rent, wages, supplies, utilities, and other costs combined",
+            result.totalExpenses) +
+          calcRow("=", resultWord, p < 0 ? "expenses were higher than revenue" : "what was left over",
+            p, true) +
+        "</tbody>" +
+      "</table>";
+
+    var cashTable =
+      '<table class="ll-calc">' +
+        '<caption>Cash at the end of the month</caption>' +
+        "<tbody>" +
+          calcRow("", "Starting cash", "what the business had at the start of the month",
+            result.inputs.startingCash) +
+          calcRow(p < 0 ? "−" : "+", p < 0 ? "This month’s loss" : "This month’s profit", "",
+            Math.abs(p)) +
+          calcRow("−", "Major cash purchases", "equipment and inventory bought this month",
+            result.startupPurchases) +
+          calcRow("=", "Cash remaining", "", result.cashRemaining, true) +
+        "</tbody>" +
+      "</table>";
+
+    box.innerHTML =
+      '<div class="ll-calc-pair">' + profitTable + cashTable + "</div>" +
+      '<p class="ll-calc-note"><strong>Why purchases are separate.</strong> Equipment and ' +
+      "inventory are things the business keeps, to use or to sell later. Paying for them takes " +
+      "cash out right away, so they lower cash remaining. But in accounting they usually aren’t " +
+      "counted as this month’s expenses, so they don’t lower this month’s profit.</p>";
+  }
+
+  /**
+   * "What This Means": short interpretations of the result. Each sentence
+   * reads the numbers; none of them repeats the arithmetic above.
+   */
   function renderExplanation(result) {
     var list = document.getElementById("explanation-list");
     if (!list) return;
     list.innerHTML = "";
 
     var notes = [];
+    var revenue = result.inputs.revenue;
+    var p = result.profit;
 
-    // 1) Revenue minus expenses creates profit or loss.
-    if (result.profit > 0) {
+    // 1) Was the month profitable, and by how much per dollar of sales?
+    if (p > 0) {
+      var cents = revenue > 0 ? Math.round((p / revenue) * 100) : 0;
       notes.push(
-        "Revenue minus expenses creates profit or loss — here revenue is higher, so the business profits " +
-          formatMoney(result.profit) +
-          " this month."
+        "This month was profitable because revenue was higher than expenses. About " + cents +
+        "¢ of every $1 the business earned was left over as profit."
       );
-    } else if (result.profit < 0) {
+    } else if (p < 0) {
       notes.push(
-        "Revenue minus expenses creates profit or loss — here expenses are higher, so the business loses " +
-          formatMoney(Math.abs(result.profit)) +
-          " this month."
+        "This month lost money. Expenses were " + formatMoney(Math.abs(p)) +
+        " more than the revenue the business earned."
       );
     } else {
-      notes.push(
-        "Revenue minus expenses creates profit or loss — here they're equal, so the business breaks even this month."
-      );
+      notes.push("Revenue covered expenses exactly, so the business broke even this month.");
     }
 
-    // 2) Cash at start of month + profit/loss − equipment & inventory = estimated ending cash.
-    notes.push(
-      "Cash at start of month plus this month's profit or loss, minus equipment and inventory purchases (" +
-        formatMoney(result.startupPurchases) +
-        "), gives an estimated ending cash balance of " +
-        formatMoney(result.cashRemaining) +
-        "."
-    );
+    // 2) Where cash stands after everything.
+    var cash = result.cashRemaining;
+    var bought = result.startupPurchases;
+    if (cash < 0) {
+      notes.push(
+        "The business would run out of cash. After this month’s activity it would be " +
+        formatMoney(Math.abs(cash)) + " short."
+      );
+    } else if (cash === 0) {
+      notes.push("The business would end the month with no cash left over.");
+    } else if (bought > 0) {
+      notes.push(
+        "The business still has a positive cash balance after paying for " + formatMoney(bought) +
+        " of equipment and inventory."
+      );
+    } else {
+      notes.push("The business ends the month with a positive cash balance.");
+    }
 
-    // 3) Equipment & inventory reduce cash, even if accounting treats them differently.
-    notes.push(
-      "Equipment and inventory purchases reduce cash, even though accounting may treat them differently than normal monthly expenses."
-    );
+    // 3) Which costs matter most.
+    var ranked = expenseItems(result)
+      .filter(function (item) { return item.value > 0; })
+      .sort(function (a, b) { return b.value - a.value; });
+    if (ranked.length === 1) {
+      notes.push(expenseSubject(ranked[0]).replace(/ (is|are)$/, "") +
+        " is the only monthly expense entered.");
+    } else if (ranked.length > 1) {
+      var t = result.totalExpenses;
+      var second = ranked[1].key === "other" ? "other expenses" : ranked[1].label.toLowerCase();
+      notes.push(
+        expenseSubject(ranked[0]).replace(/ (is|are)$/, "") + " and " + second +
+        " are the largest monthly expenses, together making up " +
+        expensePct(ranked[0].value + ranked[1].value, t) + " of the total."
+      );
+    }
 
     notes.forEach(function (text) {
       var li = document.createElement("li");
@@ -441,17 +560,15 @@
         state: "positive",
         message:
           "If these numbers continue, the business is projected to make a yearly profit of " +
-          formatMoney(result.yearlyProfit) +
-          ".",
+          "<strong>" + formatMoney(result.yearlyProfit) + "</strong>.",
       };
     }
     if (result.yearlyProfit < 0) {
       return {
         state: "negative",
         message:
-          "If these numbers continue, the business is projected to lose money this year (" +
-          formatMoney(result.yearlyProfit) +
-          ").",
+          "If these numbers continue, the business is projected to lose " +
+          "<strong>" + formatMoney(Math.abs(result.yearlyProfit)) + "</strong> over the year.",
       };
     }
     return {
@@ -533,8 +650,9 @@
     var marginCard = document.getElementById("out-margin-card");
     if (marginCard) {
       marginCard.classList.remove("is-positive", "is-negative");
-      if (result.inputs.revenue > 0) {
-        marginCard.classList.add(result.profit >= 0 ? "is-positive" : "is-negative");
+      // Same rule as the other values: a 0% margin stays neutral.
+      if (result.inputs.revenue > 0 && result.profit !== 0) {
+        marginCard.classList.add(result.profit > 0 ? "is-positive" : "is-negative");
       }
     }
 
@@ -543,50 +661,72 @@
     setText("out-breakeven", formatMoney(result.totalExpenses));
   }
 
-  /** Build 2–3 short, plain-English improvement suggestions from the numbers. */
+  /**
+   * "What to Look at Next": two or three practical observations drawn from
+   * this result (break-even headroom, the biggest cost, the cash position).
+   */
   function renderSuggestions(result, biggest) {
     var list = document.getElementById("suggestion-list");
     if (!list) return;
     list.innerHTML = "";
 
-    var suggestions = [];
+    var notes = [];
+    var p = result.profit;
 
-    // 1) Profitability vs. break-even (always present).
-    if (result.profit > 0) {
-      suggestions.push(
-        "Revenue is above break-even, so the business is profitable this month."
+    // 1) Distance from break-even.
+    if (p > 0) {
+      notes.push(
+        "Revenue is " + formatMoney(p) + " above break-even, so the business has some room " +
+        "before a slower month would turn into a loss."
       );
-    } else if (result.profit < 0) {
-      suggestions.push(
-        "Profit is negative, so revenue must increase or expenses must decrease to break even."
+    } else if (p < 0) {
+      notes.push(
+        "Revenue is " + formatMoney(Math.abs(p)) + " below break-even. Earning that much more, " +
+        "or spending that much less, would bring the month to $0 profit."
       );
     } else {
-      suggestions.push(
-        "Revenue exactly meets break-even, so the business is right at the edge of profitability."
+      notes.push(
+        "Revenue is exactly at break-even, so any extra cost next month would mean a loss."
       );
     }
 
-    // 2) Cash position.
-    if (result.cashRemaining < 0) {
-      suggestions.push(
-        "Cash is negative, so the business may need more beginning cash or lower purchases."
-      );
-    } else if (result.profit > 0) {
-      suggestions.push(
-        "Profit and cash are both positive, leaving room to reinvest or build a cash reserve."
-      );
-    }
-
-    // 3) Largest expense lever.
+    // 2) The biggest cost is where changes have the most effect.
     if (biggest) {
-      suggestions.push(
-        "Your largest expense is " +
-          biggest.label.toLowerCase() +
-          ". Reviewing that cost could improve profit."
+      var match = expenseItems(result).filter(function (item) { return item.label === biggest.label; })[0];
+      notes.push(
+        expenseSubject(match) + " currently your largest monthly expense (" + formatMoney(biggest.value) +
+        ", " + expensePct(biggest.value, result.totalExpenses) + " of the total). " +
+        "If you want to improve profit, it is the first cost worth reviewing."
       );
     }
 
-    suggestions.slice(0, 3).forEach(function (text) {
+    // 3) Cash position after the month.
+    var cash = result.cashRemaining;
+    var bought = result.startupPurchases;
+    if (cash < 0) {
+      if (result.inputs.startingCash + p >= 0 && bought > 0) {
+        notes.push(
+          "Cash goes below zero because of the " + formatMoney(bought) + " in major purchases. " +
+          "Buying in stages, or starting with more cash, would keep the balance positive."
+        );
+      } else {
+        notes.push(
+          "Cash goes below zero, so the business would need more starting cash, lower costs, " +
+          "or more revenue to get through the month."
+        );
+      }
+    } else if (bought > 0) {
+      notes.push(
+        "The business still has cash left after its major purchases, which gives it a cushion " +
+        "for next month."
+      );
+    } else if (p > 0) {
+      notes.push(
+        "Profit and cash are both positive, so this month could help build a cash reserve."
+      );
+    }
+
+    notes.slice(0, 3).forEach(function (text) {
       var li = document.createElement("li");
       li.textContent = text;
       list.appendChild(li);
@@ -625,17 +765,18 @@
     setText("out-year-profit", formatMoney(result.yearlyProfit));
     setText("out-year-cash", formatMoney(result.yearEndCash));
 
-    // Color cards by sign (positive green / negative red).
-    var colorBySign = function (id, positive) {
+    // Color the value by its sign: above zero green, below zero red, zero neutral.
+    var colorBySign = function (id, amount) {
       var card = document.getElementById(id);
       if (!card) return;
       card.classList.remove("is-positive", "is-negative");
-      card.classList.add(positive ? "is-positive" : "is-negative");
+      if (amount > 0) card.classList.add("is-positive");
+      else if (amount < 0) card.classList.add("is-negative");
     };
-    colorBySign("out-profit-card", result.profit >= 0);
-    colorBySign("out-cash-card", result.cashRemaining >= 0);
-    colorBySign("out-year-profit-card", result.yearlyProfit >= 0);
-    colorBySign("out-year-cash-card", result.yearEndCash >= 0);
+    colorBySign("out-profit-card", result.profit);
+    colorBySign("out-cash-card", result.cashRemaining);
+    colorBySign("out-year-profit-card", result.yearlyProfit);
+    colorBySign("out-year-cash-card", result.yearEndCash);
 
     // Yearly trend message
     var trend = getYearlyTrend(result);
@@ -644,7 +785,7 @@
       trendEl.classList.remove("is-positive", "is-negative");
       if (trend.state === "positive") trendEl.classList.add("is-positive");
       else if (trend.state === "negative") trendEl.classList.add("is-negative");
-      trendEl.textContent = trend.message;
+      trendEl.innerHTML = trend.message; // built from fixed text + formatted numbers
     }
 
     // Health banner
@@ -667,6 +808,7 @@
     renderInsights(result, status, biggest);
 
     renderBreakdown(result);
+    renderCalculation(result);
     renderExplanation(result);
     renderSuggestions(result, biggest);
   }
