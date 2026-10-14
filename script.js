@@ -1352,13 +1352,13 @@
   }
 
   /* ==========================================================
-     Startup Planning — Interactive Mode
-     A guided, one-question-at-a-time view of the SAME plan-*
-     fields. Every answer is written straight into its plan-*
-     input as it is typed, so the standard form and the guide
-     always show the same values. Running the plan submits the
-     real #plan-form, i.e. the existing validation, calculatePlan()
-     and renderPlanResults() path. Nothing is calculated here.
+     Interactive Mode (shared by Startup Planning and Assessment)
+     A guided, one-question-at-a-time view of a mode's EXISTING
+     form fields. Every answer is written straight into its
+     canonical input as it is typed, so the standard form and the
+     guide always show the same values. Running submits the real
+     form, i.e. that mode's existing validation, calculation and
+     rendering path. Nothing is calculated here.
 
      need: "required" — must be answered; no alternative action
            "answer"   — must be answered; $0 is a valid answer
@@ -1371,7 +1371,9 @@
   var GUIDE_ZERO_HINT = " Enter $0 if this does not apply.";
   var GUIDE_ZERO_MSG = "Enter an amount, or enter $0 if there is none.";
 
-  var GUIDE_STEPS = [
+  /* ---- Startup Planning questions ---- */
+
+  var PLAN_GUIDE_STEPS = [
     { id: "plan-biz-name", kind: "text", need: "required", group: "The basics", label: "Business name",
       q: "What is your business called?",
       help: "This name appears at the top of your plan." },
@@ -1425,7 +1427,7 @@
 
   // Review sheet: section title, the step ids it lists (in question order),
   // and the calculatePlan() total shown under it (if any).
-  var GUIDE_REVIEW = [
+  var PLAN_GUIDE_REVIEW = [
     { title: "Basics", ids: ["plan-biz-name", "plan-starting-cash", "plan-revenue"] },
     { title: "Monthly costs", total: { label: "Total monthly costs", key: "totalExpenses" },
       ids: ["plan-rent", "plan-wages", "plan-supplies", "plan-utilities", "plan-marketing", "plan-other"] },
@@ -1434,371 +1436,482 @@
     { title: "Goal", ids: ["plan-target-profit"] },
   ];
 
-  // editEnd: while editing a review section, the index of that section's last
-  // question; reaching it returns to the review instead of continuing on.
-  // noTarget: the user answered the profit-goal question with "No — no target".
-  // The plan itself stores "no target" as a blank target field (hasTarget), so
-  // this flag is what lets the guide tell "chose No" apart from "not answered".
-  var guideState = { index: 0, atReview: false, editEnd: null, noTarget: false };
+  /* ---- Assessment questions ---- */
 
-  function guideEl(id) {
-    return document.getElementById(id);
-  }
+  var ASSESS_ZERO_HELP = "Enter $0 if this did not apply.";
+  var ASSESS_ZERO_MSG = "Enter an amount, or enter $0 if there was none.";
 
-  function guideStepIndex(id) {
-    for (var i = 0; i < GUIDE_STEPS.length; i++) {
-      if (GUIDE_STEPS[i].id === id) return i;
-    }
-    return -1;
-  }
+  var ASSESS_GUIDE_STEPS = [
+    { id: "biz-name", kind: "text", need: "required", group: "The basics", label: "Business name",
+      q: "What is your business called?",
+      help: "This name appears at the top of your assessment." },
+    { id: "starting-cash", kind: "money", need: "required", group: "The basics", label: "Starting cash",
+      q: "How much cash did the business have at the start of the month?",
+      help: "Enter the cash available before this month’s activity." },
+    { id: "monthly-revenue", kind: "money", need: "required", group: "The basics", label: "Monthly revenue",
+      q: "Roughly how much revenue did the business generate this month?",
+      help: "Use the actual amount if you know it, or a reasonable estimate for practice." },
+    { id: "rent", kind: "money", need: "answer", group: "Monthly expenses", label: "Rent",
+      q: "How much did the business spend on rent this month?",
+      help: ASSESS_ZERO_HELP, blankMsg: ASSESS_ZERO_MSG },
+    { id: "wages", kind: "money", need: "answer", group: "Monthly expenses", label: "Wages",
+      q: "How much did the business spend on wages this month?",
+      help: ASSESS_ZERO_HELP, blankMsg: ASSESS_ZERO_MSG },
+    { id: "supplies", kind: "money", need: "answer", group: "Monthly expenses", label: "Supplies",
+      q: "How much did the business spend on supplies this month?",
+      help: ASSESS_ZERO_HELP, blankMsg: ASSESS_ZERO_MSG },
+    { id: "utilities", kind: "money", need: "answer", group: "Monthly expenses", label: "Utilities",
+      q: "How much did the business spend on utilities this month?",
+      help: ASSESS_ZERO_HELP, blankMsg: ASSESS_ZERO_MSG },
+    { id: "other", kind: "money", need: "choice", group: "Monthly expenses", label: "Other",
+      q: "Any other monthly expenses?",
+      help: "Insurance, software, bank fees — anything else the business paid this month.",
+      alt: "No — none", altValue: "0",
+      blankMsg: "Enter an amount, or choose No if there were none." },
+    { id: "equipment", kind: "money", need: "choice", group: "Major cash purchases", label: "Equipment",
+      q: "How much did the business spend on equipment this month?",
+      help: "Machines, computers or furniture. This reduces cash now, but is treated differently from normal monthly expenses.",
+      alt: "None — $0", altValue: "0",
+      blankMsg: "Enter an amount, or choose None if there was no equipment purchase." },
+    { id: "inventory", kind: "money", need: "choice", group: "Major cash purchases", label: "Inventory",
+      q: "How much inventory did the business purchase this month?",
+      help: "Goods bought to sell. This reduces cash now, but is not counted as a monthly expense.",
+      alt: "None — $0", altValue: "0",
+      blankMsg: "Enter an amount, or choose None if there was no inventory purchase." },
+  ];
 
-  function guideField(id) {
-    for (var i = 0; i < PLAN_REQUIRED_FIELDS.length; i++) {
-      if (PLAN_REQUIRED_FIELDS[i].id === id) return PLAN_REQUIRED_FIELDS[i];
-    }
-    return null;
-  }
-
-  /** The guide input currently in use (text for the name, money otherwise). */
-  function guideInput() {
-    var step = GUIDE_STEPS[guideState.index];
-    return guideEl(step.kind === "text" ? "plan-guide-text" : "plan-guide-money");
-  }
-
-  /** True when the current question ends the flow (or the section being edited). */
-  function guideAtEnd() {
-    var last = guideState.editEnd !== null ? guideState.editEnd : GUIDE_STEPS.length - 1;
-    return guideState.index >= last;
-  }
-
-  /** Write a value into the canonical plan-* input and notify its listeners. */
-  function guideWrite(id, value) {
-    var target = guideEl(id);
-    if (!target) return;
-    target.value = value;
-    target.dispatchEvent(new Event("input", { bubbles: true }));
-  }
-
-  /** Copy the canonical field's error state (if any) onto the guide input. */
-  function guideMirrorError(id) {
-    var input = guideInput();
-    var source = guideEl(id);
-    var wrapper = source ? getFieldWrapper(source) : null;
-    if (wrapper && wrapper.classList.contains("has-error")) {
-      var msg = wrapper.querySelector(".field-error");
-      showError(input, msg ? msg.textContent : "Please enter a valid number.");
-    } else {
-      clearError(input);
-    }
-  }
-
-  /** True when a question still has no answer (blank, and no "No" choice made). */
-  function guideUnanswered(step) {
-    if (guideEl(step.id).value.trim() !== "") return false;
-    return !(step.noTarget && guideState.noTarget);
-  }
-
-  /** First question without an answer, or -1 when every question is answered. */
-  function guideFirstUnanswered() {
-    for (var i = 0; i < GUIDE_STEPS.length; i++) {
-      if (guideUnanswered(GUIDE_STEPS[i])) return i;
-    }
-    return -1;
-  }
+  // Totals come from calculateSimulation(), the same engine as the results.
+  var ASSESS_GUIDE_REVIEW = [
+    { title: "Basics", ids: ["biz-name", "starting-cash", "monthly-revenue"] },
+    { title: "Monthly expenses", total: { label: "Total monthly expenses", key: "totalExpenses" },
+      ids: ["rent", "wages", "supplies", "utilities", "other"] },
+    { title: "Major cash purchases", total: { label: "Total major purchases", key: "startupPurchases" },
+      ids: ["equipment", "inventory"] },
+  ];
 
   /**
-   * Validate the current answer. Required questions use the existing Planning
-   * rules and messages. Every other question must also be answered here: a
-   * blank never silently becomes $0 (the standard form still allows blanks).
+   * Wire one Interactive Mode panel. cfg:
+   *   prefix      — guide element ids are "<prefix>-guide-*"
+   *   formId      — the mode's real form (submitted by Run)
+   *   standardId  — wrapper of the standard fields (hidden while guiding)
+   *   dashTitleId — results heading focused after a successful run
+   *   fields      — the mode's validation list (id + type)
+   *   steps, review, calculate — questions, review sheet, totals engine
+   * Returns { reset } or null when the panel is not on the page.
    */
-  function guideValidate() {
-    var step = GUIDE_STEPS[guideState.index];
-    if (step.need !== "required" && guideUnanswered(step)) {
-      showError(guideInput(), step.blankMsg || GUIDE_ZERO_MSG);
-      return false;
+  function createGuide(cfg) {
+    var STEPS = cfg.steps;
+
+    // editEnd: while editing a review section, the index of that section's last
+    // question; reaching it returns to the review instead of continuing on.
+    // noTarget: the user answered a noTarget question with "No — no target".
+    // The plan itself stores "no target" as a blank target field (hasTarget), so
+    // this flag is what lets the guide tell "chose No" apart from "not answered".
+    // started: the intro has been passed; until then (and again after Reset)
+    // opening the guide shows the intro instead of a question.
+    var state = { index: 0, atReview: false, editEnd: null, noTarget: false, started: false };
+
+    function guideEl(id) {
+      return document.getElementById(id);
     }
-    var ok = validateField(guideField(step.id));
-    guideMirrorError(step.id);
-    return ok;
-  }
 
-  function guideSetProgress(position, label) {
-    var total = GUIDE_STEPS.length;
-    guideEl("plan-guide-count").textContent = label;
-    var track = guideEl("plan-guide-track");
-    track.setAttribute("aria-valuenow", String(position));
-    track.setAttribute("aria-valuetext", label);
-    guideEl("plan-guide-fill").style.width = (position / total) * 100 + "%";
-  }
-
-  /** Replay the short entrance transition (skipped for reduced motion in CSS). */
-  function guideAnimate(el) {
-    el.classList.remove("is-entering");
-    void el.offsetWidth;
-    el.classList.add("is-entering");
-  }
-
-  function showGuideStep(index) {
-    var step = GUIDE_STEPS[index];
-    var total = GUIDE_STEPS.length;
-    guideState.index = index;
-    guideState.atReview = false;
-
-    guideEl("plan-guide-review").hidden = true;
-    var panel = guideEl("plan-guide-step");
-    panel.hidden = false;
-
-    guideSetProgress(index + 1, "Question " + (index + 1) + " of " + total);
-    guideEl("plan-guide-group").textContent = step.group;
-    guideEl("plan-guide-q").textContent = step.q;
-    guideEl("plan-guide-help").textContent = step.help;
-    var need = guideEl("plan-guide-need");
-    need.textContent = step.need === "choice" ? "Optional" : "Required";
-    need.className = "ll-guide-need" + (step.need === "choice" ? " is-optional" : "");
-
-    var isText = step.kind === "text";
-    guideEl("plan-guide-text").hidden = !isText;
-    guideEl("plan-guide-money-wrap").hidden = isText;
-    var input = guideInput();
-    guideEl("plan-guide-q").setAttribute("for", input.id);
-    input.value = guideEl(step.id).value;
-    guideMirrorError(step.id);
-
-    var alt = guideEl("plan-guide-alt");
-    alt.hidden = step.need !== "choice";
-    alt.textContent = step.alt || "";
-    guideUpdateChosen();
-
-    guideEl("plan-guide-back").hidden = index === 0;
-    guideEl("plan-guide-next-label").textContent = guideState.editEnd !== null && guideAtEnd()
-      ? "Back to review"
-      : index === total - 1
-        ? "Review answers"
-        : "Continue";
-
-    guideAnimate(panel);
-    input.focus();
-  }
-
-  /** On the profit-goal question, note that "No — no target" was chosen. */
-  function guideUpdateChosen() {
-    var step = GUIDE_STEPS[guideState.index];
-    guideEl("plan-guide-chosen").hidden =
-      !(step.noTarget && guideState.noTarget && guideEl(step.id).value.trim() === "");
-  }
-
-  /** The value shown for one answer on the review sheet. */
-  function guideReviewValue(step) {
-    var raw = guideEl(step.id).value.trim();
-    if (step.kind === "text") return { text: raw };
-    if (raw === "") {
-      return step.id === "plan-target-profit"
-        ? { text: "No target set", empty: true }
-        : { text: formatMoneyCompact(0), empty: true };
+    function part(name) {
+      return guideEl(cfg.prefix + "-guide-" + name);
     }
-    return { text: formatMoneyCompact(readMoney(step.id)) };
-  }
 
-  function guideReviewRow(label, value, extraClass) {
-    var row = document.createElement("div");
-    row.className = "ll-guide-row" + (extraClass ? " " + extraClass : "");
-    var dt = document.createElement("dt");
-    dt.textContent = label;
-    var dd = document.createElement("dd");
-    dd.textContent = value.text;
-    if (value.empty) dd.className = "is-empty";
-    row.appendChild(dt);
-    row.appendChild(dd);
-    return row;
-  }
+    if (!guideEl(cfg.prefix + "-guide")) return null;
 
-  function showGuideReview() {
-    guideState.atReview = true;
-    guideState.editEnd = null;
-    guideEl("plan-guide-step").hidden = true;
-
-    var plan = calculatePlan(); // same engine as the results; used for totals only
-    var sheet = guideEl("plan-guide-sheet");
-    sheet.innerHTML = "";
-
-    GUIDE_REVIEW.forEach(function (section) {
-      var wrap = document.createElement("section");
-      wrap.className = "ll-guide-section";
-
-      var head = document.createElement("div");
-      head.className = "ll-guide-section-head";
-      var title = document.createElement("h5");
-      title.className = "ll-guide-sheet-title";
-      title.textContent = section.title;
-      var edit = document.createElement("button");
-      edit.type = "button";
-      edit.className = "ll-guide-edit";
-      edit.textContent = "Edit";
-      edit.setAttribute("aria-label", "Edit " + section.title.toLowerCase());
-      edit.addEventListener("click", function () {
-        var first = guideStepIndex(section.ids[0]);
-        guideState.editEnd = guideStepIndex(section.ids[section.ids.length - 1]);
-        showGuideStep(first);
-      });
-      head.appendChild(title);
-      head.appendChild(edit);
-      wrap.appendChild(head);
-
-      var dl = document.createElement("dl");
-      dl.className = "ll-guide-rows";
-      section.ids.forEach(function (id) {
-        var step = GUIDE_STEPS[guideStepIndex(id)];
-        dl.appendChild(guideReviewRow(step.label, guideReviewValue(step)));
-      });
-      if (section.total) {
-        dl.appendChild(guideReviewRow(section.total.label,
-          { text: formatMoneyCompact(plan[section.total.key]) }, "is-total"));
+    function stepIndex(id) {
+      for (var i = 0; i < STEPS.length; i++) {
+        if (STEPS[i].id === id) return i;
       }
-      wrap.appendChild(dl);
-      sheet.appendChild(wrap);
-    });
-
-    guideSetProgress(GUIDE_STEPS.length, "Review: all " + GUIDE_STEPS.length + " questions answered");
-    var review = guideEl("plan-guide-review");
-    review.hidden = false;
-    guideAnimate(review);
-    guideEl("plan-guide-review-title").focus();
-  }
-
-  function guideAdvance() {
-    if (guideAtEnd()) showGuideReview();
-    else showGuideStep(guideState.index + 1);
-  }
-
-  function guideContinue() {
-    if (!guideValidate()) {
-      guideInput().focus();
-      return;
+      return -1;
     }
-    guideAdvance();
-  }
 
-  /** The question's own alternative answer: "No — none", "None — $0", "No — no target". */
-  function guideChooseAlt() {
-    var step = GUIDE_STEPS[guideState.index];
-    if (step.need !== "choice") return;
-    guideInput().value = step.altValue;
-    guideWrite(step.id, step.altValue);
-    if (step.noTarget) guideState.noTarget = true;
-    validateField(guideField(step.id)); // clears any earlier error on the field
-    guideMirrorError(step.id);
-    guideAdvance();
-  }
+    function fieldFor(id) {
+      for (var i = 0; i < cfg.fields.length; i++) {
+        if (cfg.fields[i].id === id) return cfg.fields[i];
+      }
+      return null;
+    }
 
-  function guideBack() {
-    if (guideState.index > 0) showGuideStep(guideState.index - 1);
-  }
+    /** The guide input currently in use (text for the name, money otherwise). */
+    function guideInput() {
+      var step = STEPS[state.index];
+      return part(step.kind === "text" ? "text" : "money");
+    }
 
-  function openPlanGuide() {
-    guideEl("plan-standard").hidden = true;
-    guideEl("plan-guide-entry").hidden = true;
-    guideEl("plan-guide-open").setAttribute("aria-expanded", "true");
-    guideEl("plan-guide").hidden = false;
-    // The standard form may have been edited meanwhile: go back to the first
-    // unanswered question instead of a review with gaps.
-    var gap = guideFirstUnanswered();
-    if (guideState.atReview && gap === -1) showGuideReview();
-    else if (guideState.atReview) showGuideStep(gap);
-    else showGuideStep(guideState.index);
-  }
+    /** True when the current question ends the flow (or the section being edited). */
+    function atEnd() {
+      var last = state.editEnd !== null ? state.editEnd : STEPS.length - 1;
+      return state.index >= last;
+    }
 
-  /** Leave the guide. Answers already live in the plan-* fields, so nothing is lost. */
-  function closePlanGuide(restoreFocus) {
-    var panel = guideEl("plan-guide");
-    if (!panel) return;
-    panel.hidden = true;
-    guideEl("plan-standard").hidden = false;
-    guideEl("plan-guide-entry").hidden = false;
-    var open = guideEl("plan-guide-open");
-    open.setAttribute("aria-expanded", "false");
-    if (restoreFocus) open.focus();
-  }
+    /** Write a value into the canonical input and notify its listeners. */
+    function write(id, value) {
+      var target = guideEl(id);
+      if (!target) return;
+      target.value = value;
+      target.dispatchEvent(new Event("input", { bubbles: true }));
+    }
 
-  /** Back to question 1 with the standard form showing (used by Reset). */
-  function resetPlanGuide() {
-    guideState.index = 0;
-    guideState.atReview = false;
-    guideState.editEnd = null;
-    guideState.noTarget = false;
-    ["plan-guide-text", "plan-guide-money"].forEach(function (id) {
-      var input = guideEl(id);
-      if (input) {
-        input.value = "";
+    /** Copy the canonical field's error state (if any) onto the guide input. */
+    function mirrorError(id) {
+      var input = guideInput();
+      var source = guideEl(id);
+      var wrapper = source ? getFieldWrapper(source) : null;
+      if (wrapper && wrapper.classList.contains("has-error")) {
+        var msg = wrapper.querySelector(".field-error");
+        showError(input, msg ? msg.textContent : "Please enter a valid number.");
+      } else {
         clearError(input);
       }
-    });
-    closePlanGuide(false);
-  }
-
-  /** Run the plan through the real form submission, then show the results. */
-  function guideRun() {
-    var form = guideEl("plan-form");
-    if (typeof form.requestSubmit === "function") {
-      form.requestSubmit();
-    } else {
-      form.dispatchEvent(new Event("submit", { cancelable: true }));
     }
 
-    var invalid = guideEl("plan-standard").querySelector(".field.has-error input");
-    if (invalid) {
-      var at = guideStepIndex(invalid.id);
-      guideState.editEnd = at;
-      showGuideStep(at);
-      return;
+    /** True when a question still has no answer (blank, and no "No" choice made). */
+    function unanswered(step) {
+      if (guideEl(step.id).value.trim() !== "") return false;
+      return !(step.noTarget && state.noTarget);
     }
 
-    closePlanGuide(false);
-    var title = guideEl("plan-dash-title");
-    if (title) title.focus();
-  }
+    /** First question without an answer, or -1 when every question is answered. */
+    function firstUnanswered() {
+      for (var i = 0; i < STEPS.length; i++) {
+        if (unanswered(STEPS[i])) return i;
+      }
+      return -1;
+    }
 
-  function initPlanGuide() {
-    var panel = guideEl("plan-guide");
-    if (!panel) return;
+    /**
+     * Validate the current answer. Required questions use the mode's existing
+     * rules and messages. Every other question must also be answered here: a
+     * blank never silently becomes $0.
+     */
+    function validate() {
+      var step = STEPS[state.index];
+      if (step.need !== "required" && unanswered(step)) {
+        showError(guideInput(), step.blankMsg || GUIDE_ZERO_MSG);
+        return false;
+      }
+      var ok = validateField(fieldFor(step.id));
+      mirrorError(step.id);
+      return ok;
+    }
 
-    guideEl("plan-guide-open").addEventListener("click", openPlanGuide);
-    guideEl("plan-guide-exit").addEventListener("click", function () {
-      closePlanGuide(true);
+    function setProgress(position, label) {
+      var total = STEPS.length;
+      part("count").textContent = label;
+      var track = part("track");
+      track.setAttribute("aria-valuenow", String(position));
+      track.setAttribute("aria-valuetext", label);
+      part("fill").style.width = (position / total) * 100 + "%";
+    }
+
+    /** Show the short orientation, or the numbered questions/review with their progress. */
+    function setIntro(on) {
+      var intro = part("intro");
+      if (intro) intro.hidden = !on;
+      part("progress").hidden = on;
+    }
+
+    /** Replay the short entrance transition (skipped for reduced motion in CSS). */
+    function animate(el) {
+      el.classList.remove("is-entering");
+      void el.offsetWidth;
+      el.classList.add("is-entering");
+    }
+
+    function showStep(index) {
+      var step = STEPS[index];
+      var total = STEPS.length;
+      state.index = index;
+      state.atReview = false;
+
+      setIntro(false);
+      part("review").hidden = true;
+      var panel = part("step");
+      panel.hidden = false;
+
+      setProgress(index + 1, "Question " + (index + 1) + " of " + total);
+      part("group").textContent = step.group;
+      part("q").textContent = step.q;
+      part("help").textContent = step.help;
+      var need = part("need");
+      need.textContent = step.need === "choice" ? "Optional" : "Required";
+      need.className = "ll-guide-need" + (step.need === "choice" ? " is-optional" : "");
+
+      var isText = step.kind === "text";
+      part("text").hidden = !isText;
+      part("money-wrap").hidden = isText;
+      var input = guideInput();
+      part("q").setAttribute("for", input.id);
+      input.value = guideEl(step.id).value;
+      mirrorError(step.id);
+
+      var alt = part("alt");
+      alt.hidden = step.need !== "choice";
+      alt.textContent = step.alt || "";
+      updateChosen();
+
+      part("back").hidden = index === 0;
+      part("next-label").textContent = state.editEnd !== null && atEnd()
+        ? "Back to review"
+        : index === total - 1
+          ? "Review answers"
+          : "Continue";
+
+      animate(panel);
+      input.focus();
+    }
+
+    /** On a noTarget question, note that "No — no target" was chosen. */
+    function updateChosen() {
+      var chosen = part("chosen");
+      if (!chosen) return;
+      var step = STEPS[state.index];
+      chosen.hidden = !(step.noTarget && state.noTarget && guideEl(step.id).value.trim() === "");
+    }
+
+    /** The value shown for one answer on the review sheet. */
+    function reviewValue(step) {
+      var raw = guideEl(step.id).value.trim();
+      if (step.kind === "text") return { text: raw };
+      if (raw === "") {
+        return step.noTarget
+          ? { text: "No target set", empty: true }
+          : { text: formatMoneyCompact(0), empty: true };
+      }
+      return { text: formatMoneyCompact(readMoney(step.id)) };
+    }
+
+    function reviewRow(label, value, extraClass) {
+      var row = document.createElement("div");
+      row.className = "ll-guide-row" + (extraClass ? " " + extraClass : "");
+      var dt = document.createElement("dt");
+      dt.textContent = label;
+      var dd = document.createElement("dd");
+      dd.textContent = value.text;
+      if (value.empty) dd.className = "is-empty";
+      row.appendChild(dt);
+      row.appendChild(dd);
+      return row;
+    }
+
+    function showReview() {
+      state.atReview = true;
+      state.editEnd = null;
+      setIntro(false);
+      part("step").hidden = true;
+
+      var totals = cfg.calculate(); // same engine as the results; used for totals only
+      var sheet = part("sheet");
+      sheet.innerHTML = "";
+
+      cfg.review.forEach(function (section) {
+        var wrap = document.createElement("section");
+        wrap.className = "ll-guide-section";
+
+        var head = document.createElement("div");
+        head.className = "ll-guide-section-head";
+        var title = document.createElement("h5");
+        title.className = "ll-guide-sheet-title";
+        title.textContent = section.title;
+        var edit = document.createElement("button");
+        edit.type = "button";
+        edit.className = "ll-guide-edit";
+        edit.textContent = "Edit";
+        edit.setAttribute("aria-label", "Edit " + section.title.toLowerCase());
+        edit.addEventListener("click", function () {
+          var first = stepIndex(section.ids[0]);
+          state.editEnd = stepIndex(section.ids[section.ids.length - 1]);
+          showStep(first);
+        });
+        head.appendChild(title);
+        head.appendChild(edit);
+        wrap.appendChild(head);
+
+        var dl = document.createElement("dl");
+        dl.className = "ll-guide-rows";
+        section.ids.forEach(function (id) {
+          var step = STEPS[stepIndex(id)];
+          dl.appendChild(reviewRow(step.label, reviewValue(step)));
+        });
+        if (section.total) {
+          dl.appendChild(reviewRow(section.total.label,
+            { text: formatMoneyCompact(totals[section.total.key]) }, "is-total"));
+        }
+        wrap.appendChild(dl);
+        sheet.appendChild(wrap);
+      });
+
+      setProgress(STEPS.length, "Review: all " + STEPS.length + " questions answered");
+      var review = part("review");
+      review.hidden = false;
+      animate(review);
+      part("review-title").focus();
+    }
+
+    function advance() {
+      if (atEnd()) showReview();
+      else showStep(state.index + 1);
+    }
+
+    function next() {
+      if (!validate()) {
+        guideInput().focus();
+        return;
+      }
+      advance();
+    }
+
+    /** The question's own alternative answer: "No — none", "None — $0", "No — no target". */
+    function chooseAlt() {
+      var step = STEPS[state.index];
+      if (step.need !== "choice") return;
+      guideInput().value = step.altValue;
+      write(step.id, step.altValue);
+      if (step.noTarget) state.noTarget = true;
+      validateField(fieldFor(step.id)); // clears any earlier error on the field
+      mirrorError(step.id);
+      advance();
+    }
+
+    function back() {
+      if (state.index > 0) showStep(state.index - 1);
+    }
+
+    /** Orientation before question 1: not numbered, no progress, no Back. */
+    function showIntro() {
+      part("step").hidden = true;
+      part("review").hidden = true;
+      setIntro(true);
+      animate(part("intro"));
+      part("intro-title").focus();
+    }
+
+    function start() {
+      state.started = true;
+      showStep(0);
+    }
+
+    function open() {
+      guideEl(cfg.standardId).hidden = true;
+      part("entry").hidden = true;
+      setLede(false);
+      part("open").setAttribute("aria-expanded", "true");
+      guideEl(cfg.prefix + "-guide").hidden = false;
+      if (!state.started && part("intro")) {
+        showIntro();
+        return;
+      }
+      // The standard form may have been edited meanwhile: go back to the first
+      // unanswered question instead of a review with gaps.
+      var gap = firstUnanswered();
+      if (state.atReview && gap === -1) showReview();
+      else if (state.atReview) showStep(gap);
+      else showStep(state.index);
+    }
+
+    /** The standard view's framing sentence (the intro covers it in the guide). */
+    function setLede(on) {
+      var lede = part("lede");
+      if (lede) lede.hidden = !on;
+    }
+
+    /** Leave the guide. Answers already live in the canonical fields, so nothing is lost. */
+    function close(restoreFocus) {
+      var panel = guideEl(cfg.prefix + "-guide");
+      if (!panel) return;
+      panel.hidden = true;
+      guideEl(cfg.standardId).hidden = false;
+      part("entry").hidden = false;
+      setLede(true);
+      var openBtn = part("open");
+      openBtn.setAttribute("aria-expanded", "false");
+      if (restoreFocus) openBtn.focus();
+    }
+
+    /** Back to question 1 with the standard form showing (used by Reset). */
+    function reset() {
+      state.index = 0;
+      state.atReview = false;
+      state.editEnd = null;
+      state.noTarget = false;
+      state.started = false;
+      ["text", "money"].forEach(function (name) {
+        var input = part(name);
+        if (input) {
+          input.value = "";
+          clearError(input);
+        }
+      });
+      close(false);
+    }
+
+    /** Run through the real form submission, then show the results. */
+    function run() {
+      var form = guideEl(cfg.formId);
+      if (typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+      } else {
+        form.dispatchEvent(new Event("submit", { cancelable: true }));
+      }
+
+      var invalid = guideEl(cfg.standardId).querySelector(".field.has-error input");
+      if (invalid) {
+        var at = stepIndex(invalid.id);
+        state.editEnd = at;
+        showStep(at);
+        return;
+      }
+
+      close(false);
+      var title = guideEl(cfg.dashTitleId);
+      if (title) title.focus();
+    }
+
+    part("open").addEventListener("click", open);
+    if (part("start")) part("start").addEventListener("click", start);
+    part("exit").addEventListener("click", function () {
+      close(true);
     });
-    guideEl("plan-guide-next").addEventListener("click", guideContinue);
-    guideEl("plan-guide-back").addEventListener("click", guideBack);
-    guideEl("plan-guide-alt").addEventListener("click", guideChooseAlt);
+    part("next").addEventListener("click", next);
+    part("back").addEventListener("click", back);
+    part("alt").addEventListener("click", chooseAlt);
 
     // Typing a target (here or in the standard form) replaces a "No" choice.
-    guideEl("plan-target-profit").addEventListener("input", function () {
-      if (this.value.trim() !== "") guideState.noTarget = false;
+    STEPS.forEach(function (step) {
+      if (!step.noTarget) return;
+      guideEl(step.id).addEventListener("input", function () {
+        if (this.value.trim() !== "") state.noTarget = false;
+      });
     });
-    guideEl("plan-guide-review-back").addEventListener("click", function () {
-      showGuideStep(GUIDE_STEPS.length - 1);
+    part("review-back").addEventListener("click", function () {
+      showStep(STEPS.length - 1);
     });
-    guideEl("plan-guide-run").addEventListener("click", guideRun);
+    part("run").addEventListener("click", run);
 
-    ["plan-guide-text", "plan-guide-money"].forEach(function (id) {
-      var input = guideEl(id);
-      // Write-through: the plan-* field always holds the current answer.
+    ["text", "money"].forEach(function (name) {
+      var input = part(name);
+      // Write-through: the canonical field always holds the current answer.
       input.addEventListener("input", function () {
-        var step = GUIDE_STEPS[guideState.index];
-        guideWrite(step.id, input.value);
-        if (getFieldWrapper(input).classList.contains("has-error")) guideValidate();
-        guideUpdateChosen();
+        var step = STEPS[state.index];
+        write(step.id, input.value);
+        if (getFieldWrapper(input).classList.contains("has-error")) validate();
+        updateChosen();
       });
       // Enter continues instead of submitting the whole form mid-flow.
       input.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
           event.preventDefault();
-          guideContinue();
+          next();
         }
       });
     });
 
     // Tooltip: shown on hover and keyboard focus (CSS); Escape hides it
     // without moving focus or touching any answers.
-    var tipBtn = guideEl("plan-guide-info");
+    var tipBtn = part("info");
     var tip = tipBtn.parentNode;
     tipBtn.addEventListener("keydown", function (event) {
       if (event.key === "Escape") tip.classList.add("is-dismissed");
@@ -1809,6 +1922,35 @@
     tip.addEventListener("mouseleave", function () {
       tip.classList.remove("is-dismissed");
     });
+
+    return { reset: reset };
+  }
+
+  var planGuide = null;
+  var assessGuide = null;
+
+  function initPlanGuide() {
+    planGuide = createGuide({
+      prefix: "plan", formId: "plan-form", standardId: "plan-standard",
+      dashTitleId: "plan-dash-title", fields: PLAN_REQUIRED_FIELDS,
+      steps: PLAN_GUIDE_STEPS, review: PLAN_GUIDE_REVIEW, calculate: calculatePlan,
+    });
+  }
+
+  function resetPlanGuide() {
+    if (planGuide) planGuide.reset();
+  }
+
+  function initAssessGuide() {
+    assessGuide = createGuide({
+      prefix: "sim", formId: "sim-form", standardId: "sim-standard",
+      dashTitleId: "dash-title", fields: REQUIRED_FIELDS,
+      steps: ASSESS_GUIDE_STEPS, review: ASSESS_GUIDE_REVIEW, calculate: calculateSimulation,
+    });
+  }
+
+  function resetAssessGuide() {
+    if (assessGuide) assessGuide.reset();
   }
 
   /** Wire the Assessment / Planning mode tabs to show one panel at a time. */
@@ -1859,6 +2001,7 @@
     });
 
     clearAllErrors();
+    resetAssessGuide();
 
     var empty = document.getElementById("sim-empty");
     var dashboard = document.getElementById("sim-dashboard");
@@ -1893,8 +2036,11 @@
       renderResults(result);
     });
 
+    initAssessGuide();
+
     form.addEventListener("reset", function () {
       clearAllErrors();
+      resetAssessGuide();
       var empty = document.getElementById("sim-empty");
       var dashboard = document.getElementById("sim-dashboard");
       if (dashboard) dashboard.hidden = true;

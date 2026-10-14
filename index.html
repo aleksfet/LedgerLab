@@ -565,8 +565,46 @@
         <div class="sim-layout">
           <!-- ---- Inputs panel ---- -->
           <form id="sim-form" class="sim-panel sim-form" novalidate autocomplete="off">
-            <h3 class="sim-panel-title">Input Your Business Numbers</h3>
+            <div class="ll-guide-head">
+              <h3 class="sim-panel-title">Enter This Month’s Business Numbers</h3>
+              <p class="ll-guide-lede" id="sim-guide-lede">
+                Enter one month of business activity to see how the business performed financially.
+              </p>
+              <div class="ll-guide-entry" id="sim-guide-entry">
+                <button type="button" class="ll-guide-open" id="sim-guide-open"
+                        aria-controls="sim-guide" aria-expanded="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z" />
+                    <path d="M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" />
+                  </svg>
+                  Interactive Mode
+                </button>
+                <span class="ll-guide-badge">
+                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />
+                  </svg>
+                  Game-like
+                </span>
+                <span class="ll-tip">
+                  <button type="button" class="ll-tip-btn" id="sim-guide-info"
+                          aria-label="About Interactive Mode" aria-describedby="sim-guide-tip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="8.5" /><path d="M12 11v5" /><path d="M12 7.6v.1" />
+                    </svg>
+                  </button>
+                  <span class="ll-tip-text" role="tooltip" id="sim-guide-tip">
+                    Beginner-friendly guided setup. Enter this month’s business activity one
+                    question at a time, review your answers, then run the same Assessment.
+                  </span>
+                </span>
+              </div>
+            </div>
 
+            <!-- Standard form (default). The inputs below are the single source of
+                 truth; Interactive Mode reads and writes these same fields. -->
+            <div class="ll-guide-standard" id="sim-standard">
             <div class="field field-full">
               <label for="biz-name">Business name</label>
               <input type="text" id="biz-name" name="biz-name"
@@ -675,6 +713,111 @@
               <button type="submit" class="btn btn-primary">Run Simulation</button>
               <button type="reset" class="btn btn-secondary" id="sim-reset">Reset</button>
             </div>
+            </div><!-- /#sim-standard -->
+
+            <!-- Interactive Mode: one question at a time, writing into the fields above. -->
+            <div class="ll-guide" id="sim-guide" hidden>
+              <div class="ll-guide-top">
+                <span class="ll-guide-name">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z" />
+                  </svg>
+                  Interactive Mode
+                </span>
+                <div class="ll-guide-top-end">
+                  <p class="ll-guide-reminder">Reminder: use actual numbers if you have them — estimates are okay for practice.</p>
+                  <button type="button" class="ll-guide-exit" id="sim-guide-exit"
+                          aria-label="Exit Interactive Mode" title="Exit Interactive Mode">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" aria-hidden="true">
+                      <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="ll-guide-step ll-guide-intro" id="sim-guide-intro" hidden>
+                <p class="ll-guide-group">Assessment Interactive Mode</p>
+                <h4 class="ll-guide-intro-title" id="sim-guide-intro-title" tabindex="-1">We’ll walk through one month of business activity, step by step.</h4>
+                <p class="ll-guide-help">
+                  Think of one completed month. You’ll enter the cash the business started with, what it
+                  earned, what it spent, and any major purchases made during that month.
+                </p>
+                <div class="ll-guide-actions">
+                  <button type="button" class="btn btn-primary ll-guide-next" id="sim-guide-start">
+                    Start Assessment
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="ll-guide-progress" id="sim-guide-progress">
+                <p class="ll-guide-count" id="sim-guide-count">Question 1 of 10</p>
+                <div class="ll-guide-track" id="sim-guide-track" role="progressbar"
+                     aria-labelledby="sim-guide-count" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1">
+                  <span class="ll-guide-fill" id="sim-guide-fill"></span>
+                </div>
+              </div>
+
+              <div class="ll-guide-step" id="sim-guide-step">
+                <p class="ll-guide-group" id="sim-guide-group">The basics</p>
+                <div class="field ll-guide-field">
+                  <label class="ll-guide-q" id="sim-guide-q" for="sim-guide-text">What is your business called?</label>
+                  <p class="ll-guide-help">
+                    <span id="sim-guide-help"></span>
+                    <span class="ll-guide-need" id="sim-guide-need">Required</span>
+                  </p>
+                  <input type="text" class="ll-guide-text" id="sim-guide-text" autocomplete="off"
+                         aria-describedby="sim-guide-count sim-guide-help sim-guide-need sim-guide-error" />
+                  <div class="money-input" id="sim-guide-money-wrap" hidden>
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="sim-guide-money" min="0" step="0.01" inputmode="decimal"
+                           placeholder="0"
+                           aria-describedby="sim-guide-count sim-guide-help sim-guide-need sim-guide-error" />
+                  </div>
+                  <p class="field-error" id="sim-guide-error" role="alert"></p>
+                </div>
+                <div class="ll-guide-actions">
+                  <button type="button" class="btn btn-secondary" id="sim-guide-back" hidden>Back</button>
+                  <button type="button" class="ll-guide-alt" id="sim-guide-alt" hidden>None — $0</button>
+                  <button type="button" class="btn btn-primary ll-guide-next" id="sim-guide-next">
+                    <span id="sim-guide-next-label">Continue</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="ll-guide-review" id="sim-guide-review" hidden>
+                <p class="ll-guide-done">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12.5l4.2 4.2L19 7" />
+                  </svg>
+                  All questions answered
+                </p>
+                <h4 class="ll-guide-review-title" id="sim-guide-review-title" tabindex="-1">Review your business assessment</h4>
+                <div class="ll-guide-sheet" id="sim-guide-sheet">
+                  <!-- review sections built by script.js from the Assessment fields -->
+                </div>
+                <div class="ll-guide-actions">
+                  <button type="button" class="btn btn-secondary" id="sim-guide-review-back">Back</button>
+                  <button type="button" class="btn btn-primary ll-guide-next" id="sim-guide-run">
+                    Run Assessment
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
           </form>
 
           <!-- ---- Results dashboard ---- -->
@@ -701,7 +844,7 @@
 
             <!-- Dashboard (populated by script.js after running) -->
             <div class="sim-dashboard" id="sim-dashboard" hidden>
-              <h3 class="sim-dash-title" id="dash-title">Results</h3>
+              <h3 class="sim-dash-title" id="dash-title" tabindex="-1">Results</h3>
 
               <div class="health-banner" id="health-banner">
                 <span class="health-dot" aria-hidden="true"></span>
@@ -816,6 +959,9 @@
             <form id="plan-form" class="sim-panel sim-form" novalidate autocomplete="off">
               <div class="ll-plan-head">
                 <h3 class="sim-panel-title">Plan Your Startup Budget</h3>
+                <p class="ll-guide-lede" id="plan-guide-lede">
+                  Build a starting budget and estimate what a typical month could look like.
+                </p>
                 <div class="ll-guide-entry" id="plan-guide-entry">
                   <button type="button" class="ll-guide-open" id="plan-guide-open"
                           aria-controls="plan-guide" aria-expanded="false">
@@ -1014,7 +1160,25 @@
                   </div>
                 </div>
 
-                <div class="ll-guide-progress">
+                <div class="ll-guide-step ll-guide-intro" id="plan-guide-intro" hidden>
+                  <p class="ll-guide-group">Startup Planning Interactive Mode</p>
+                  <h4 class="ll-guide-intro-title" id="plan-guide-intro-title" tabindex="-1">We’ll build a simple startup plan using estimates.</h4>
+                  <p class="ll-guide-help">
+                    You’ll estimate your startup cash, expected monthly revenue, monthly costs, startup
+                    purchases, and the profit goal you’d like to reach. Hypothetical numbers are completely fine.
+                  </p>
+                  <div class="ll-guide-actions">
+                    <button type="button" class="btn btn-primary ll-guide-next" id="plan-guide-start">
+                      Start Planning
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12h14M13 6l6 6-6 6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="ll-guide-progress" id="plan-guide-progress">
                   <p class="ll-guide-count" id="plan-guide-count">Question 1 of 13</p>
                   <div class="ll-guide-track" id="plan-guide-track" role="progressbar"
                        aria-labelledby="plan-guide-count" aria-valuemin="0" aria-valuemax="13" aria-valuenow="1">
