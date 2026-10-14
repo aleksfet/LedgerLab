@@ -3591,6 +3591,79 @@
   }
 
   /* ==========================================================
+     Light / Dark theme
+     The head script picks the starting theme before first paint
+     (?theme= preview, then the saved choice, then the system
+     setting, then dark). This wires the header button: it swaps
+     data-theme on <html> and saves the explicit choice.
+     ========================================================== */
+  var THEME_KEY = "ledgerlab-theme";
+
+  function currentTheme() {
+    return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  }
+
+  function hasSavedTheme() {
+    try {
+      var saved = window.localStorage.getItem(THEME_KEY);
+      return saved === "light" || saved === "dark";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function hasThemeQuery() {
+    try {
+      var q = new URLSearchParams(window.location.search).get("theme");
+      return q === "light" || q === "dark";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function applyTheme(theme, button) {
+    var root = document.documentElement;
+    // Switch instantly: suspend transitions for one frame so colours
+    // don't fade unevenly across the page.
+    root.classList.add("ll-theme-switching");
+    root.setAttribute("data-theme", theme);
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        root.classList.remove("ll-theme-switching");
+      });
+    });
+    if (button) {
+      button.setAttribute("aria-label",
+        theme === "light" ? "Switch to dark mode" : "Switch to light mode");
+    }
+  }
+
+  function initThemeToggle() {
+    var button = document.getElementById("theme-toggle");
+    if (!button) return;
+    applyTheme(currentTheme(), button);
+
+    button.addEventListener("click", function () {
+      var next = currentTheme() === "light" ? "dark" : "light";
+      applyTheme(next, button);
+      try {
+        window.localStorage.setItem(THEME_KEY, next);
+      } catch (e) {}
+    });
+
+    // Until the visitor chooses, follow changes to the system setting.
+    if (window.matchMedia) {
+      var media = window.matchMedia("(prefers-color-scheme: light)");
+      var follow = function (event) {
+        if (hasSavedTheme() || hasThemeQuery()) return;
+        applyTheme(event.matches ? "light" : "dark", button);
+      };
+      if (media.addEventListener) media.addEventListener("change", follow);
+      else if (media.addListener) media.addListener(follow);
+    }
+  }
+
+  /* ==========================================================
      Tool workbench: draggable builder | document divider
      One divider per .ll-wb-grid. It only changes --wb-split (the
      builder's share in percent) on the grid, so tool data is never
@@ -3774,6 +3847,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", function () {
+    initThemeToggle();
     initSmoothScroll();
     initActiveNav();
     initMissionToggle();

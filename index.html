@@ -16,15 +16,24 @@
   />
   <link rel="stylesheet" href="styles.css" />
   <script>
-    // Dark is the default until the full theme system ships.
-    // Light Page 1 styling can be previewed with ?theme=light.
+    // Applies the theme before first paint, so there is no flash.
+    // Precedence: ?theme= preview (not saved) > saved choice > system > dark.
     (function () {
+      var theme = null;
       try {
-        var theme = new URLSearchParams(window.location.search).get("theme");
-        if (theme === "light" || theme === "dark") {
-          document.documentElement.setAttribute("data-theme", theme);
-        }
+        var query = new URLSearchParams(window.location.search).get("theme");
+        if (query === "light" || query === "dark") theme = query;
       } catch (e) {}
+      if (!theme) {
+        try {
+          var saved = window.localStorage.getItem("ledgerlab-theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch (e) {}
+      }
+      if (!theme && window.matchMedia) {
+        theme = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      }
+      document.documentElement.setAttribute("data-theme", theme || "dark");
     })();
   </script>
 </head>
@@ -42,11 +51,28 @@
         </span>
         <span class="ll-wordmark">Ledger<span class="ll-accent">Lab</span></span>
       </a>
-      <nav class="nav-links" aria-label="Primary">
-        <a href="#audience">Mission</a>
-        <a href="#features">Key Concepts</a>
-        <a href="#simulator">Simulator</a>
-      </nav>
+      <div class="ll-header-end">
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#audience">Mission</a>
+          <a href="#features">Key Concepts</a>
+          <a href="#simulator">Simulator</a>
+        </nav>
+        <!-- Theme switch: the icon shows the theme it switches to (CSS picks it). -->
+        <button type="button" class="ll-theme-toggle" id="theme-toggle"
+                aria-label="Switch to light mode">
+          <svg class="ll-theme-icon ll-theme-icon--sun" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" />
+          </svg>
+          <svg class="ll-theme-icon ll-theme-icon--moon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+               stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
+          </svg>
+        </button>
+      </div>
     </div>
   </header>
 

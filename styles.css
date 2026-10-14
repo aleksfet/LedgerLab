@@ -131,7 +131,7 @@
 
   --ll-text: #0f1d3a;
   --ll-body: #4a5568;
-  --ll-muted: #64748b;
+  --ll-muted: #5b6779; /* AA (4.5:1+) on the pale light-theme bands */
   --ll-nav: #1f2a3d;
 
   --ll-green: #0e875c;
@@ -277,6 +277,86 @@ a:hover {
 .nav-links a.is-active {
   color: var(--ll-green);
   text-decoration: none;
+}
+
+/* ---- Theme switch: nav links + one compact icon button ---- */
+.ll-header-end {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.ll-theme-toggle {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--ll-card-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ll-nav);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.ll-theme-toggle:hover {
+  border-color: var(--ll-tint-border);
+  color: var(--ll-green);
+}
+
+.ll-theme-toggle:focus-visible {
+  outline: 2px solid var(--ll-green);
+  outline-offset: 2px;
+}
+
+.ll-theme-icon {
+  width: 18px;
+  height: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-theme-toggle {
+    transition: none;
+  }
+}
+
+/* Dark shows the sun (switch to light); light shows the moon. */
+.ll-theme-icon--moon,
+:root[data-theme="light"] .ll-theme-icon--sun {
+  display: none;
+}
+
+:root[data-theme="light"] .ll-theme-icon--moon {
+  display: block;
+}
+
+/* Theme changes apply instantly, without colour fades. */
+.ll-theme-switching,
+.ll-theme-switching *,
+.ll-theme-switching *::before,
+.ll-theme-switching *::after {
+  transition: none !important;
+}
+
+/* Light theme: the page background and footer follow the light palette. */
+:root[data-theme="light"] body {
+  background-color: var(--ll-page);
+}
+
+:root[data-theme="light"] .site-footer {
+  background: var(--ll-card-band);
+  border-top-color: var(--ll-line);
+}
+
+:root[data-theme="light"] .site-footer .brand-name {
+  color: var(--ll-text);
+}
+
+:root[data-theme="light"] .footer-brand p,
+:root[data-theme="light"] .footer-note {
+  color: var(--ll-muted);
 }
 
 /* ===== Page 1 (redesign): brand, hero, Our Mission ===== */
@@ -2543,6 +2623,13 @@ a:hover {
   --ll-sim-radius-sm: 6px;
 }
 
+/* Dark theme: a slightly deeper button green so white labels meet AA
+   (4.71:1; hover 5.36:1). Page 1's CTA keeps the shared --ll-cta-bg. */
+:root:not([data-theme="light"]) #simulator {
+  --ll-sim-cta-bg: #0c8459;
+  --ll-sim-cta-hover: #0b7a52;
+}
+
 :root[data-theme="light"] #simulator {
   --ll-sim-frame-shadow: 0 12px 32px rgba(16, 32, 60, 0.06);
   --ll-sim-warn: #9a6a00;
@@ -2633,6 +2720,11 @@ a:hover {
   color: var(--ll-sim-accent);
   box-shadow: inset 0 0 0 1px var(--ll-sim-tint-border);
   cursor: default;
+}
+
+/* Light theme: a deeper green keeps the active label AA on its tint. */
+:root[data-theme="light"] .ll-sim-mode.is-active {
+  color: #0b6e4b;
 }
 
 .ll-sim-mode:focus-visible {
@@ -4315,6 +4407,7 @@ body.modal-open { overflow: hidden; }
   --wb-body: #334155;
   --wb-muted: #5b6779;
   --wb-faint: #8a96a8;
+  --wb-placeholder: #6b7789; /* AA on white, still lighter than entered text */
   --wb-green: #0e875c;
   --wb-cta: #0f7f5c;
   --wb-cta-hover: #0c6c4e;
@@ -4327,6 +4420,33 @@ body.modal-open { overflow: hidden; }
   --wb-warn: #8a5a00;
   --wb-ring: rgba(14, 135, 92, 0.18);
   font-family: var(--ll-font);
+}
+
+/* Light theme: a pale, navy-tinted shell, so the white workbench still
+   stands apart from the window around it. */
+:root[data-theme="light"] .tool-modal {
+  --tw-shell: #e8edf3;
+  --tw-shell-raised: #f6f8fb;
+  --tw-shell-line: #d6dee8;
+  --tw-shell-border: #c9d3df;
+  --tw-shell-text: #0f1d3a;
+  --tw-shell-body: #334155;
+  --tw-shell-accent: #0e875c;
+  background: rgba(15, 29, 58, 0.45);
+}
+
+:root[data-theme="light"] .tool-modal .tool-modal-panel {
+  box-shadow: 0 24px 60px rgba(15, 29, 58, 0.22);
+}
+
+:root[data-theme="light"] .tool-modal .tool-modal-close:hover {
+  border-color: #9fb0c4;
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .ll-wb {
+  border-color: #d3dce7;
+  box-shadow: 0 1px 2px rgba(16, 32, 60, 0.06), 0 10px 28px rgba(16, 32, 60, 0.1);
 }
 
 /* ---- Dark shell: window bar and body ---- */
@@ -4891,7 +5011,7 @@ body.ll-wb-resizing * {
 }
 
 .ll-wb .field input::placeholder {
-  color: var(--wb-faint);
+  color: var(--wb-placeholder);
   opacity: 1;
 }
 
