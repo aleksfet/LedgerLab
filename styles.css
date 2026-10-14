@@ -3460,13 +3460,16 @@ a:hover {
   color: var(--ll-sim-muted);
 }
 
-/* Interactive Mode intros: accent rule beside the explanatory paragraph. Drawn in the
-   card's padding so the text keeps its exact position. */
+/* Accent rule beside the standard-view framing line and the Interactive Mode
+   intro paragraph. Drawn in the surrounding padding so the text keeps its
+   exact position. */
+#simulator .ll-guide-lede,
 #sim-guide-intro .ll-guide-help,
 #plan-guide-intro .ll-guide-help {
   position: relative;
 }
 
+#simulator .ll-guide-lede::before,
 #sim-guide-intro .ll-guide-help::before,
 #plan-guide-intro .ll-guide-help::before {
   content: "";
