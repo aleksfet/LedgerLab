@@ -3590,6 +3590,189 @@
     });
   }
 
+  /* ==========================================================
+     Tool workbench: draggable builder | document divider
+     One divider per .ll-wb-grid. It only changes --wb-split (the
+     builder's share in percent) on the grid, so tool data is never
+     touched. The split lasts for the page session. CSS hides the
+     divider whenever the panes stack. A tool can add pixel floors
+     (--wb-min-build / --wb-min-doc) on top of the percentage limits.
+     ========================================================== */
+  var WB_SPLIT_MIN = 36;
+  var WB_SPLIT_MAX = 64;
+
+  function initToolSplitters() {
+    document.querySelectorAll(".ll-wb-grid").forEach(function (grid) {
+      var builder = grid.querySelector(".ll-wb-build");
+      var doc = grid.querySelector(".ll-wb-doc");
+      if (!builder || !doc) return;
+
+      var fallback = parseFloat(getComputedStyle(grid).getPropertyValue("--wb-split-default"));
+      if (isNaN(fallback)) fallback = 50;
+      if (!doc.id) doc.id = (builder.id || "wb") + "-doc";
+
+      var handle = document.createElement("div");
+      handle.className = "ll-wb-split";
+      handle.setAttribute("role", "separator");
+      handle.setAttribute("aria-orientation", "vertical");
+      handle.setAttribute("aria-label", "Resize tool panels");
+      handle.setAttribute("aria-controls", builder.id + " " + doc.id);
+      handle.tabIndex = 0;
+      handle.innerHTML = '<span class="ll-wb-split-grip" aria-hidden="true"></span>';
+      grid.insertBefore(handle, doc);
+
+      // Effective limits for the grid's current width.
+      function limits() {
+        var style = getComputedStyle(grid);
+        var width = grid.getBoundingClientRect().width || 1;
+        var minBuild = parseFloat(style.getPropertyValue("--wb-min-build")) || 0;
+        var minDoc = parseFloat(style.getPropertyValue("--wb-min-doc")) || 0;
+        var lo = Math.max(WB_SPLIT_MIN, (minBuild / width) * 100);
+        var hi = Math.min(WB_SPLIT_MAX, 100 - (minDoc / width) * 100);
+        if (lo > hi) lo = hi = fallback;
+        return { lo: lo, hi: hi };
+      }
+
+      var current = fallback;
+      function apply(value, isDefault) {
+        var range = limits();
+        current = isDefault ? fallback : Math.min(range.hi, Math.max(range.lo, value));
+        handle.setAttribute("aria-valuemin", String(Math.round(range.lo)));
+        handle.setAttribute("aria-valuemax", String(Math.round(range.hi)));
+        if (isDefault) grid.style.removeProperty("--wb-split");
+        else grid.style.setProperty("--wb-split", current.toFixed(2));
+        var shown = Math.round(current);
+        handle.setAttribute("aria-valuenow", String(shown));
+        handle.setAttribute("aria-valuetext",
+          "Inputs " + shown + "%, document " + (100 - shown) + "%");
+      }
+      apply(fallback, true);
+
+      function fromPointer(clientX) {
+        var rect = grid.getBoundingClientRect();
+        if (rect.width) apply(((clientX - rect.left) / rect.width) * 100);
+      }
+
+      handle.addEventListener("pointerdown", function (event) {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        handle.setPointerCapture(event.pointerId);
+        handle.classList.add("is-dragging");
+        document.body.classList.add("ll-wb-resizing");
+        handle.focus({ preventScroll: true });
+      });
+      handle.addEventListener("pointermove", function (event) {
+        if (handle.hasPointerCapture(event.pointerId)) fromPointer(event.clientX);
+      });
+      function endDrag(event) {
+        if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+        handle.classList.remove("is-dragging");
+        document.body.classList.remove("ll-wb-resizing");
+      }
+      handle.addEventListener("pointerup", endDrag);
+      handle.addEventListener("pointercancel", endDrag);
+
+      // Limits depend on the grid's width, so refresh them when focused.
+      handle.addEventListener("focus", function () {
+        apply(current, grid.style.getPropertyValue("--wb-split") === "");
+      });
+
+      // Double-click returns to the tool's default split.
+      handle.addEventListener("dblclick", function () { apply(fallback, true); });
+
+      handle.addEventListener("keydown", function (event) {
+        var step = event.shiftKey ? 8 : 2;
+        if (event.key === "ArrowLeft") apply(current - step);
+        else if (event.key === "ArrowRight") apply(current + step);
+        else if (event.key === "Home") apply(0);
+        else if (event.key === "End") apply(100);
+        else return;
+        event.preventDefault();
+      });
+    });
+  }
+
+  /* ==========================================================
+     Example chips: plain-English explanation on hover / focus
+     Each chip points at its hidden .ll-ex-tip text through
+     aria-describedby (so screen readers announce it). One shared
+     bubble shows that text visually, kept inside the tool window.
+     ========================================================== */
+  function initExampleTips() {
+    var chips = document.querySelectorAll(".ll-chip[aria-describedby]");
+    if (!chips.length) return;
+
+    var bubble = document.createElement("div");
+    bubble.className = "ll-ex-bubble";
+    bubble.setAttribute("aria-hidden", "true");
+    bubble.hidden = true;
+    document.body.appendChild(bubble);
+
+    var owner = null;
+    var hovered = null;
+
+    function place(chip) {
+      var panel = chip.closest(".tool-modal-panel");
+      var bounds = panel ? panel.getBoundingClientRect()
+        : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
+      var r = chip.getBoundingClientRect();
+      var gap = 8, edge = 12;
+      bubble.style.maxWidth = Math.min(304, bounds.right - bounds.left - edge * 2) + "px";
+      var w = bubble.offsetWidth, h = bubble.offsetHeight;
+      var left = r.left + r.width / 2 - w / 2;
+      left = Math.max(bounds.left + edge, Math.min(left, bounds.right - edge - w));
+      var below = r.bottom + gap;
+      var above = r.top - gap - h;
+      var top = below + h <= bounds.bottom - edge || above < bounds.top + edge ? below : above;
+      bubble.classList.toggle("is-above", top === above);
+      bubble.style.left = Math.round(left) + "px";
+      bubble.style.top = Math.round(top) + "px";
+      bubble.style.setProperty("--ll-ex-arrow",
+        Math.round(Math.min(Math.max(r.left + r.width / 2 - left, 14), w - 14)) + "px");
+    }
+
+    function show(chip) {
+      var source = document.getElementById(chip.getAttribute("aria-describedby"));
+      if (!source) return;
+      owner = chip;
+      bubble.textContent = source.textContent;
+      bubble.hidden = false;
+      place(chip);
+    }
+
+    function hide() {
+      owner = null;
+      bubble.hidden = true;
+    }
+
+    function settle() {
+      var focused = document.activeElement;
+      var next = hovered || (focused && focused.matches &&
+        focused.matches(".ll-chip[aria-describedby]") ? focused : null);
+      if (next && next.offsetParent !== null) { if (next !== owner) show(next); }
+      else hide();
+    }
+
+    chips.forEach(function (chip) {
+      chip.addEventListener("mouseenter", function () { hovered = chip; settle(); });
+      chip.addEventListener("mouseleave", function () { if (hovered === chip) hovered = null; settle(); });
+      chip.addEventListener("focus", settle);
+      chip.addEventListener("blur", function () { window.setTimeout(settle, 0); });
+    });
+
+    // Escape and scrolling hide the bubble; Escape still closes the window as before.
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && owner) { hovered = null; hide(); }
+    }, true);
+    document.querySelectorAll(".tool-modal-body").forEach(function (body) {
+      body.addEventListener("scroll", function () { if (owner) place(owner); }, { passive: true });
+    });
+    window.addEventListener("resize", function () { if (owner) place(owner); });
+    document.querySelectorAll(".tool-modal-close").forEach(function (btn) {
+      btn.addEventListener("click", function () { hovered = null; hide(); });
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     initSmoothScroll();
     initActiveNav();
@@ -3604,6 +3787,8 @@
     initIncomeStatement();
     initCashFlow();
     initToolWindows();
+    initToolSplitters();
+    initExampleTips();
     resetSimulatorState();
     resetJournalEntry();
     resetBankReconciliation();

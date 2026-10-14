@@ -1691,19 +1691,6 @@ a:hover {
   margin: 0;
 }
 
-/* ===== Card icon (Simulator and tool empty states) ===== */
-.card-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  border-radius: 10px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-}
-
 /* ===== Audience section ===== */
 .audience-list {
   list-style: none;
@@ -2137,10 +2124,6 @@ a:hover {
   padding: 3rem 2rem;
   text-align: center;
   color: var(--text-soft);
-}
-
-.sim-empty .card-icon {
-  margin: 0 auto 1rem;
 }
 
 .sim-empty h3 {
@@ -3816,21 +3799,6 @@ a:hover {
 }
 
 /* ===== Journal Entry Helper (Accounting Tool) ===== */
-.je-tool {
-  margin-top: 0.5rem;
-}
-
-.tool-title {
-  font-size: 1.4rem;
-  margin: 0 0 0.3rem;
-  color: var(--text);
-}
-
-.tool-sub {
-  color: var(--text-muted);
-  max-width: 640px;
-  margin: 0 0 1.5rem;
-}
 
 /* Transaction select + date inputs match the existing text/number fields */
 .je-select,
@@ -3960,65 +3928,8 @@ a:hover {
 }
 
 /* ===== Bank Reconciliation Helper (Accounting Tool) ===== */
-/* Sits below the Journal Entry Helper inside the Accounting Tools section. */
-.br-tool {
-  margin-top: 2.5rem;
-  padding-top: 2.5rem;
-  border-top: 1px solid var(--border);
-}
-
-/* Compact intro card above the reconciliation form. */
-.br-intro {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--blue);
-  border-radius: var(--radius);
-  padding: 0.9rem 1.1rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.br-intro-lead {
-  margin: 0;
-  color: var(--text-soft);
-  font-size: 0.92rem;
-}
-
-/* "Before you start" guidance note (green accent, not error styling). */
-.br-note {
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.28);
-  border-left: 3px solid var(--green);
-  border-radius: var(--radius);
-  padding: 0.9rem 1.1rem;
-  margin-bottom: 1.5rem;
-}
-
-.br-callout-lead {
-  margin: 0 0 0.4rem;
-  color: var(--text);
-  font-size: 0.92rem;
-  line-height: 1.45;
-}
-
-.br-callout-star {
-  color: var(--green-bright);
-  font-weight: 700;
-  margin-right: 0.2rem;
-}
-
-.br-callout-sub {
-  margin: 0 0 0.85rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
 
 /* Example scenario buttons */
-.br-examples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
 
 .br-example-btn {
   padding: 0.45rem 0.85rem;
@@ -4098,46 +4009,8 @@ a:hover {
 }
 
 /* ===== Depreciation Calculator ===== */
-/* Compact "why depreciation exists" intro card above the form. */
-.dep-intro {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--blue);
-  border-radius: var(--radius);
-  padding: 0.9rem 1.1rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-sm);
-}
-
-.dep-intro-lead {
-  margin: 0 0 0.5rem;
-  color: var(--text-soft);
-  font-size: 0.92rem;
-}
-
-.dep-intro-sub {
-  margin: 0;
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--blue-bright);
-}
 
 /* Clickable example boxes that auto-fill the form (greenish accent). */
-.dep-examples-label {
-  margin: 0 0 0.5rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--green-bright);
-}
-
-.dep-examples {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
-}
 
 .dep-example-btn {
   display: flex;
@@ -4168,11 +4041,6 @@ a:hover {
 }
 
 /* One-line "why this asset depreciates" note that teaches purpose. */
-.dep-example-purpose {
-  font-size: 0.72rem;
-  line-height: 1.35;
-  color: var(--text-soft);
-}
 
 .dep-example-meta {
   font-size: 0.72rem;
@@ -4255,10 +4123,6 @@ a:hover {
     display: none;
   }
 
-  .dep-examples {
-    grid-template-columns: 1fr;
-  }
-
   .section {
     padding: 3.25rem 0;
   }
@@ -4323,67 +4187,10 @@ a:hover {
 .is-advice-lead { font-weight: 600; margin: 0 0 0.25rem; color: var(--text); }
 .is-advice-body { margin: 0; }
 
-/* Compact "How this works" primer inside the intro. */
-.is-how {
-  margin-top: 0.7rem;
-  padding-top: 0.7rem;
-  border-top: 1px solid var(--border);
-}
-.is-how-title {
-  margin: 0 0 0.3rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--blue-bright);
-}
-.is-how-body {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.5;
-  color: var(--text-soft);
-}
-
 /* Compact example buttons that auto-fill and build the statement. */
-.is-examples-wrap { margin-bottom: 1.5rem; }
-.is-examples-label {
-  margin: 0 0 0.5rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--green-bright);
-}
-.is-examples {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
 .is-example-btn {
   padding: 0.45rem 0.85rem;
   font-size: 0.83rem;
-}
-
-/* Short guidance text under section headings and add-row buttons. */
-.is-section-help {
-  margin: -0.9rem 0 1rem;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  color: var(--text-muted);
-}
-.is-add-help {
-  margin: 0.15rem 0 0.75rem;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--text-muted);
-}
-
-/* Subtle "common examples" note under each section helper. */
-.is-examples-note {
-  margin: -0.75rem 0 1rem;
-  font-size: 0.78rem;
-  line-height: 1.45;
-  font-style: italic;
-  color: var(--text-muted);
 }
 
 /* Learning-focused primers in the results. */
@@ -4479,3 +4286,1332 @@ a:hover {
 }
 
 body.modal-open { overflow: hidden; }
+
+/* ===== Accounting tools: light workbench =====
+   The five tool windows keep a dark navy shell (like the Page 1 preview's app
+   screen) and put the tool itself on a light accounting workbench: builder on
+   the left, the financial document on the right. Everything is scoped to
+   .tool-modal / .ll-wb, so Page 1, Page 2 and the Simulator are untouched.
+   The workbench is a document surface, so it stays light in both site themes,
+   exactly like the white panel in the Page 1 preview. */
+.tool-modal {
+  --tw-shell: #0c1828;
+  --tw-shell-raised: #0f1e33;
+  --tw-shell-line: #1e3048;
+  --tw-shell-border: #253a55;
+  --tw-shell-text: #f3f6fb;
+  --tw-shell-body: #c3cddb;
+  --tw-shell-accent: #2fcf8e;
+
+  --wb-bg: #ffffff;
+  --wb-band: #f5f7fa;
+  --wb-line: #e3e8ef;
+  --wb-line-soft: #edf1f5;
+  --wb-control: #cfd8e3;
+  --wb-text: #0f1d3a;
+  --wb-body: #334155;
+  --wb-muted: #5b6779;
+  --wb-faint: #8a96a8;
+  --wb-green: #0e875c;
+  --wb-cta: #0f7f5c;
+  --wb-cta-hover: #0c6c4e;
+  --wb-tint: #e6f5ee;
+  --wb-tint-strong: #dcf3e7;
+  --wb-tint-border: #c5e6d5;
+  --wb-total: #eef2f6;
+  --wb-pos: #17784f;
+  --wb-neg: #c8323f;
+  --wb-warn: #8a5a00;
+  --wb-ring: rgba(14, 135, 92, 0.18);
+  font-family: var(--ll-font);
+}
+
+/* ---- Dark shell: window bar and body ---- */
+.tool-modal .tool-modal-panel {
+  background: var(--tw-shell);
+  border-color: var(--tw-shell-border);
+}
+
+.tool-modal .tool-modal-header {
+  padding: 0.8rem 1.25rem;
+  background: var(--tw-shell-raised);
+  border-bottom-color: var(--tw-shell-line);
+}
+
+/* The window bar reads as app chrome; the workbench carries the real title. */
+.tool-modal .tool-modal-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--tw-shell-body);
+}
+
+.tool-modal .tool-modal-close {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-color: var(--tw-shell-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--tw-shell-body);
+  font-family: inherit;
+}
+
+.tool-modal .tool-modal-close:hover {
+  border-color: #3a5170;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--tw-shell-text);
+}
+
+.tool-modal .tool-modal-close:focus-visible {
+  outline: 2px solid var(--tw-shell-accent);
+  outline-offset: 2px;
+}
+
+.tool-modal .tool-modal-body {
+  padding: 1.5rem 0 2rem;
+}
+
+.tool-modal .ll-tool-container {
+  max-width: 1320px;
+  padding: 0 1.75rem;
+}
+
+/* Wide screens: the light workbench sits centred in the window at about 82%
+   of its width, leaving generous navy gutters; capped so forms never stretch. */
+@media (min-width: 1180px) {
+  .tool-modal .ll-tool-container {
+    width: 82%;
+    max-width: 1180px;
+    padding: 0;
+  }
+}
+
+/* ---- Workbench surface ----
+   Remapping the shared tokens here moves the form controls and the existing
+   result markup onto the light palette without touching their rules. */
+.ll-wb {
+  --bg: var(--wb-bg);
+  --bg-2: var(--wb-band);
+  --surface: var(--wb-bg);
+  --surface-2: var(--wb-band);
+  --surface-hover: var(--wb-total);
+  --border: var(--wb-line);
+  --border-strong: var(--wb-control);
+  --navy: var(--wb-band);
+  --text: var(--wb-text);
+  --text-soft: var(--wb-body);
+  --text-muted: var(--wb-muted);
+  --blue: var(--wb-green);
+  --blue-bright: var(--wb-green);
+  --blue-dark: var(--wb-cta-hover);
+  --green: var(--wb-pos);
+  --green-bright: var(--wb-pos);
+  --green-dark: var(--wb-pos);
+  --red: var(--wb-neg);
+  --red-strong: var(--wb-neg);
+  --glow-blue: var(--wb-ring);
+  --glow-green: transparent;
+  --glow-red: rgba(200, 50, 63, 0.14);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  color-scheme: light;
+  /* clip, not hidden: keeps rounded corners without becoming a scroll
+     container, so the divider grip can stay sticky in view. */
+  overflow: clip;
+  border: 1px solid #dde4ec;
+  border-radius: 12px;
+  background: var(--wb-bg);
+  color: var(--wb-body);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.32);
+}
+
+.ll-wb input,
+.ll-wb select,
+.ll-wb button {
+  font-family: inherit;
+}
+
+/* ---- Tool header: name, one sentence, examples ---- */
+.ll-wb-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2.5rem;
+  padding: 1.5rem 2rem 1.35rem;
+  border-bottom: 1px solid var(--wb-line);
+}
+
+.ll-wb-intro {
+  flex: 1 1 26rem;
+  min-width: 0;
+  max-width: 44rem;
+}
+
+.ll-wb-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wb-green);
+}
+
+.ll-wb .ll-wb-title {
+  margin: 0 0 0.45rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--wb-text);
+}
+
+/* Same accent rule as the Simulator's framing lines, drawn in the padding. */
+.ll-wb-lede {
+  position: relative;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--wb-muted);
+}
+
+.ll-wb-lede::before {
+  content: "";
+  position: absolute;
+  top: 0.15em;
+  bottom: 0.15em;
+  left: -0.75rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--wb-green);
+}
+
+/* Examples: tertiary chips, clearly quieter than the tool's own action. */
+.ll-wb-examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+/* One quiet line above the chips, the same in every tool with examples. */
+.ll-wb-examples-hint {
+  flex-basis: 100%;
+  /* Wraps to the chips' width instead of widening the group. */
+  contain: inline-size;
+  margin: 0 0 -0.15rem;
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--wb-muted);
+}
+
+.ll-wb-examples-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--wb-muted);
+}
+
+.ll-wb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ll-wb .ll-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.38rem 0.7rem;
+  border: 1px solid #dfe5ec;
+  border-radius: 6px;
+  background: var(--wb-bg);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--wb-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition), background-color var(--transition);
+}
+
+.ll-wb .ll-chip:hover {
+  border-color: var(--wb-tint-border);
+  background: var(--wb-tint);
+  color: var(--wb-green);
+  transform: none;
+  box-shadow: none;
+}
+
+.ll-wb .ll-chip .dep-example-name {
+  font-size: inherit;
+  color: inherit;
+}
+
+.ll-wb .ll-chip .dep-example-meta {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--wb-muted);
+}
+
+/* Method names are long; give the select the wider share of its row. */
+@media (min-width: 641px) {
+  .ll-tool--depreciation .field-row:last-child {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+}
+
+/* Example explanations: one shared bubble (script.js) sits above the window
+   and is kept inside it; the text lives in each chip's hidden .ll-ex-tip. */
+.ll-ex-bubble {
+  position: fixed;
+  z-index: 120;
+  max-width: 19rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #253a55;
+  border-radius: 8px;
+  background: #0f1d33;
+  box-shadow: 0 12px 28px rgba(5, 10, 20, 0.35);
+  font-family: var(--ll-font);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #dfe6ef;
+  pointer-events: none;
+  animation: ll-ex-in 120ms ease-out;
+}
+
+.ll-ex-bubble[hidden] {
+  display: none;
+}
+
+/* Small pointer toward the chip. */
+.ll-ex-bubble::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: var(--ll-ex-arrow, 50%);
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-top: 1px solid #253a55;
+  border-left: 1px solid #253a55;
+  background: #0f1d33;
+  transform: rotate(45deg);
+}
+
+.ll-ex-bubble.is-above::before {
+  top: auto;
+  bottom: -5px;
+  transform: rotate(225deg);
+}
+
+@keyframes ll-ex-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-ex-bubble {
+    animation: none;
+  }
+}
+
+/* ---- Two columns: builder | document ----
+   --wb-split is the builder's share in percent. Each tool sets a default;
+   the divider (script.js) overrides it for the current page session. */
+.ll-wb-grid {
+  --wb-split-default: 50;
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    minmax(0, calc(var(--wb-split, var(--wb-split-default)) * 1%))
+    minmax(0, 1fr);
+}
+
+.ll-tool--journal .ll-wb-grid {
+  --wb-split-default: 44;
+}
+
+/* Pixel floors (read by the divider) for tools whose content needs a
+   minimum width: four-column tables, and Depreciation's method select. */
+.ll-tool--journal .ll-wb-grid {
+  --wb-min-doc: 440;
+}
+
+.ll-tool--depreciation .ll-wb-grid {
+  --wb-min-build: 470;
+  --wb-min-doc: 460;
+}
+
+/* Draggable divider: a wide invisible hit area over the column rule, with a
+   small dotted grip that stays in view while the window scrolls. */
+.ll-wb-split {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--wb-split, var(--wb-split-default)) * 1%);
+  z-index: 2;
+  width: 14px;
+  margin-left: -7px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.ll-wb-split::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6.5px;
+  width: 1px;
+  background: transparent;
+  transition: background-color var(--transition);
+}
+
+.ll-wb-split-grip {
+  position: sticky;
+  top: 42vh;
+  display: block;
+  width: 8px;
+  height: 26px;
+  margin: 1.6rem auto 0;
+  border: 1px solid var(--wb-line);
+  border-radius: 4px;
+  background-color: var(--wb-bg);
+  background-image: radial-gradient(circle, var(--wb-faint) 0.9px, transparent 1.3px);
+  background-position: center 2px;
+  background-size: 4px 5px;
+  transition: border-color var(--transition);
+}
+
+.ll-wb-split:hover::before,
+.ll-wb-split.is-dragging::before {
+  background: #94a3b8;
+}
+
+.ll-wb-split:hover .ll-wb-split-grip,
+.ll-wb-split.is-dragging .ll-wb-split-grip {
+  border-color: #94a3b8;
+}
+
+.ll-wb-split:focus {
+  outline: none;
+}
+
+.ll-wb-split:focus-visible::before {
+  left: 6px;
+  width: 2px;
+  background: var(--wb-green);
+}
+
+.ll-wb-split:focus-visible .ll-wb-split-grip {
+  border-color: var(--wb-green);
+  box-shadow: 0 0 0 3px var(--wb-ring);
+}
+
+/* While dragging: no text selection, resize cursor everywhere. */
+body.ll-wb-resizing,
+body.ll-wb-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+.ll-wb-build {
+  min-width: 0;
+  padding: 1.6rem 2rem 1.75rem;
+}
+
+.ll-wb-doc {
+  min-width: 0;
+  padding: 1.6rem 2rem 1.75rem;
+  border-left: 1px solid var(--wb-line);
+  background: var(--wb-band);
+}
+
+/* ---- Builder sections: headings and rules instead of nested boxes ---- */
+.ll-wb .ll-wb-section {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ll-wb .ll-wb-section + .ll-wb-section,
+.ll-wb .ll-wb-section + .br-advanced {
+  margin-top: 1.4rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--wb-line);
+}
+
+/* Floated so a <legend> sits inside the section like an <h4>. */
+.ll-wb .ll-wb-heading {
+  float: left;
+  width: 100%;
+  margin: 0 0 0.85rem;
+  padding: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--wb-muted);
+}
+
+.ll-wb .ll-wb-heading + * {
+  clear: both;
+}
+
+.ll-wb-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.ll-wb .ll-wb-section-head .ll-wb-heading {
+  float: none;
+  width: auto;
+  margin: 0;
+}
+
+.ll-wb-help {
+  margin: 0 0 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--wb-muted);
+}
+
+.ll-wb-help strong {
+  font-weight: 600;
+  color: var(--wb-body);
+}
+
+.ll-wb-subhead {
+  margin: 1.1rem 0 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+/* ---- Fields ---- */
+.ll-wb .field label {
+  margin-bottom: 0.35rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--wb-text);
+}
+
+.ll-wb .field-full {
+  margin-bottom: 1rem;
+}
+
+.ll-wb .field-row {
+  column-gap: 0.9rem;
+}
+
+.ll-wb .field-row > .field-full {
+  margin-bottom: 0;
+}
+
+.ll-wb .field-row + .field-row {
+  margin-top: 1rem;
+}
+
+.ll-wb .field input[type="text"],
+.ll-wb .field input[type="number"],
+.ll-wb .je-select,
+.ll-wb .je-date,
+.ll-wb .cf-row-select {
+  height: 2.5rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--wb-control);
+  border-radius: 6px;
+  background: var(--wb-bg);
+  font-size: 0.92rem;
+  color: var(--wb-text);
+}
+
+.ll-wb .cf-row-select {
+  width: 100%;
+  min-width: 0;
+  padding-right: 0.4rem;
+  font-size: 0.88rem;
+}
+
+/* Transaction names are long, so cash-flow rows give the amount less room,
+   and stack (name, then amount) whenever the builder column is narrow. */
+.ll-wb .cf-row {
+  grid-template-columns: minmax(0, 1fr) minmax(7rem, 9rem) 2rem;
+}
+
+.ll-wb-build {
+  container-type: inline-size;
+}
+
+@container (max-width: 30rem) {
+  .ll-wb .cf-row {
+    grid-template-columns: minmax(0, 1fr) 2rem;
+    row-gap: 0.4rem;
+  }
+
+  .ll-wb .cf-row .cf-row-select {
+    grid-column: 1 / -1;
+  }
+
+  .ll-wb .cf-row .is-row-amount {
+    grid-column: 1;
+  }
+}
+
+.ll-wb .money-input {
+  height: 2.5rem;
+  border-color: var(--wb-control);
+  border-radius: 6px;
+  background: var(--wb-bg);
+}
+
+.ll-wb .money-symbol {
+  padding: 0 0 0 0.7rem;
+  font-size: 0.92rem;
+  color: var(--wb-muted);
+}
+
+/* Amounts line up on the right, like the figures in a statement. */
+.ll-wb .money-input input[type="number"] {
+  height: 100%;
+  padding: 0 0.7rem 0 0;
+  border: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ll-wb .field input::placeholder {
+  color: var(--wb-faint);
+  opacity: 1;
+}
+
+.ll-wb .field input:focus,
+.ll-wb .je-select:focus,
+.ll-wb .je-date:focus,
+.ll-wb .cf-row-select:focus {
+  outline: none;
+  border-color: var(--wb-green);
+  box-shadow: 0 0 0 3px var(--wb-ring);
+}
+
+.ll-wb .money-input:focus-within {
+  border-color: var(--wb-green);
+  box-shadow: 0 0 0 3px var(--wb-ring);
+}
+
+.ll-wb .money-input input[type="number"]:focus {
+  box-shadow: none;
+}
+
+.ll-wb .je-date::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 0.6;
+}
+
+.ll-wb .field-hint {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--wb-muted);
+}
+
+.ll-wb .field-error {
+  font-size: 0.78rem;
+}
+
+.ll-wb .field.has-error input[type="text"],
+.ll-wb .field.has-error .money-input,
+.ll-wb .field.has-error .je-select,
+.ll-wb .field.has-error .cf-row-select {
+  border-color: var(--wb-neg);
+}
+
+.ll-wb .field.has-error .cf-row-select:focus {
+  box-shadow: 0 0 0 3px rgba(200, 50, 63, 0.14);
+}
+
+/* Accounting row: label (and hint) on the left, amount on the right. In
+   sections with removable rows, a third track keeps every amount aligned. */
+.ll-wb .ll-line,
+.ll-wb .is-row,
+.ll-wb .cf-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 11rem);
+  column-gap: 0.75rem;
+  align-items: center;
+  margin: 0;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--wb-line-soft);
+}
+
+.ll-wb .field-row + .ll-line {
+  margin-top: 1rem;
+}
+
+.ll-wb .ll-wb-lines .ll-line,
+.ll-wb .is-row,
+.ll-wb .cf-row {
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 11rem) 2rem;
+}
+
+.ll-wb .ll-line > label {
+  grid-column: 1;
+  margin: 0;
+  font-weight: 500;
+  color: var(--wb-body);
+}
+
+.ll-wb .ll-line > .field-hint {
+  grid-column: 1;
+  margin: 0.1rem 0 0;
+}
+
+.ll-wb .ll-line > .money-input {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* With a hint, the amount centres against the label + hint pair. */
+.ll-wb .ll-line > .field-hint ~ .money-input {
+  grid-row: 1 / span 2;
+}
+
+.ll-wb .ll-line > .field-error,
+.ll-wb .is-row > .field-error,
+.ll-wb .cf-row > .field-error {
+  grid-column: 1 / -1;
+  margin-top: 0.35rem;
+}
+
+.ll-wb .is-rows,
+.ll-wb .cf-rows {
+  gap: 0;
+  margin: 0;
+}
+
+.ll-wb .is-row .is-row-amount,
+.ll-wb .cf-row .is-row-amount {
+  flex: none;
+  min-width: 0;
+}
+
+.ll-wb .is-row-remove {
+  justify-self: end;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: var(--wb-muted);
+}
+
+.ll-wb .is-row-remove:hover {
+  background: #fbeaec;
+  color: var(--wb-neg);
+}
+
+.ll-wb .is-row-remove:focus-visible {
+  outline: 2px solid var(--wb-green);
+  outline-offset: 1px;
+}
+
+/* "+ Add revenue": a small outlined control, like the Page 1 preview. */
+.ll-wb .ll-add {
+  flex: none;
+  margin: 0;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #dfe5ec;
+  border-radius: 5px;
+  background: var(--wb-bg);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--wb-green);
+  cursor: pointer;
+  transition: border-color var(--transition), background-color var(--transition);
+}
+
+.ll-wb .ll-add:hover {
+  border-color: var(--wb-tint-border);
+  background: var(--wb-tint);
+}
+
+/* ---- Advanced disclosure (Bank Reconciliation) ---- */
+.ll-wb .br-advanced {
+  margin-bottom: 0;
+}
+
+.ll-wb .br-advanced-summary {
+  display: inline-flex;
+  padding: 0.2rem 0;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--wb-body);
+}
+
+.ll-wb .br-advanced-summary:hover {
+  color: var(--wb-green);
+}
+
+.ll-wb .br-advanced-summary:focus-visible {
+  outline: 2px solid var(--wb-green);
+  outline-offset: 3px;
+}
+
+.ll-wb .br-advanced-group {
+  margin: 0.75rem 0 0;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--wb-line);
+  border-radius: 8px;
+  background: var(--wb-band);
+}
+
+.ll-wb .br-advanced-group .field-help {
+  margin: 0 0 0.9rem;
+}
+
+/* ---- Actions: green primary, quiet outlined secondary ---- */
+.ll-wb .ll-wb-actions {
+  margin-top: 1.6rem;
+}
+
+.ll-wb .btn {
+  padding: 0.7rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.93rem;
+}
+
+.ll-wb .btn:hover {
+  transform: none;
+}
+
+.ll-wb .btn-primary {
+  background: var(--wb-cta);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.ll-wb .btn-primary:hover {
+  background: var(--wb-cta-hover);
+  box-shadow: none;
+}
+
+.ll-wb .btn-secondary {
+  border-color: var(--wb-control);
+  background: var(--wb-bg);
+  color: var(--wb-body);
+}
+
+.ll-wb .btn-secondary:hover {
+  border-color: #94a3b8;
+  color: var(--wb-text);
+  box-shadow: none;
+}
+
+.ll-wb .btn:focus-visible,
+.ll-wb .ll-chip:focus-visible,
+.ll-wb .ll-add:focus-visible {
+  outline: 2px solid var(--wb-green);
+  outline-offset: 2px;
+}
+
+/* ---- Document area: empty preview ---- */
+.ll-wb .sim-empty {
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+
+.ll-wb .sim-empty[hidden],
+.ll-wb .sim-dashboard[hidden] {
+  display: none;
+}
+
+.ll-doc-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-bottom: 1.1rem;
+}
+
+.ll-doc-hint-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid var(--wb-tint-border);
+  border-radius: 8px;
+  background: var(--wb-tint);
+  color: var(--wb-green);
+}
+
+.ll-doc-hint-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.ll-wb .ll-doc-hint-title {
+  margin: 0.05rem 0 0.15rem;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-wb .ll-doc-hint-text {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--wb-muted);
+}
+
+.ll-wb .ll-doc-hint-text strong {
+  font-weight: 600;
+  color: var(--wb-body);
+}
+
+/* The financial document: white paper, thin rules, right-aligned figures. */
+.ll-doc {
+  padding: 1.35rem 1.4rem 1.4rem;
+  border: 1px solid var(--wb-line);
+  border-radius: 8px;
+  background: var(--wb-bg);
+  box-shadow: 0 1px 2px rgba(16, 32, 60, 0.04);
+}
+
+.ll-doc-head {
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--wb-line);
+}
+
+.ll-doc-kicker {
+  margin: 0 0 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wb-green);
+}
+
+.ll-doc-name {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-doc-meta {
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+}
+
+.ll-wb .ll-ph {
+  color: var(--wb-faint);
+}
+
+.ll-doc-table {
+  width: 100%;
+  margin: 0 0 0.75rem;
+  border: 1px solid var(--wb-line);
+  border-radius: 6px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.ll-doc-table th,
+.ll-doc-table td {
+  padding: 0.5rem 0.85rem;
+  text-align: left;
+}
+
+.ll-doc-table th {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-doc-table td {
+  border-top: 1px solid var(--wb-line-soft);
+  color: var(--wb-body);
+}
+
+.ll-doc-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ll-doc-total td {
+  background: var(--wb-total);
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-doc-total:last-child td:first-child {
+  border-bottom-left-radius: 5px;
+}
+
+.ll-doc-total:last-child td:last-child {
+  border-bottom-right-radius: 5px;
+}
+
+/* Column-header tables (journal, schedule): small caps like the Page 1 journal. */
+.ll-doc-journal thead th,
+.ll-doc-schedule thead th {
+  padding-top: 0.55rem;
+  padding-bottom: 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wb-muted);
+}
+
+.ll-doc-journal tfoot td {
+  border-top: 1.5px solid var(--wb-control);
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-doc-table .ll-doc-indent {
+  padding-left: 2rem;
+}
+
+.ll-doc-op {
+  display: inline-block;
+  width: 1rem;
+  font-weight: 600;
+  color: var(--wb-muted);
+}
+
+.ll-doc-sides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  column-gap: 0.75rem;
+}
+
+.ll-doc-recon {
+  margin-top: 0.25rem;
+}
+
+.ll-doc-end td {
+  border-top: 1.5px solid var(--wb-control);
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+/* Net line: neutral while empty; the real figure arrives with the result. */
+.ll-doc-net {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.25rem 0 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 6px;
+  background: var(--wb-tint-strong);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0c7a52;
+}
+
+.ll-doc-net--pending {
+  background: var(--wb-total);
+  color: var(--wb-text);
+}
+
+.ll-doc-facts {
+  display: grid;
+  /* Four across when there is room, two across in narrow previews. */
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.6rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.ll-doc-facts dt {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wb-muted);
+}
+
+.ll-doc-facts dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--wb-text);
+}
+
+.ll-doc-foot {
+  margin: 0.85rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--wb-muted);
+}
+
+/* Wide tables scroll inside their own region on very small phones. */
+.ll-doc-scroll {
+  overflow-x: auto;
+}
+
+.ll-doc-table.ll-doc-journal th,
+.ll-doc-table.ll-doc-schedule th {
+  vertical-align: bottom;
+  white-space: normal;
+}
+
+/* ---- Existing results, placed on the workbench ----
+   The populated output keeps its content and structure (its own polish
+   comes later); these rules only keep it readable on the light surface. */
+.ll-wb .sim-dashboard {
+  padding: 1.4rem 1.4rem 1.5rem;
+  border: 1px solid var(--wb-line);
+  border-radius: 8px;
+  background: var(--wb-bg);
+}
+
+.ll-wb .sim-dash-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-wb .preview-card {
+  max-width: none;
+  overflow-x: auto;
+  box-shadow: none;
+}
+
+.ll-wb .preview-head {
+  border-bottom-color: var(--wb-line);
+  background: var(--wb-band);
+  color: var(--wb-text);
+}
+
+.ll-wb .preview-table th,
+.ll-wb .preview-table td {
+  border-bottom-color: var(--wb-line-soft);
+}
+
+.ll-wb .preview-table tfoot td {
+  border-top-color: var(--wb-control);
+}
+
+.ll-wb .stat-card {
+  border-radius: 6px;
+}
+
+.ll-wb .stat-card.is-negative .stat-value,
+.ll-wb .stat-card.status-risk .stat-value {
+  color: var(--wb-neg);
+}
+
+.ll-wb .health-dot,
+.ll-wb .health-good .health-dot,
+.ll-wb .health-danger .health-dot {
+  box-shadow: none;
+}
+
+.ll-wb .health-good {
+  border-color: var(--wb-tint-border);
+  background: var(--wb-tint);
+  color: var(--wb-pos);
+}
+
+.ll-wb .health-danger {
+  border-color: rgba(200, 50, 63, 0.3);
+  background: #fdf0f1;
+  color: var(--wb-neg);
+}
+
+.ll-wb .health-danger .health-dot {
+  background: var(--wb-neg);
+}
+
+.ll-wb .je-balance {
+  border-color: var(--wb-tint-border);
+  background: var(--wb-tint);
+  color: var(--wb-pos);
+}
+
+.ll-wb .explanation,
+.ll-wb .is-advice {
+  border-left-color: var(--wb-tint-border);
+}
+
+/* The schedule has four figure columns; tighter cells keep them in view.
+   On very small phones it scrolls inside its own frame. */
+.ll-wb .dep-schedule th,
+.ll-wb .dep-schedule td {
+  padding: 0.5rem 0.6rem;
+  white-space: nowrap;
+}
+
+.ll-wb .dep-schedule thead th,
+.ll-doc-schedule thead th {
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+}
+
+/* Account-type badges, re-toned for contrast on white. */
+.ll-wb .je-badge--asset { color: #2a4f86; background: #edf2fa; border-color: #d3dff1; }
+.ll-wb .je-badge--liability { color: var(--wb-warn); background: #fcf4e2; border-color: #f0dfb4; }
+.ll-wb .je-badge--equity { color: var(--wb-pos); background: var(--wb-tint); border-color: var(--wb-tint-border); }
+.ll-wb .je-badge--revenue { color: #0b6b48; background: #e3f4ec; border-color: #c2e5d3; }
+.ll-wb .je-badge--expense { color: #b02a37; background: #fbeced; border-color: #f2cfd3; }
+.ll-wb .je-badge--contra { color: var(--wb-muted); background: var(--wb-band); border-color: var(--wb-line); }
+
+/* ---- Responsive ---- */
+@media (max-width: 1179px) {
+  .tool-modal .ll-tool-container {
+    padding: 0 1.25rem;
+  }
+
+  .ll-wb-head,
+  .ll-wb-build,
+  .ll-wb-doc {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .ll-wb .sim-dashboard {
+    padding: 1.15rem 1rem 1.25rem;
+  }
+}
+
+/* Tablet and phone: orientation, then builder, then document. */
+@media (max-width: 900px) {
+  .ll-wb-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Stacked panes have nothing to resize. */
+  .ll-wb-split {
+    display: none;
+  }
+
+  .ll-wb-doc {
+    border-left: 0;
+    border-top: 1px solid var(--wb-line);
+  }
+
+}
+
+@media (max-width: 640px) {
+  .tool-modal .tool-modal-body {
+    padding: 1rem 0 1.25rem;
+  }
+
+  .tool-modal .ll-tool-container {
+    padding: 0 0.75rem;
+  }
+
+  .ll-wb-head,
+  .ll-wb-build,
+  .ll-wb-doc {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .ll-wb-head {
+    padding-top: 1.25rem;
+    padding-bottom: 1.1rem;
+  }
+
+  .ll-wb .ll-wb-title {
+    font-size: 1.25rem;
+  }
+
+  .ll-wb-examples-label {
+    flex-basis: 100%;
+  }
+
+  .ll-wb .field-row .field {
+    margin-bottom: 1rem;
+  }
+
+  .ll-wb .field-row .field:last-child {
+    margin-bottom: 0;
+  }
+
+  .ll-wb .field-row + .field-row {
+    margin-top: 1rem;
+  }
+
+  .ll-doc {
+    padding: 1.1rem 1rem 1.15rem;
+  }
+
+  .ll-doc-table th,
+  .ll-doc-table td,
+  .ll-wb .preview-table th,
+  .ll-wb .preview-table td {
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+  }
+
+  .ll-wb .preview-table {
+    font-size: 0.84rem;
+  }
+
+  .ll-doc-journal th,
+  .ll-doc-journal td,
+  .ll-doc-schedule th,
+  .ll-doc-schedule td {
+    padding-left: 0.45rem;
+    padding-right: 0.45rem;
+  }
+
+  .ll-doc-table .ll-doc-indent {
+    padding-left: 1.1rem;
+  }
+}
+
+/* Narrow phones: accounting rows put the amount under the label. */
+@media (max-width: 480px) {
+  .ll-doc-table.ll-doc-schedule thead th {
+    font-size: 0.7rem;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .ll-wb .ll-line,
+  .ll-wb .ll-wb-lines .ll-line {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ll-wb .ll-line > .money-input,
+  .ll-wb .ll-line > .field-hint ~ .money-input {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 0.4rem;
+  }
+
+  .ll-wb .is-row {
+    grid-template-columns: minmax(0, 1fr) 2rem;
+    row-gap: 0.4rem;
+  }
+
+  .ll-wb .is-row .is-row-amount {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .ll-wb .is-row .is-row-remove {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

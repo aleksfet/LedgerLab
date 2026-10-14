@@ -1351,62 +1351,83 @@
           <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
         </header>
         <div class="tool-modal-body">
-          <div class="container">
-        <!-- ---- Journal Entry Helper ---- -->
-        <div class="je-tool">
-          <h3 class="tool-title">Journal Entry Helper</h3>
-          <p class="tool-sub">
-            Pick a common transaction, enter an amount, and see how it becomes a
-            journal entry — with a plain-English explanation of every debit and credit.
-          </p>
-
-          <div class="sim-layout">
-            <!-- Controls -->
-            <form id="je-form" class="sim-panel sim-form" novalidate autocomplete="off">
-              <h3 class="sim-panel-title">Build a Journal Entry</h3>
-
-              <div class="field field-full">
-                <label for="je-transaction">Transaction</label>
-                <select id="je-transaction" name="je-transaction" class="je-select">
-                  <option value="" disabled selected>Choose a transaction…</option>
-                  <!-- options injected by script.js from journal-entry.js -->
-                </select>
+          <div class="container ll-tool-container">
+        <div class="ll-tool ll-tool--journal">
+          <div class="ll-wb">
+            <header class="ll-wb-head">
+              <div class="ll-wb-intro">
+                <p class="ll-wb-kicker">General journal</p>
+                <h3 class="ll-wb-title">Journal Entry Helper</h3>
+                <p class="ll-wb-lede">Pick a common transaction, enter an amount, and see how it becomes a journal entry — with a plain-English explanation of every debit and credit.</p>
               </div>
+            </header>
+            <div class="ll-wb-grid">
+            <form id="je-form" class="ll-wb-build" novalidate autocomplete="off">
+              <section class="ll-wb-section" aria-labelledby="je-setup-title">
+                <h4 class="ll-wb-heading" id="je-setup-title">Transaction setup</h4>
+                <div class="field field-full">
+                  <label for="je-transaction">Transaction</label>
+                  <select id="je-transaction" name="je-transaction" class="je-select">
+                    <option value="" disabled selected>Choose a transaction…</option>
+                    <!-- options injected by script.js from journal-entry.js -->
+                  </select>
+                </div>
 
-              <div class="field-row">
-                <div class="field">
-                  <label for="je-amount">Amount</label>
-                  <div class="money-input">
+                <div class="field-row">
+                  <div class="field">
+                    <label for="je-amount">Amount</label>
+                    <div class="money-input">
                     <span class="money-symbol">$</span>
                     <input type="number" id="je-amount" name="je-amount"
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
+                  </div>
+                  <div class="field">
+                    <label for="je-date">Date</label>
+                    <input type="date" id="je-date" name="je-date" class="je-date" />
+                  </div>
                 </div>
-                <div class="field">
-                  <label for="je-date">Date</label>
-                  <input type="date" id="je-date" name="je-date" class="je-date" />
-                </div>
-              </div>
+              </section>
 
-              <div class="sim-actions">
+              <div class="sim-actions ll-wb-actions">
                 <button type="submit" class="btn btn-primary">Show Journal Entry</button>
                 <button type="reset" class="btn btn-secondary" id="je-reset">Reset</button>
               </div>
             </form>
 
-            <!-- Output -->
-            <div class="sim-results" id="je-results" aria-live="polite">
-              <!-- Empty state -->
-              <div class="sim-empty" id="je-empty">
-                <div class="card-icon" aria-hidden="true">📒</div>
-                <h3>Your journal entry appears here</h3>
-                <p>
-                  Choose a transaction and enter an amount, then select
-                  <strong>Show Journal Entry</strong>.
-                </p>
+            <!-- Output: document preview until the tool runs, then the result -->
+            <div class="sim-results ll-wb-doc" id="je-results" aria-live="polite">
+              <div class="sim-empty ll-doc-empty" id="je-empty">
+                <div class="ll-doc-hint">
+                  <span class="ll-doc-hint-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4H5v15h15v-7" /><path d="M17.5 3.5l3 3L12 15H9v-3z" /></svg></span>
+                  <div>
+                    <h4 class="ll-doc-hint-title">Your journal entry appears here</h4>
+                    <p class="ll-doc-hint-text">Choose a transaction and enter an amount, then select <strong>Show Journal Entry</strong>.</p>
+                  </div>
+                </div>
+                <div class="ll-doc" aria-hidden="true">
+                  <div class="ll-doc-head">
+                    <p class="ll-doc-kicker">General Journal</p>
+                    <p class="ll-doc-name ll-ph">Transaction</p>
+                  </div>
+                  <div class="ll-doc-scroll">
+                    <table class="ll-doc-table ll-doc-journal">
+                      <thead>
+                        <tr><th>Date</th><th>Account</th><th class="num">Debit</th><th class="num">Credit</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td><span class="ll-ph">—</span></td><td class="ll-ph">Debit account</td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr><td></td><td class="ll-ph ll-doc-indent">Credit account</td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      </tbody>
+                      <tfoot>
+                        <tr><td></td><td>Totals</td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  <p class="ll-doc-foot">Every entry balances: total debits equal total credits.</p>
+                </div>
               </div>
 
-              <!-- Journal entry output -->
               <div class="sim-dashboard" id="je-dashboard" hidden>
                 <h3 class="sim-dash-title">Journal Entry</h3>
 
@@ -1452,9 +1473,9 @@
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </div>
-
           </div>
         </div>
       </div>
@@ -1469,126 +1490,98 @@
           <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
         </header>
         <div class="tool-modal-body">
-          <div class="container">
-        <!-- ---- Bank Reconciliation Helper ---- -->
-        <div class="je-tool br-tool">
-          <h3 class="tool-title">Bank Reconciliation Helper</h3>
-          <p class="tool-sub">
-            Compare your book cash balance to the bank statement, adjust both sides,
-            and see whether they reconcile — plus the journal entries you'd record.
-          </p>
-
-          <!-- Compact intro (above the form) -->
-          <div class="br-intro">
-            <p class="br-intro-lead">
-              Use this when you have a bank statement for a month or statement period.
-              This tool is about cash, not profit: it compares what the bank says your
-              business has with what your business records say it has. LedgerLab then
-              shows how accountants adjust both sides to see if the corrected cash
-              balances match.
-            </p>
-          </div>
-
-          <!-- Before you start (highlighted guidance note) -->
-          <div class="br-note">
-            <p class="br-callout-lead">
-              <span class="br-callout-star" aria-hidden="true">★</span>
-              <strong>Use this when you have the bank statement for a month or statement
-              period and your business's own cash records for that same period.</strong>
-            </p>
-            <p class="br-callout-sub">
-              New to bank reconciliation? Try an example first to see how accountants
-              adjust the bank side and book side.
-            </p>
-            <div class="br-examples">
-              <button type="button" class="btn btn-secondary br-example-btn" data-example="1">
-                Example 1: Timing Differences
-              </button>
-              <button type="button" class="btn btn-secondary br-example-btn" data-example="2">
-                Example 2: Fees and Interest
-              </button>
-              <button type="button" class="btn btn-secondary br-example-btn" data-example="3">
-                Example 3: Find What's Missing
-              </button>
-            </div>
-          </div>
-
-          <div class="sim-layout">
-            <!-- Controls -->
-            <form id="br-form" class="sim-panel sim-form" novalidate autocomplete="off">
-              <h3 class="sim-panel-title">Reconcile Your Cash</h3>
-
-              <fieldset class="field-group">
-                <legend>Balances</legend>
-                <p class="field-help">
-                  Start with the ending cash balances for the same month or statement period.
+          <div class="container ll-tool-container">
+        <div class="ll-tool ll-tool--bankrec">
+          <div class="ll-wb">
+            <header class="ll-wb-head">
+              <div class="ll-wb-intro">
+                <p class="ll-wb-kicker">Bank vs. book worksheet</p>
+                <h3 class="ll-wb-title">Bank Reconciliation Helper</h3>
+                <p class="ll-wb-lede">Compare your book cash balance to the bank statement, adjust both sides, and see whether they reconcile — plus the journal entries you'd record.</p>
+              </div>
+              <div class="ll-wb-examples" role="group" aria-label="Try an example">
+                <p class="ll-wb-examples-hint">Hover over each example to see the scenario in plain English.</p>
+                <p class="ll-wb-examples-label" aria-hidden="true">Try an example</p>
+                <div class="ll-wb-chips">
+                  <button type="button" class="ll-chip br-example-btn" data-example="1" aria-describedby="br-ex-1-tip">Timing Differences</button>
+                  <button type="button" class="ll-chip br-example-btn" data-example="2" aria-describedby="br-ex-2-tip">Fees and Interest</button>
+                  <button type="button" class="ll-chip br-example-btn" data-example="3" aria-describedby="br-ex-3-tip">Find What's Missing</button>
+                </div>
+                <span class="ll-ex-tip" id="br-ex-3-tip" hidden>Both balances start at $4,000, but after counting a $600 deposit the bank hasn’t received and $1,000 of uncashed checks, they no longer agree, so something is missing. LedgerLab shows the $400 difference and how an accountant would track it down.</span>
+                <span class="ll-ex-tip" id="br-ex-2-tip" hidden>The bank took a $50 service fee and paid $10 of interest, but the business hasn’t written either one in its own records yet. LedgerLab adjusts the business’s side, shows the balances now match, and lists the journal entries to record them.</span>
+                <span class="ll-ex-tip" id="br-ex-1-tip" hidden>The bank says the business has $5,000, but the business’s own records say $5,400. A $1,200 deposit hasn’t reached the bank yet, and $800 of checks the business wrote haven’t been cashed. LedgerLab adjusts the bank’s side for both and shows the two balances match.</span>
+              </div>
+            </header>
+            <div class="ll-wb-grid">
+            <form id="br-form" class="ll-wb-build" novalidate autocomplete="off">
+              <fieldset class="ll-wb-section">
+                <legend class="ll-wb-heading">Bank / book balances</legend>
+                <p class="ll-wb-help">
+                  Use the ending cash balances from the bank statement and your business's own
+                  records for the same month or statement period.
                 </p>
-                <div class="field-row">
-                  <div class="field">
-                    <label for="br-bank-balance">Bank statement balance</label>
-                    <div class="money-input">
-                      <span class="money-symbol">$</span>
-                      <input type="number" id="br-bank-balance" name="br-bank-balance"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
-                    </div>
-                    <p class="field-hint">What the bank statement says the business has in cash.</p>
+                <div class="field ll-line">
+                  <label for="br-bank-balance">Bank statement balance</label>
+                  <p class="field-hint">What the bank statement says the business has in cash.</p>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="br-bank-balance" name="br-bank-balance"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
-                  <div class="field">
-                    <label for="br-book-balance">Book cash balance</label>
-                    <div class="money-input">
-                      <span class="money-symbol">$</span>
-                      <input type="number" id="br-book-balance" name="br-book-balance"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
-                    </div>
-                    <p class="field-hint">What your business records say the business has in cash (book).</p>
+                </div>
+                <div class="field ll-line">
+                  <label for="br-book-balance">Book cash balance</label>
+                  <p class="field-hint">What your business records say the business has in cash (book).</p>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="br-book-balance" name="br-book-balance"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
               </fieldset>
 
-              <fieldset class="field-group">
-                <legend>Reconciling items</legend>
-                <p class="field-help">
-                  These items explain why the bank's cash number and the book cash
-                  number may not match yet.
+              <fieldset class="ll-wb-section">
+                <legend class="ll-wb-heading">Reconciling items</legend>
+                <p class="ll-wb-help">
+                  These items explain why the bank's cash number and the book cash number may not
+                  match yet.
                 </p>
-                <div class="field-row">
-                  <div class="field">
-                    <label for="br-deposits">Deposits in transit</label>
-                    <div class="money-input">
-                      <span class="money-symbol">$</span>
-                      <input type="number" id="br-deposits" name="br-deposits"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
-                    </div>
-                    <p class="field-hint">Cash coming in: recorded by the business, not shown by the bank yet.</p>
-                  </div>
-                  <div class="field">
-                    <label for="br-checks">Outstanding checks</label>
-                    <div class="money-input">
-                      <span class="money-symbol">$</span>
-                      <input type="number" id="br-checks" name="br-checks"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
-                    </div>
-                    <p class="field-hint">Cash going out: recorded by the business, not cleared by the bank yet.</p>
+                <h5 class="ll-wb-subhead">Bank-side timing items</h5>
+                <div class="field ll-line">
+                  <label for="br-deposits">Deposits in transit</label>
+                  <p class="field-hint">Cash coming in: recorded by the business, not shown by the bank yet.</p>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="br-deposits" name="br-deposits"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
-                <div class="field-row">
-                  <div class="field">
-                    <label for="br-fees">Bank service fees</label>
-                    <div class="money-input">
-                      <span class="money-symbol">$</span>
-                      <input type="number" id="br-fees" name="br-fees"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
-                    </div>
-                    <p class="field-hint">Cash taken out by the bank: may not be recorded in the books yet.</p>
+                <div class="field ll-line">
+                  <label for="br-checks">Outstanding checks</label>
+                  <p class="field-hint">Cash going out: recorded by the business, not cleared by the bank yet.</p>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="br-checks" name="br-checks"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
-                  <div class="field">
-                    <label for="br-interest">Interest earned</label>
-                    <div class="money-input">
-                      <span class="money-symbol">$</span>
-                      <input type="number" id="br-interest" name="br-interest"
-                             min="0" step="0.01" inputmode="decimal" placeholder="0" />
-                    </div>
-                    <p class="field-hint">Cash added by the bank: may not be recorded in the books yet.</p>
+                </div>
+                <h5 class="ll-wb-subhead">Book-side adjustments</h5>
+                <div class="field ll-line">
+                  <label for="br-fees">Bank service fees</label>
+                  <p class="field-hint">Cash taken out by the bank: may not be recorded in the books yet.</p>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="br-fees" name="br-fees"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="field ll-line">
+                  <label for="br-interest">Interest earned</label>
+                  <p class="field-hint">Cash added by the bank: may not be recorded in the books yet.</p>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="br-interest" name="br-interest"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
               </fieldset>
@@ -1630,25 +1623,52 @@
                 </fieldset>
               </details>
 
-              <div class="sim-actions">
+              <div class="sim-actions ll-wb-actions">
                 <button type="submit" class="btn btn-primary">Reconcile</button>
                 <button type="reset" class="btn btn-secondary" id="br-reset">Reset</button>
               </div>
             </form>
 
-            <!-- Output -->
-            <div class="sim-results" id="br-results" aria-live="polite">
-              <!-- Empty state -->
-              <div class="sim-empty" id="br-empty">
-                <div class="card-icon" aria-hidden="true">🏦</div>
-                <h3>Your reconciliation appears here</h3>
-                <p>
-                  Enter your balances and any reconciling items, then select
-                  <strong>Reconcile</strong>.
-                </p>
+            <!-- Output: document preview until the tool runs, then the result -->
+            <div class="sim-results ll-wb-doc" id="br-results" aria-live="polite">
+              <div class="sim-empty ll-doc-empty" id="br-empty">
+                <div class="ll-doc-hint">
+                  <span class="ll-doc-hint-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 4l9 5.5" /><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8" /><path d="M3 20.5h18" /></svg></span>
+                  <div>
+                    <h4 class="ll-doc-hint-title">Your reconciliation appears here</h4>
+                    <p class="ll-doc-hint-text">Enter your balances and any reconciling items, or try an example, then select <strong>Reconcile</strong>.</p>
+                  </div>
+                </div>
+                <div class="ll-doc" aria-hidden="true">
+                  <div class="ll-doc-head">
+                    <p class="ll-doc-kicker">Bank Reconciliation</p>
+                    <p class="ll-doc-name ll-ph">Statement period</p>
+                  </div>
+                  <div class="ll-doc-sides">
+                    <table class="ll-doc-table">
+                      <thead><tr><th colspan="2">Bank side</th></tr></thead>
+                      <tbody>
+                        <tr><td>Bank statement balance</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr><td><span class="ll-doc-op">+</span>Deposits in transit</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr><td><span class="ll-doc-op">−</span>Outstanding checks</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr class="ll-doc-total"><td>Adjusted bank balance</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      </tbody>
+                    </table>
+                    <table class="ll-doc-table">
+                      <thead><tr><th colspan="2">Book side</th></tr></thead>
+                      <tbody>
+                        <tr><td>Book cash balance</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr><td><span class="ll-doc-op">−</span>Bank service fees</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr><td><span class="ll-doc-op">+</span>Interest earned</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr class="ll-doc-total"><td>Adjusted book balance</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="ll-doc-net ll-doc-net--pending"><span>Difference</span><span><span class="ll-ph">—</span></span></p>
+                  <p class="ll-doc-foot">The cash is reconciled when both adjusted balances match.</p>
+                </div>
               </div>
 
-              <!-- Reconciliation output -->
               <div class="sim-dashboard" id="br-dashboard" hidden>
                 <h3 class="sim-dash-title">Bank Reconciliation</h3>
 
@@ -1711,9 +1731,9 @@
                 </section>
               </div>
             </div>
+            </div>
           </div>
         </div>
-
           </div>
         </div>
       </div>
@@ -1728,123 +1748,122 @@
           <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
         </header>
         <div class="tool-modal-body">
-          <div class="container">
-        <!-- ---- Depreciation Calculator ---- -->
-        <div class="je-tool br-tool dep-tool">
-          <h3 class="tool-title">Depreciation Calculator</h3>
-          <p class="tool-sub">
-            Straight-Line Depreciation, explained step by step.
-          </p>
-
-          <!-- Why depreciation exists (compact intro) -->
-          <div class="dep-intro">
-            <p class="dep-intro-lead">
-              When a business buys a long-term asset — like a van, computer, or
-              furniture — it is usually recorded as an asset first, not expensed all at
-              once. Depreciation then shows how much of that asset's cost has been used
-              up during each accounting period.
-            </p>
-            <p class="dep-intro-sub">
-              Under the matching principle, a business spreads an asset's cost across the
-              years it helps generate revenue — so each year carries only its fair share.
-            </p>
-          </div>
-
-          <div class="sim-layout">
-            <!-- Controls -->
-            <form id="dep-form" class="sim-panel sim-form" novalidate autocomplete="off">
-              <h3 class="sim-panel-title">Asset Details</h3>
-
-              <p class="dep-examples-label">Try an example:</p>
-              <div class="dep-examples">
-                <button type="button" class="dep-example-btn"
-                        data-name="Delivery Van" data-cost="30000"
-                        data-salvage="6000" data-life="5">
-                  <span class="dep-example-name">Delivery Van</span>
-                  <span class="dep-example-purpose">Used for deliveries over several
-                    years, so its cost is spread across its useful life.</span>
-                  <span class="dep-example-meta">$30,000 cost · $6,000 salvage · 5 yrs</span>
-                </button>
-                <button type="button" class="dep-example-btn"
-                        data-name="Coffee Machine" data-cost="8000"
-                        data-salvage="1000" data-life="8">
-                  <span class="dep-example-name">Coffee Machine</span>
-                  <span class="dep-example-purpose">Used by a café to help earn revenue
-                    over many years, not just the year it is bought.</span>
-                  <span class="dep-example-meta">$8,000 cost · $1,000 salvage · 8 yrs</span>
-                </button>
-                <button type="button" class="dep-example-btn"
-                        data-name="Office Furniture" data-cost="5000"
-                        data-salvage="500" data-life="10">
-                  <span class="dep-example-name">Office Furniture</span>
-                  <span class="dep-example-purpose">Used in the business for years, so
-                    only part of the cost is expensed each year.</span>
-                  <span class="dep-example-meta">$5,000 cost · $500 salvage · 10 yrs</span>
-                </button>
+          <div class="container ll-tool-container">
+        <div class="ll-tool ll-tool--depreciation">
+          <div class="ll-wb">
+            <header class="ll-wb-head">
+              <div class="ll-wb-intro">
+                <p class="ll-wb-kicker">Asset schedule</p>
+                <h3 class="ll-wb-title">Depreciation Calculator</h3>
+                <p class="ll-wb-lede">Spread a long-term asset's cost across the years it helps earn revenue — Straight-Line Depreciation, explained step by step.</p>
               </div>
-
-              <div class="field field-full">
-                <label for="dep-name">Asset name</label>
-                <input type="text" id="dep-name" name="dep-name"
-                       placeholder="e.g. Delivery Van" autocomplete="off" />
+              <div class="ll-wb-examples" role="group" aria-label="Try an example">
+                <p class="ll-wb-examples-hint">Hover over each example to see the scenario in plain English.</p>
+                <p class="ll-wb-examples-label" aria-hidden="true">Try an example</p>
+                <div class="ll-wb-chips">
+                  <button type="button" class="ll-chip dep-example-btn" data-name="Delivery Van" data-cost="30000"
+                          data-salvage="6000" data-life="5" aria-describedby="dep-ex-van-tip"><span class="dep-example-name">Delivery Van</span><span class="dep-example-meta">$30,000 · 5 yrs</span></button>
+                  <button type="button" class="ll-chip dep-example-btn" data-name="Coffee Machine" data-cost="8000"
+                          data-salvage="1000" data-life="8" aria-describedby="dep-ex-coffee-tip"><span class="dep-example-name">Coffee Machine</span><span class="dep-example-meta">$8,000 · 8 yrs</span></button>
+                  <button type="button" class="ll-chip dep-example-btn" data-name="Office Furniture" data-cost="5000"
+                          data-salvage="500" data-life="10" aria-describedby="dep-ex-furniture-tip"><span class="dep-example-name">Office Furniture</span><span class="dep-example-meta">$5,000 · 10 yrs</span></button>
+                </div>
+                <span class="ll-ex-tip" id="dep-ex-furniture-tip" hidden>A business buys $5,000 of desks and chairs that should last 10 years and be worth about $500 at the end. Their cost is counted a little at a time, the same amount each year, over their useful life. Pick it, then select Calculate.</span>
+                <span class="ll-ex-tip" id="dep-ex-coffee-tip" hidden>A coffee shop buys an $8,000 coffee machine it expects to use for 8 years, when it may be worth about $1,000. Each year, part of the machine’s cost becomes depreciation expense and its value on the books goes down. Pick it, then select Calculate.</span>
+                <span class="ll-ex-tip" id="dep-ex-van-tip" hidden>A business buys a $30,000 delivery van to use for 5 years, then sell for about $6,000. Instead of counting the whole price as an expense on the day it’s bought, the $24,000 it will use up is spread evenly over those 5 years. Pick it, then select Calculate to see the schedule.</span>
               </div>
+            </header>
+            <div class="ll-wb-grid">
+            <form id="dep-form" class="ll-wb-build" novalidate autocomplete="off">
+              <section class="ll-wb-section" aria-labelledby="dep-details-title">
+                <h4 class="ll-wb-heading" id="dep-details-title">Asset details</h4>
+                <div class="field field-full">
+                  <label for="dep-name">Asset name</label>
+                  <input type="text" id="dep-name" name="dep-name"
+                         placeholder="e.g. Delivery Van" autocomplete="off" />
+                </div>
 
-              <div class="field-row">
-                <div class="field">
-                  <label for="dep-cost">Asset cost</label>
-                  <div class="money-input">
+                <div class="field-row">
+                  <div class="field">
+                    <label for="dep-cost">Asset cost</label>
+                    <div class="money-input">
                     <span class="money-symbol">$</span>
                     <input type="number" id="dep-cost" name="dep-cost"
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
-                  <p class="field-hint">What the business paid for the asset.</p>
-                </div>
-                <div class="field">
-                  <label for="dep-salvage">Salvage value</label>
-                  <div class="money-input">
+                    <p class="field-hint">What the business paid for the asset.</p>
+                  </div>
+                  <div class="field">
+                    <label for="dep-salvage">Salvage value</label>
+                    <div class="money-input">
                     <span class="money-symbol">$</span>
                     <input type="number" id="dep-salvage" name="dep-salvage"
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
-                  <p class="field-hint">Estimated value left at the end of its life.</p>
+                    <p class="field-hint">Estimated value left at the end of its life.</p>
+                  </div>
                 </div>
-              </div>
 
-              <div class="field-row">
-                <div class="field">
-                  <label for="dep-life">Useful life (years)</label>
-                  <input type="number" id="dep-life" name="dep-life"
-                         min="1" max="50" step="1" inputmode="numeric" placeholder="0" />
-                  <p class="field-hint">Whole years the asset will be used (1–50).</p>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="dep-life">Useful life (years)</label>
+                    <input type="number" id="dep-life" name="dep-life"
+                           min="1" max="50" step="1" inputmode="numeric" placeholder="0" />
+                    <p class="field-hint">Whole years the asset will be used (1–50).</p>
+                  </div>
+                  <div class="field">
+                    <label for="dep-method">Method</label>
+                    <select id="dep-method" name="dep-method" class="je-select">
+                      <option value="straight-line" selected>Straight-Line Depreciation</option>
+                    </select>
+                    <p class="field-hint">More methods coming later.</p>
+                  </div>
                 </div>
-                <div class="field">
-                  <label for="dep-method">Method</label>
-                  <select id="dep-method" name="dep-method" class="je-select">
-                    <option value="straight-line" selected>Straight-Line Depreciation</option>
-                  </select>
-                  <p class="field-hint">More methods coming later.</p>
-                </div>
-              </div>
+              </section>
 
-              <div class="sim-actions">
+              <div class="sim-actions ll-wb-actions">
                 <button type="submit" class="btn btn-primary">Calculate</button>
                 <button type="reset" class="btn btn-secondary" id="dep-reset">Reset</button>
               </div>
             </form>
 
-            <!-- Output -->
-            <div class="sim-results" id="dep-results" aria-live="polite">
-              <!-- Empty state -->
-              <div class="sim-empty" id="dep-empty">
-                <div class="card-icon" aria-hidden="true">📉</div>
-                <h3>Your depreciation schedule appears here</h3>
-                <p>
-                  Enter the asset cost, salvage value, and useful life, then select
-                  <strong>Calculate</strong>.
-                </p>
+            <!-- Output: document preview until the tool runs, then the result -->
+            <div class="sim-results ll-wb-doc" id="dep-results" aria-live="polite">
+              <div class="sim-empty ll-doc-empty" id="dep-empty">
+                <div class="ll-doc-hint">
+                  <span class="ll-doc-hint-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6 6 4-4 8 8" /><path d="M21 10v6h-6" /></svg></span>
+                  <div>
+                    <h4 class="ll-doc-hint-title">Your depreciation schedule appears here</h4>
+                    <p class="ll-doc-hint-text">Enter the asset cost, salvage value, and useful life, or pick an example, then select <strong>Calculate</strong>.</p>
+                  </div>
+                </div>
+                <div class="ll-doc" aria-hidden="true">
+                  <div class="ll-doc-head">
+                    <p class="ll-doc-kicker">Depreciation Schedule</p>
+                    <p class="ll-doc-name ll-ph">Asset name</p>
+                  </div>
+                  <dl class="ll-doc-facts">
+                    <div><dt>Method</dt><dd>Straight-Line</dd></div>
+                    <div><dt>Cost</dt><dd><span class="ll-ph">—</span></dd></div>
+                    <div><dt>Salvage value</dt><dd><span class="ll-ph">—</span></dd></div>
+                    <div><dt>Useful life</dt><dd><span class="ll-ph">—</span></dd></div>
+                  </dl>
+                  <div class="ll-doc-scroll">
+                    <table class="ll-doc-table ll-doc-schedule">
+                      <thead>
+                        <tr><th>Year</th><th class="num">Depreciation</th><th class="num">Accumulated</th><th class="num">Book value</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr><td><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr><td><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td></tr>
+                        <tr><td><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="ll-doc-foot">Book value falls each year until it reaches the salvage value.</p>
+                </div>
               </div>
 
-              <!-- Depreciation output -->
               <div class="sim-dashboard" id="dep-dashboard" hidden>
                 <h3 class="sim-dash-title" id="dep-title">Depreciation</h3>
 
@@ -1940,9 +1959,9 @@
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </div>
-
           </div>
         </div>
       </div>
@@ -1957,98 +1976,76 @@
           <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
         </header>
         <div class="tool-modal-body">
-          <div class="container">
-        <!-- ---- Income Statement Builder ---- -->
-        <div class="je-tool br-tool is-tool">
-          <h3 class="tool-title">Income Statement Builder</h3>
-          <p class="tool-sub">
-            See how revenue and expenses become net income — or a net loss.
-          </p>
-
-          <div class="dep-intro">
-            <p class="dep-intro-lead">
-              An income statement (also called a profit &amp; loss statement) summarizes what a
-              business earned and spent over a period of time.
-            </p>
-            <div class="is-how">
-              <h4 class="is-how-title">How this works</h4>
-              <p class="is-how-body">
-                Revenue shows what the business earned. Expenses show what the business used or
-                spent to operate during the same period. LedgerLab subtracts total expenses from
-                total revenue to build the income statement.
-              </p>
-            </div>
-          </div>
-
-          <div class="is-examples-wrap">
-            <p class="is-examples-label">New here? Try an example:</p>
-            <div class="is-examples">
-              <button type="button" class="btn btn-secondary is-example-btn" data-example="coffee">
-                Coffee Shop
-              </button>
-              <button type="button" class="btn btn-secondary is-example-btn" data-example="tutoring">
-                Tutoring Business
-              </button>
-              <button type="button" class="btn btn-secondary is-example-btn" data-example="clothing">
-                Clothing Store
-              </button>
-            </div>
-          </div>
-
-          <div class="sim-layout">
-            <!-- Controls -->
-            <form id="is-form" class="sim-panel sim-form" novalidate autocomplete="off">
-              <h3 class="sim-panel-title">Business &amp; period</h3>
-              <div class="field-row">
-                <div class="field">
-                  <label for="is-name">Business name</label>
-                  <input type="text" id="is-name" name="is-name"
-                         placeholder="e.g. Bluebird Cafe" autocomplete="off" />
-                </div>
-                <div class="field">
-                  <label for="is-period">Period</label>
-                  <input type="text" id="is-period" name="is-period"
-                         placeholder="e.g. June 2026" autocomplete="off" />
-                </div>
+          <div class="container ll-tool-container">
+        <div class="ll-tool ll-tool--income">
+          <div class="ll-wb">
+            <header class="ll-wb-head">
+              <div class="ll-wb-intro">
+                <p class="ll-wb-kicker">Financial statement</p>
+                <h3 class="ll-wb-title">Income Statement Builder</h3>
+                <p class="ll-wb-lede">See how revenue and expenses become net income — or a net loss.</p>
               </div>
-
-              <h3 class="sim-panel-title">Revenue</h3>
-              <p class="is-section-help">
-                Enter income earned during this period. Add extra revenue sources if the business
-                earned money in more than one way.
-              </p>
-              <p class="is-examples-note">
-                Common revenue examples: product sales, service revenue, consulting fees,
-                commissions, delivery income, and rental income.
-              </p>
-              <div class="field field-full">
-                <label for="is-revenue">Sales / service revenue</label>
-                <div class="money-input">
-                  <span class="money-symbol">$</span>
-                  <input type="number" id="is-revenue" name="is-revenue"
-                         min="0" step="0.01" inputmode="decimal" placeholder="0" />
+              <div class="ll-wb-examples" role="group" aria-label="Try an example">
+                <p class="ll-wb-examples-hint">Hover over each example to see the scenario in plain English.</p>
+                <p class="ll-wb-examples-label" aria-hidden="true">Try an example</p>
+                <div class="ll-wb-chips">
+                  <button type="button" class="ll-chip is-example-btn" data-example="coffee" aria-describedby="is-ex-coffee-tip">Coffee Shop</button>
+                  <button type="button" class="ll-chip is-example-btn" data-example="tutoring" aria-describedby="is-ex-tutoring-tip">Tutoring Business</button>
+                  <button type="button" class="ll-chip is-example-btn" data-example="clothing" aria-describedby="is-ex-clothing-tip">Clothing Store</button>
                 </div>
+                <span class="ll-ex-tip" id="is-ex-clothing-tip" hidden>A clothing store sells $26,000 of clothes in June but also spends a lot on rent, staff, and supplies. LedgerLab subtracts every cost from the sales to show how much profit is left over.</span>
+                <span class="ll-ex-tip" id="is-ex-tutoring-tip" hidden>A tutoring business earns $9,500 in June by teaching students, with fairly small costs: a room, tutors’ wages, and a few supplies. LedgerLab subtracts the costs from what it earned to show the month’s profit or loss.</span>
+                <span class="ll-ex-tip" id="is-ex-coffee-tip" hidden>A coffee shop sells $18,000 of drinks and food in June, and pays rent, staff wages, supplies, and other bills. LedgerLab subtracts those costs from the sales and shows whether the shop made a profit or a loss.</span>
               </div>
-              <div class="is-rows" id="is-custom-revenue"></div>
-              <button type="button" class="btn btn-secondary is-add-btn" id="is-add-revenue">
-                + Add revenue
-              </button>
-              <p class="is-add-help">
-                Use this for another income source, such as delivery income, consulting fees, or
-                commissions.
-              </p>
+            </header>
+            <div class="ll-wb-grid">
+            <form id="is-form" class="ll-wb-build" novalidate autocomplete="off">
+              <section class="ll-wb-section" aria-labelledby="is-period-title">
+                <h4 class="ll-wb-heading" id="is-period-title">Business &amp; period</h4>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="is-name">Business name</label>
+                    <input type="text" id="is-name" name="is-name"
+                           placeholder="e.g. Bluebird Cafe" autocomplete="off" />
+                  </div>
+                  <div class="field">
+                    <label for="is-period">Period</label>
+                    <input type="text" id="is-period" name="is-period"
+                           placeholder="e.g. June 2026" autocomplete="off" />
+                  </div>
+                </div>
+              </section>
 
-              <h3 class="sim-panel-title">Expenses</h3>
-              <p class="is-section-help">
-                Enter the costs used to run the business during the same period. Only include
-                expenses for this period.
-              </p>
-              <p class="is-examples-note">
-                Common expense examples: rent, wages, supplies, utilities, advertising, insurance,
-                software, repairs, and depreciation.
-              </p>
-              <div class="field-row">
-                <div class="field">
+              <section class="ll-wb-section ll-wb-lines" aria-labelledby="is-revenue-title">
+                <div class="ll-wb-section-head">
+                  <h4 class="ll-wb-heading" id="is-revenue-title">Revenue</h4>
+                  <button type="button" class="ll-add is-add-btn" id="is-add-revenue">+ Add revenue</button>
+                </div>
+                <p class="ll-wb-help">
+                  Income earned during this period. Use <strong>Add revenue</strong> for another
+                  source, such as consulting fees, commissions, or delivery income.
+                </p>
+                <div class="field ll-line">
+                  <label for="is-revenue">Sales / service revenue</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="is-revenue" name="is-revenue"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+                <div class="is-rows" id="is-custom-revenue"></div>
+              </section>
+
+              <section class="ll-wb-section ll-wb-lines" aria-labelledby="is-expense-title">
+                <div class="ll-wb-section-head">
+                  <h4 class="ll-wb-heading" id="is-expense-title">Expenses</h4>
+                  <button type="button" class="ll-add is-add-btn" id="is-add-expense">+ Add expense</button>
+                </div>
+                <p class="ll-wb-help">
+                  Costs used to run the business during the same period. Use
+                  <strong>Add expense</strong> for one not listed, such as advertising or insurance.
+                </p>
+                <div class="field ll-line">
                   <label for="is-rent">Rent expense</label>
                   <div class="money-input">
                     <span class="money-symbol">$</span>
@@ -2056,7 +2053,7 @@
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
-                <div class="field">
+                <div class="field ll-line">
                   <label for="is-wages">Wages expense</label>
                   <div class="money-input">
                     <span class="money-symbol">$</span>
@@ -2064,9 +2061,7 @@
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
-              </div>
-              <div class="field-row">
-                <div class="field">
+                <div class="field ll-line">
                   <label for="is-supplies">Supplies expense</label>
                   <div class="money-input">
                     <span class="money-symbol">$</span>
@@ -2074,7 +2069,7 @@
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
-                <div class="field">
+                <div class="field ll-line">
                   <label for="is-utilities">Utilities expense</label>
                   <div class="money-input">
                     <span class="money-symbol">$</span>
@@ -2082,9 +2077,7 @@
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
-              </div>
-              <div class="field-row">
-                <div class="field">
+                <div class="field ll-line">
                   <label for="is-depreciation">Depreciation expense</label>
                   <div class="money-input">
                     <span class="money-symbol">$</span>
@@ -2092,7 +2085,7 @@
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
-                <div class="field">
+                <div class="field ll-line">
                   <label for="is-other">Other expenses</label>
                   <div class="money-input">
                     <span class="money-symbol">$</span>
@@ -2100,32 +2093,47 @@
                            min="0" step="0.01" inputmode="decimal" placeholder="0" />
                   </div>
                 </div>
-              </div>
-              <div class="is-rows" id="is-custom-expenses"></div>
-              <button type="button" class="btn btn-secondary is-add-btn" id="is-add-expense">
-                + Add expense
-              </button>
-              <p class="is-add-help">
-                Use this for a cost not already listed, such as advertising, insurance, software,
-                or repairs.
-              </p>
+                <div class="is-rows" id="is-custom-expenses"></div>
+              </section>
 
-              <div class="sim-actions">
+              <div class="sim-actions ll-wb-actions">
                 <button type="submit" class="btn btn-primary">Build statement</button>
                 <button type="reset" class="btn btn-secondary" id="is-reset">Reset</button>
               </div>
             </form>
 
-            <!-- Output -->
-            <div class="sim-results" id="is-results" aria-live="polite">
-              <div class="sim-empty" id="is-empty">
-                <div class="card-icon" aria-hidden="true">📈</div>
-                <h3>Your income statement appears here</h3>
-                <p>
-                  Enter your own numbers or try an example. LedgerLab will organize the revenue
-                  and expenses into a finished income statement, calculate profit or loss, and
-                  explain what the result means.
-                </p>
+            <!-- Output: document preview until the tool runs, then the result -->
+            <div class="sim-results ll-wb-doc" id="is-results" aria-live="polite">
+              <div class="sim-empty ll-doc-empty" id="is-empty">
+                <div class="ll-doc-hint">
+                  <span class="ll-doc-hint-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /><path d="M10 13h6M10 17h6" /></svg></span>
+                  <div>
+                    <h4 class="ll-doc-hint-title">Your income statement appears here</h4>
+                    <p class="ll-doc-hint-text">Enter your own numbers or try an example, then select <strong>Build statement</strong>.</p>
+                  </div>
+                </div>
+                <div class="ll-doc" aria-hidden="true">
+                  <div class="ll-doc-head">
+                    <p class="ll-doc-kicker">Income Statement</p>
+                    <p class="ll-doc-name ll-ph">Business name</p>
+                    <p class="ll-doc-meta ll-ph">For the period</p>
+                  </div>
+                  <table class="ll-doc-table">
+                    <thead><tr><th colspan="2">Revenue</th></tr></thead>
+                    <tbody>
+                      <tr><td class="ll-ph">Revenue items</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      <tr class="ll-doc-total"><td>Total revenue</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                    </tbody>
+                  </table>
+                  <table class="ll-doc-table">
+                    <thead><tr><th colspan="2">Expenses</th></tr></thead>
+                    <tbody>
+                      <tr><td class="ll-ph">Expense items</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      <tr class="ll-doc-total"><td>Total expenses</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                    </tbody>
+                  </table>
+                  <p class="ll-doc-net ll-doc-net--pending"><span>Net income</span><span><span class="ll-ph">—</span></span></p>
+                </div>
               </div>
 
               <div class="sim-dashboard" id="is-dashboard" hidden>
@@ -2212,9 +2220,9 @@
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </div>
-
           </div>
         </div>
       </div>
@@ -2229,99 +2237,118 @@
           <button type="button" class="tool-modal-close" aria-label="Close tool">✕</button>
         </header>
         <div class="tool-modal-body">
-          <div class="container">
-        <!-- ---- Cash Flow Helper ---- -->
-        <div class="je-tool br-tool cf-tool">
-          <h3 class="tool-title">Cash Flow Helper</h3>
-          <p class="tool-sub">
-            See how cash actually moves — and why profit isn't the same as cash.
-          </p>
-
-          <div class="dep-intro">
-            <p class="dep-intro-lead">
-              The Statement of Cash Flows groups a business's cash movements into three activities:
-              Operating, Investing, and Financing.
-            </p>
-            <div class="is-how">
-              <h4 class="is-how-title">How this works</h4>
-              <p class="is-how-body">
-                Pick the cash transactions that happened this period. LedgerLab sorts each one into
-                the right activity, subtotals each section, and reconciles your beginning cash to
-                your ending cash.
-              </p>
-            </div>
-          </div>
-
-          <div class="is-examples-wrap">
-            <p class="is-examples-label">New here? Try an example:</p>
-            <div class="is-examples">
-              <button type="button" class="btn btn-secondary cf-example-btn" data-example="healthy">
-                Healthy Month
-              </button>
-              <button type="button" class="btn btn-secondary cf-example-btn" data-example="startup">
-                Startup Launch
-              </button>
-              <button type="button" class="btn btn-secondary cf-example-btn" data-example="upgrade">
-                Equipment Upgrade
-              </button>
-            </div>
-          </div>
-
-          <div class="sim-layout">
-            <!-- Controls -->
-            <form id="cf-form" class="sim-panel sim-form" novalidate autocomplete="off">
-              <h3 class="sim-panel-title">Business &amp; cash</h3>
-              <div class="field-row">
-                <div class="field">
-                  <label for="cf-name">Business name</label>
-                  <input type="text" id="cf-name" name="cf-name"
-                         placeholder="e.g. Bluebird Cafe" autocomplete="off" />
-                </div>
-                <div class="field">
-                  <label for="cf-period">Period</label>
-                  <input type="text" id="cf-period" name="cf-period"
-                         placeholder="e.g. June 2026" autocomplete="off" />
-                </div>
+          <div class="container ll-tool-container">
+        <div class="ll-tool ll-tool--cashflow">
+          <div class="ll-wb">
+            <header class="ll-wb-head">
+              <div class="ll-wb-intro">
+                <p class="ll-wb-kicker">Financial statement</p>
+                <h3 class="ll-wb-title">Cash Flow Helper</h3>
+                <p class="ll-wb-lede">Sort a period's cash into Operating, Investing, and Financing activities — and see why profit isn't the same as cash.</p>
               </div>
-              <div class="field field-full">
-                <label for="cf-beginning">Beginning cash balance</label>
-                <div class="money-input">
-                  <span class="money-symbol">$</span>
-                  <input type="number" id="cf-beginning" name="cf-beginning"
-                         min="0" step="0.01" inputmode="decimal" placeholder="0" />
+              <div class="ll-wb-examples" role="group" aria-label="Try an example">
+                <p class="ll-wb-examples-hint">Hover over each example to see the scenario in plain English.</p>
+                <p class="ll-wb-examples-label" aria-hidden="true">Try an example</p>
+                <div class="ll-wb-chips">
+                  <button type="button" class="ll-chip cf-example-btn" data-example="healthy" aria-describedby="cf-ex-healthy-tip">Healthy Month</button>
+                  <button type="button" class="ll-chip cf-example-btn" data-example="startup" aria-describedby="cf-ex-startup-tip">Startup Launch</button>
+                  <button type="button" class="ll-chip cf-example-btn" data-example="upgrade" aria-describedby="cf-ex-upgrade-tip">Equipment Upgrade</button>
                 </div>
+                <span class="ll-ex-tip" id="cf-ex-upgrade-tip" hidden>A shop collects cash from customers, then spends $9,000 on new equipment and sells an old piece for $1,000; buying and selling long-lasting things is Investing. The owner also takes $2,000 out for personal use (Financing). LedgerLab shows why cash went down even though daily business brought cash in.</span>
+                <span class="ll-ex-tip" id="cf-ex-startup-tip" hidden>A brand-new business takes in only $2,000 from customers but pays more than that in rent and wages. To keep going, the owner puts in $5,000 and the business borrows $4,000; money from owners and lenders is Financing, not sales. LedgerLab sorts it all and shows where the cash really came from.</span>
+                <span class="ll-ex-tip" id="cf-ex-healthy-tip" hidden>A cafe collects $20,000 from customers and pays rent and wages. That everyday business is Operating; it also buys equipment (Investing) and pays back part of a loan (Financing). LedgerLab sorts each payment into those three groups and shows how much cash the cafe ends with.</span>
               </div>
+            </header>
+            <div class="ll-wb-grid">
+            <form id="cf-form" class="ll-wb-build" novalidate autocomplete="off">
+              <section class="ll-wb-section ll-wb-lines" aria-labelledby="cf-period-title">
+                <h4 class="ll-wb-heading" id="cf-period-title">Business &amp; period</h4>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="cf-name">Business name</label>
+                    <input type="text" id="cf-name" name="cf-name"
+                           placeholder="e.g. Bluebird Cafe" autocomplete="off" />
+                  </div>
+                  <div class="field">
+                    <label for="cf-period">Period</label>
+                    <input type="text" id="cf-period" name="cf-period"
+                           placeholder="e.g. June 2026" autocomplete="off" />
+                  </div>
+                </div>
+                <div class="field ll-line">
+                  <label for="cf-beginning">Beginning cash balance</label>
+                  <div class="money-input">
+                    <span class="money-symbol">$</span>
+                    <input type="number" id="cf-beginning" name="cf-beginning"
+                           min="0" step="0.01" inputmode="decimal" placeholder="0" />
+                  </div>
+                </div>
+              </section>
 
-              <h3 class="sim-panel-title">Cash transactions</h3>
-              <p class="is-section-help">
-                Add the cash that came in or went out this period. LedgerLab classifies each
-                transaction for you.
-              </p>
-              <div class="cf-rows" id="cf-transactions"></div>
-              <button type="button" class="btn btn-secondary is-add-btn" id="cf-add">
-                + Add transaction
-              </button>
-              <p class="is-add-help">
-                Choose from common cash transactions such as customer payments, rent, wages,
-                equipment, loans, and owner contributions.
-              </p>
+              <section class="ll-wb-section ll-wb-lines" aria-labelledby="cf-tx-title">
+                <div class="ll-wb-section-head">
+                  <h4 class="ll-wb-heading" id="cf-tx-title">Cash transactions</h4>
+                  <button type="button" class="ll-add is-add-btn" id="cf-add">+ Add transaction</button>
+                </div>
+                <p class="ll-wb-help">
+                  Add the cash that came in or went out this period, such as customer payments,
+                  rent, wages, equipment, loans, or owner contributions. LedgerLab classifies each
+                  one for you.
+                </p>
+                <div class="cf-rows" id="cf-transactions"></div>
+              </section>
 
-              <div class="sim-actions">
+              <div class="sim-actions ll-wb-actions">
                 <button type="submit" class="btn btn-primary">Build cash flow statement</button>
                 <button type="reset" class="btn btn-secondary" id="cf-reset">Reset</button>
               </div>
             </form>
 
-            <!-- Output -->
-            <div class="sim-results" id="cf-results" aria-live="polite">
-              <div class="sim-empty" id="cf-empty">
-                <div class="card-icon" aria-hidden="true">💵</div>
-                <h3>Your cash flow statement appears here</h3>
-                <p>
-                  Add a few cash transactions or try an example. LedgerLab will sort them into
-                  Operating, Investing, and Financing activities, total each section, and show how
-                  your cash changed this period.
-                </p>
+            <!-- Output: document preview until the tool runs, then the result -->
+            <div class="sim-results ll-wb-doc" id="cf-results" aria-live="polite">
+              <div class="sim-empty ll-doc-empty" id="cf-empty">
+                <div class="ll-doc-hint">
+                  <span class="ll-doc-hint-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20V5M3.5 8.5 7 5l3.5 3.5" /><path d="M17 4v15M13.5 15.5 17 19l3.5-3.5" /></svg></span>
+                  <div>
+                    <h4 class="ll-doc-hint-title">Your cash flow statement appears here</h4>
+                    <p class="ll-doc-hint-text">Add a few cash transactions or try an example, then select <strong>Build cash flow statement</strong>.</p>
+                  </div>
+                </div>
+                <div class="ll-doc" aria-hidden="true">
+                  <div class="ll-doc-head">
+                    <p class="ll-doc-kicker">Statement of Cash Flows</p>
+                    <p class="ll-doc-name ll-ph">Business name</p>
+                    <p class="ll-doc-meta ll-ph">For the period</p>
+                  </div>
+                  <table class="ll-doc-table">
+                    <thead><tr><th colspan="2">Operating activities</th></tr></thead>
+                    <tbody>
+                      <tr><td class="ll-ph">Customers, rent, wages</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      <tr class="ll-doc-total"><td>Net cash from operating activities</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                    </tbody>
+                  </table>
+                  <table class="ll-doc-table">
+                    <thead><tr><th colspan="2">Investing activities</th></tr></thead>
+                    <tbody>
+                      <tr><td class="ll-ph">Equipment bought or sold</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      <tr class="ll-doc-total"><td>Net cash from investing activities</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                    </tbody>
+                  </table>
+                  <table class="ll-doc-table">
+                    <thead><tr><th colspan="2">Financing activities</th></tr></thead>
+                    <tbody>
+                      <tr><td class="ll-ph">Owners and lenders</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      <tr class="ll-doc-total"><td>Net cash from financing activities</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                    </tbody>
+                  </table>
+                  <table class="ll-doc-table ll-doc-recon">
+                    <tbody>
+                      <tr class="ll-doc-total"><td>Net change in cash</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      <tr><td>Beginning cash balance</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                      <tr class="ll-doc-end"><td>Ending cash balance</td><td class="num"><span class="ll-ph">—</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               <div class="sim-dashboard" id="cf-dashboard" hidden>
@@ -2422,6 +2449,7 @@
                   <div class="is-advice" id="cf-insight"><!-- injected --></div>
                 </div>
               </div>
+            </div>
             </div>
           </div>
         </div>
