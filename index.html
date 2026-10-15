@@ -1299,81 +1299,113 @@
                     <circle cx="12" cy="12" r="0.6" fill="currentColor" />
                   </svg>
                 </span>
-                <h3>Your startup plan summary appears here</h3>
+                <h3>Your startup plan review appears here</h3>
                 <p>
                   Fill in your budget and select <strong>Run Startup Plan</strong> to
-                  see your expected profit, target gap, startup cash needs, and
-                  planning advice.
+                  see the expected monthly profit, the cash left after startup
+                  purchases, and what to look at next.
                 </p>
                 <dl class="ll-sim-empty-preview" aria-hidden="true">
                   <div><dt>Expected profit</dt><dd>—</dd></div>
-                  <div><dt>Target profit gap</dt><dd>—</dd></div>
                   <div><dt>Est. cash left</dt><dd>—</dd></div>
+                  <div><dt>Startup cash needed</dt><dd>—</dd></div>
                 </dl>
               </div>
 
               <!-- Plan dashboard (populated by script.js) -->
               <div class="sim-dashboard" id="plan-dashboard" hidden>
-                <h3 class="sim-dash-title" id="plan-dash-title" tabindex="-1">Startup Plan Summary</h3>
+                <h3 class="sim-dash-title" id="plan-dash-title" tabindex="-1">Startup Plan</h3>
 
-                <div class="health-banner" id="plan-banner">
+                <div class="health-banner ll-plan-status" id="plan-banner">
                   <span class="health-dot" aria-hidden="true"></span>
-                  <span id="plan-banner-message">—</span>
+                  <span class="ll-plan-status-text">
+                    <strong class="ll-plan-status-label" id="plan-status-label">—</strong>
+                    <span id="plan-banner-message">—</span>
+                  </span>
                 </div>
 
-                <!-- Plan figures -->
-                <section class="report-section">
-                  <h4 class="report-heading">Startup Plan Summary</h4>
+                <!-- The four answers that matter most -->
+                <section class="report-section" aria-labelledby="plan-glance-title">
+                  <h4 class="report-heading" id="plan-glance-title">Plan at a Glance</h4>
                   <div class="stat-grid">
-                    <div class="stat-card">
-                      <span class="stat-label">Expected Revenue</span>
-                      <span class="stat-value" id="plan-out-revenue">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label">Planned Expenses</span>
-                      <span class="stat-value" id="plan-out-expenses">$0</span>
-                    </div>
                     <div class="stat-card" id="plan-out-profit-card">
-                      <span class="stat-label">Expected Profit / Loss</span>
+                      <span class="stat-label">Expected Monthly Profit / Loss</span>
                       <span class="stat-value" id="plan-out-profit">$0</span>
+                      <span class="stat-help">Expected revenue minus monthly costs.</span>
                     </div>
-                    <div class="stat-card" id="plan-out-gap-card">
-                      <span class="stat-label">Target Profit Gap</span>
-                      <span class="stat-value" id="plan-out-gap">$0</span>
+                    <div class="stat-card" id="plan-out-cash-card">
+                      <span class="stat-label">Estimated Cash Left</span>
+                      <span class="stat-value" id="plan-out-cash">$0</span>
+                      <span class="stat-help">After startup purchases and the first month.</span>
                     </div>
                     <div class="stat-card">
                       <span class="stat-label">Startup Cash Needed</span>
                       <span class="stat-value" id="plan-out-startup">$0</span>
+                      <span class="stat-help" id="plan-out-startup-help">One-time purchases before opening.</span>
                     </div>
-                    <div class="stat-card" id="plan-out-cash-card">
-                      <span class="stat-label">Est. Cash Left</span>
-                      <span class="stat-value" id="plan-out-cash">$0</span>
+                    <div class="stat-card" id="plan-out-health-card">
+                      <span class="stat-label">Plan Health</span>
+                      <span class="stat-value" id="plan-out-health">—</span>
+                      <span class="stat-help" id="plan-out-health-help">—</span>
                     </div>
                   </div>
                 </section>
 
-                <!-- Planning advice -->
-                <section class="report-section">
-                  <h4 class="report-heading">Startup Planning Advice</h4>
-                  <ul class="suggestion-list" id="plan-advice-list">
-                    <!-- advice injected by script.js -->
-                  </ul>
-                </section>
-
-                <!-- Manager's view -->
-                <section class="report-section">
-                  <h4 class="report-heading">Manager's View</h4>
-                  <ul class="suggestion-list" id="plan-manager-list">
-                    <!-- manager notes injected by script.js -->
-                  </ul>
-                </section>
-
-                <!-- Accounting connection -->
-                <section class="report-section">
-                  <h4 class="report-heading">How This Connects to Accounting</h4>
-                  <div class="plan-accounting" id="plan-accounting-list">
-                    <!-- grouped accounting notes injected by script.js -->
+                <!-- How a typical planned month works -->
+                <section class="report-section" aria-labelledby="plan-month-title">
+                  <h4 class="report-heading" id="plan-month-title">
+                    Monthly Plan
+                    <span class="report-note">a typical month at the planned numbers</span>
+                  </h4>
+                  <div id="plan-month">
+                    <!-- revenue / costs / profit rows injected by script.js -->
                   </div>
+                </section>
+
+                <!-- Monthly operating costs: donut + legend -->
+                <section class="report-section" aria-labelledby="plan-costs-title">
+                  <h4 class="report-heading" id="plan-costs-title">
+                    Monthly Operating Costs
+                    <span class="report-note">one-time startup purchases are not included</span>
+                  </h4>
+                  <div class="ll-donut" id="plan-breakdown-chart">
+                    <!-- chart + legend injected by script.js -->
+                  </div>
+                </section>
+
+                <!-- Where the starting cash goes -->
+                <section class="report-section" aria-labelledby="plan-cash-title">
+                  <h4 class="report-heading" id="plan-cash-title">
+                    Startup Cash Use
+                    <span class="report-note">paid once, before opening</span>
+                  </h4>
+                  <div id="plan-cash-use">
+                    <!-- cash-use bar + ledger injected by script.js -->
+                  </div>
+                </section>
+
+                <!-- The arithmetic behind the numbers, with the user's values -->
+                <section class="report-section ll-res-block" aria-labelledby="plan-calc-title">
+                  <h4 class="ll-res-title" id="plan-calc-title">How This Was Calculated</h4>
+                  <div id="plan-calc-body">
+                    <!-- two worked calculations injected by script.js -->
+                  </div>
+                </section>
+
+                <!-- Interpretation in plain English -->
+                <section class="report-section ll-res-block" aria-labelledby="plan-meaning-title">
+                  <h4 class="ll-res-title" id="plan-meaning-title">What This Means</h4>
+                  <ul class="ll-res-notes" id="plan-meaning-list">
+                    <!-- notes injected by script.js -->
+                  </ul>
+                </section>
+
+                <!-- Practical observations -->
+                <section class="report-section ll-res-block" aria-labelledby="plan-next-title">
+                  <h4 class="ll-res-title" id="plan-next-title">What to Look at Next</h4>
+                  <ul class="ll-res-notes ll-res-notes--next" id="plan-next-list">
+                    <!-- observations injected by script.js -->
+                  </ul>
                 </section>
               </div>
             </div>

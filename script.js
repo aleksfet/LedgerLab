@@ -303,6 +303,14 @@
     return item.label + " are";
   }
 
+  /** How much of each $1 of revenue is profit, e.g. "About 28¢ of every $1". */
+  function profitPerDollar(profit, revenue) {
+    var cents = Math.round((profit / revenue) * 100);
+    if (cents < 1) return "Less than 1¢ of every $1";
+    if (cents >= 100) return "Nearly every $1";
+    return "About " + cents + "¢ of every $1";
+  }
+
   /** Share of total monthly expenses, as a whole-number percent string. */
   function expensePct(value, total) {
     return total > 0 ? ((value / total) * 100).toFixed(0) + "%" : "0%";
@@ -327,7 +335,14 @@
       return;
     }
 
-    var items = expenseItems(result);
+    box.innerHTML = donutMarkup(expenseItems(result), total, "Monthly expenses");
+  }
+
+  /**
+   * Donut + legend markup for a set of { key, label, value } items whose
+   * values add up to total. Shared by Assessment and Startup Planning.
+   */
+  function donutMarkup(items, total, summaryLabel) {
     var radius = 46;
     var circumference = 2 * Math.PI * radius;
     var shown = items.filter(function (item) { return item.value > 0; });
@@ -346,7 +361,7 @@
       offset += length;
     });
 
-    var summary = "Monthly expenses: " + items.map(function (item) {
+    var summary = summaryLabel + ": " + items.map(function (item) {
       return item.label + " " + expensePct(item.value, total);
     }).join(", ") + ".";
 
@@ -361,7 +376,7 @@
       );
     }).join("");
 
-    box.innerHTML =
+    return (
       '<div class="ll-donut-figure">' +
         '<svg viewBox="0 0 120 120" role="img" aria-label="' + summary + '">' +
           '<circle class="ll-donut-track" cx="60" cy="60" r="' + radius + '" />' +
@@ -372,7 +387,8 @@
           '<span class="ll-donut-caption">per month</span>' +
         "</div>" +
       "</div>" +
-      '<ul class="ll-donut-legend">' + legend + "</ul>";
+      '<ul class="ll-donut-legend">' + legend + "</ul>"
+    );
   }
 
   /** Choose a business-health state from profit and remaining cash. */
@@ -381,8 +397,8 @@
       return {
         state: "danger",
         message:
-          "Warning: your cash runs negative. Startup purchases and expenses are " +
-          "more than your business can cover right now.",
+          "Cash runs negative this month. Major purchases and expenses use more cash " +
+          "than the business has.",
       };
     }
     if (result.profit > 0) {
@@ -488,18 +504,18 @@
 
     // 1) Was the month profitable, and by how much per dollar of sales?
     if (p > 0) {
-      var cents = revenue > 0 ? Math.round((p / revenue) * 100) : 0;
-      notes.push(
-        "This month was profitable because revenue was higher than expenses. About " + cents +
-        "¢ of every $1 the business earned was left over as profit."
-      );
+      notes.push(result.totalExpenses > 0
+        ? profitPerDollar(p, revenue) + " the business earned this month was left over as profit."
+        : "There were no expenses this month, so all of the revenue was profit.");
     } else if (p < 0) {
       notes.push(
-        "This month lost money. Expenses were " + formatMoney(Math.abs(p)) +
-        " more than the revenue the business earned."
+        "Expenses were " + formatMoney(Math.abs(p)) +
+        " more than the revenue the business earned this month."
       );
+    } else if (revenue > 0) {
+      notes.push("Every dollar of revenue went to cover expenses, so nothing was left over as profit.");
     } else {
-      notes.push("Revenue covered expenses exactly, so the business broke even this month.");
+      notes.push("This month had no revenue and no expenses.");
     }
 
     // 2) Where cash stands after everything.
@@ -526,8 +542,7 @@
       .filter(function (item) { return item.value > 0; })
       .sort(function (a, b) { return b.value - a.value; });
     if (ranked.length === 1) {
-      notes.push(expenseSubject(ranked[0]).replace(/ (is|are)$/, "") +
-        " is the only monthly expense entered.");
+      notes.push(expenseSubject(ranked[0]) + " the only monthly expense entered.");
     } else if (ranked.length > 1) {
       var t = result.totalExpenses;
       var second = ranked[1].key === "other" ? "other expenses" : ranked[1].label.toLowerCase();
@@ -693,11 +708,13 @@
     // 2) The biggest cost is where changes have the most effect.
     if (biggest) {
       var match = expenseItems(result).filter(function (item) { return item.label === biggest.label; })[0];
-      notes.push(
-        expenseSubject(match) + " currently your largest monthly expense (" + formatMoney(biggest.value) +
-        ", " + expensePct(biggest.value, result.totalExpenses) + " of the total). " +
-        "If you want to improve profit, it is the first cost worth reviewing."
-      );
+      var expenseCount = expenseItems(result).filter(function (item) { return item.value > 0; }).length;
+      notes.push(expenseCount === 1
+        ? expenseSubject(match) + " your only monthly expense (" + formatMoney(biggest.value) + "). " +
+          "If you want to improve profit, it is the cost to review."
+        : expenseSubject(match) + " currently your largest monthly expense (" + formatMoney(biggest.value) +
+          ", " + expensePct(biggest.value, result.totalExpenses) + " of the total). " +
+          "If you want to improve profit, it is the first cost worth reviewing.");
     }
 
     // 3) Cash position after the month.
@@ -715,10 +732,12 @@
           "or more revenue to get through the month."
         );
       }
+    } else if (cash === 0) {
+      notes.push("With $0.00 in cash, the business would need new cash to cover any cost next month.");
     } else if (bought > 0) {
       notes.push(
-        "The business still has cash left after its major purchases, which gives it a cushion " +
-        "for next month."
+        "The " + formatMoney(cash) + " left after its major purchases gives the business a " +
+        "cushion for next month."
       );
     } else if (p > 0) {
       notes.push(
@@ -1037,52 +1056,84 @@
     };
   }
 
-  /** Largest budgeted category, or null when nothing is budgeted. */
-  function getBiggestBudget(plan) {
-    if (plan.totalExpenses <= 0) return null;
-    var items = [
-      { label: "Rent", value: plan.inputs.rent },
-      { label: "Wages", value: plan.inputs.wages },
-      { label: "Supplies", value: plan.inputs.supplies },
-      { label: "Utilities", value: plan.inputs.utilities },
-      { label: "Marketing", value: plan.inputs.marketing },
-      { label: "Other", value: plan.inputs.other },
+  /** The six monthly cost categories, in the order the form lists them. */
+  function planCostItems(plan) {
+    return [
+      { key: "rent", label: "Rent", value: plan.inputs.rent },
+      { key: "wages", label: "Wages", value: plan.inputs.wages },
+      { key: "supplies", label: "Supplies", value: plan.inputs.supplies },
+      { key: "utilities", label: "Utilities", value: plan.inputs.utilities },
+      { key: "marketing", label: "Marketing", value: plan.inputs.marketing },
+      { key: "other", label: "Other monthly expenses", value: plan.inputs.other },
     ];
-    var biggest = items[0];
-    items.forEach(function (item) {
-      if (item.value > biggest.value) biggest = item;
-    });
-    return biggest;
   }
 
-  /** Overall read on the plan, shown in the banner. */
-  function getPlanHealth(plan) {
+  /** Monthly costs above $0, largest first. */
+  function rankedPlanCosts(plan) {
+    return planCostItems(plan)
+      .filter(function (item) { return item.value > 0; })
+      .sort(function (a, b) { return b.value - a.value; });
+  }
+
+  /** A cost category as the subject of a sentence, with a matching verb. */
+  function planCostSubject(item) {
+    if (item.key === "rent" || item.key === "marketing") return item.label + " is";
+    return item.label + " are";
+  }
+
+  /**
+   * Plan status for the banner and the Plan Health card. Conditions are
+   * checked in the same order as before (cash, then profit, then target);
+   * break-even and "no target" only get their own wording.
+   *   short      cash left is below $0
+   *   loss       expected profit is below $0
+   *   even       expected profit is exactly $0
+   *   attention  profitable, but below a target the user entered
+   *   workable   profitable, and no target or the target is met
+   */
+  function getPlanStatus(plan) {
+    var p = plan.expectedProfit;
     if (plan.cashLeft < 0) {
       return {
-        state: "danger",
-        message:
-          "This startup plan runs cash negative after startup costs and one month of operations.",
+        key: "short", tone: "danger", card: "risk",
+        label: "Plan is short on cash", short: "Short on cash",
+        message: "Startup purchases and the first month would use " +
+          formatMoney(Math.abs(plan.cashLeft)) + " more cash than the plan has.",
       };
     }
-    if (plan.expectedProfit < 0) {
+    if (p < 0) {
       return {
-        state: "warn",
-        message:
-          "This startup plan spends more than it earns — planned expenses are above expected revenue.",
+        key: "loss", tone: "danger", card: "risk",
+        label: "Expected monthly loss", short: "Monthly loss",
+        message: "At these estimates, monthly costs are higher than expected revenue.",
       };
     }
-    if (plan.targetGap <= 0) {
+    if (p === 0) {
       return {
-        state: "good",
-        message: "This startup plan meets your target monthly profit.",
+        key: "even", tone: "neutral", card: "stable",
+        label: "Break-even plan", short: "Break-even",
+        message: "Expected revenue would cover monthly costs exactly, with no profit left over.",
       };
     }
+    if (plan.hasTarget && plan.targetGap > 0) {
+      return {
+        key: "attention", tone: "warn", card: "watch",
+        label: "Plan needs attention", short: "Needs attention",
+        message: "The plan shows a monthly profit, but it is " + formatMoney(plan.targetGap) +
+          " below your monthly target.",
+      };
+    }
+    var cashTail = plan.cashLeft <= 0
+      ? ", but it would use all of its starting cash."
+      : plan.startupPurchases > 0
+        ? " and leaves cash after its startup purchases."
+        : " and leaves cash after the first month.";
     return {
-      state: "neutral",
-      message:
-        "This startup plan is profitable but falls short of your target by " +
-        formatMoney(plan.targetGap) +
-        ".",
+      key: "workable", tone: "good", card: "strong",
+      label: "Plan looks workable", short: "Looks workable",
+      message: (plan.hasTarget
+        ? "The plan shows a monthly profit that reaches your target"
+        : "The plan shows a monthly profit") + cashTail,
     };
   }
 
@@ -1094,84 +1145,387 @@
     );
   }
 
-  /** "Startup purchases use N% of available startup cash" (or "more than 100%"). */
-  function cashUsagePhrase(usage) {
-    if (!isFinite(usage.pct)) {
-      return "Startup purchases use more than all of your available startup cash";
+  /** One short line on how much of the starting cash the purchases take. */
+  function cashUsageNote(usage) {
+    if (!usage) return "No startup purchases planned.";
+    if (usage.pct > 100) return "Startup purchases cost more than the starting cash.";
+    return "Startup purchases use " + Math.round(usage.pct) + "% of starting cash.";
+  }
+
+  /** Percent of a scale, for bar positions. */
+  function barPct(value, scale) {
+    return scale > 0 ? Math.max(0, Math.min(100, (value / scale) * 100)) : 0;
+  }
+
+  function barSpan(cls, from, to) {
+    return '<span class="' + cls + '" style="left:' + from.toFixed(2) + "%;width:" +
+      Math.max(to - from, 0).toFixed(2) + '%"></span>';
+  }
+
+  /**
+   * "Monthly Plan": expected revenue, monthly costs and the difference on
+   * one shared scale, with break-even (= monthly costs) marked on each bar.
+   * Then the optional profit target as a single line.
+   */
+  function renderPlanMonth(plan) {
+    var box = document.getElementById("plan-month");
+    if (!box) return;
+    var rev = plan.inputs.revenue;
+    var costs = plan.totalExpenses;
+    var p = plan.expectedProfit;
+    var scale = Math.max(rev, costs);
+    var revAt = barPct(rev, scale);
+    var costAt = barPct(costs, scale);
+    var even = costs > 0 && scale > 0
+      ? '<span class="ll-pm-even" style="left:' + costAt.toFixed(2) + '%"></span>'
+      : "";
+
+    var row = function (op, label, amount, bars, total) {
+      return (
+        '<div class="ll-pm-row' + (total ? " ll-pm-total" : "") + '">' +
+          '<span class="ll-pm-op" aria-hidden="true">' + op + "</span>" +
+          '<span class="ll-pm-label">' + label + "</span>" +
+          '<span class="ll-pm-amt' + (total ? " " + signClass(amount) : "") + '">' +
+            formatMoney(amount) + "</span>" +
+          '<span class="ll-pm-track" aria-hidden="true">' + bars + even + "</span>" +
+        "</div>"
+      );
+    };
+
+    var resultBar = "";
+    if (p > 0) resultBar = barSpan("ll-pm-bar ll-pm-bar--profit", costAt, revAt);
+    else if (p < 0) resultBar = barSpan("ll-pm-bar ll-pm-bar--loss", revAt, costAt);
+
+    var resultLabel = p < 0 ? "Expected monthly loss" : "Expected monthly profit";
+
+    var evenNote = costs > 0
+      ? "<strong>Break-even revenue: " + formatMoney(costs) + ".</strong> This is the monthly " +
+        "revenue needed to cover the plan’s monthly operating costs. At break-even, monthly " +
+        "profit is $0."
+      : "<strong>Break-even revenue: $0.00.</strong> No monthly operating costs are planned, " +
+        "so there is nothing for revenue to cover.";
+
+    box.innerHTML =
+      '<div class="ll-pm">' +
+        row("", "Expected revenue", rev, barSpan("ll-pm-bar ll-pm-bar--rev", 0, revAt)) +
+        row("−", "Monthly operating costs", costs, barSpan("ll-pm-bar ll-pm-bar--cost", 0, costAt)) +
+        row("=", resultLabel, p, resultBar, true) +
+      "</div>" +
+      '<p class="ll-pm-even-note">' +
+        (costs > 0 ? '<span class="ll-pm-even-key" aria-hidden="true"></span>' : "") +
+        "<span>" + evenNote + "</span>" +
+      "</p>" +
+      planTargetLine(plan);
+  }
+
+  /** The optional monthly profit target, as one compact line. */
+  function planTargetLine(plan) {
+    if (!plan.hasTarget) {
+      return '<p class="ll-pm-target is-none">No monthly profit target was set.</p>';
+    }
+    var gap = plan.targetGap;
+    var rel;
+    var cls = "";
+    if (gap > 0) {
+      rel = "Expected profit is " + formatMoney(gap) + " below the target.";
+    } else if (gap < 0) {
+      rel = "Expected profit is " + formatMoney(Math.abs(gap)) + " above the target.";
+      cls = " is-pos";
+    } else {
+      rel = "Expected profit meets the target exactly.";
     }
     return (
-      "Startup purchases use " +
-      Math.round(usage.pct) +
-      "% of available startup cash"
+      '<p class="ll-pm-target">' +
+        '<span class="ll-pm-target-label">Monthly profit target: <strong>' +
+          formatMoney(plan.inputs.targetProfit) + "</strong></span>" +
+        '<span class="ll-pm-target-rel' + cls + '">' + rel + "</span>" +
+      "</p>"
     );
   }
 
-  /** Build action-oriented, managerial planning-advice bullets from the numbers. */
-  function renderPlanAdvice(plan, biggest) {
-    var list = document.getElementById("plan-advice-list");
-    if (!list) return;
-    list.innerHTML = "";
+  /** "Monthly Operating Costs": the shared donut, six monthly categories only. */
+  function renderPlanBreakdown(plan) {
+    var box = document.getElementById("plan-breakdown-chart");
+    if (!box) return;
+    if (plan.totalExpenses <= 0) {
+      box.innerHTML = '<p class="breakdown-empty">No monthly costs were entered.</p>';
+      return;
+    }
+    box.innerHTML = donutMarkup(planCostItems(plan), plan.totalExpenses, "Monthly operating costs");
+  }
 
-    var advice = [];
+  /**
+   * "Startup Cash Use": one bar for the starting cash, split into the three
+   * one-time purchases and what is left, then the ledger down to estimated
+   * cash left (cash to start − startup purchases + expected profit).
+   */
+  function renderPlanCashUse(plan) {
+    var box = document.getElementById("plan-cash-use");
+    if (!box) return;
+    var i = plan.inputs;
+    var start = i.startingCash;
+    var bought = plan.startupPurchases;
+    var afterPurchases = start - bought;
+    var p = plan.expectedProfit;
+    var scale = Math.max(start, bought);
 
-    // 1) Target profit — framed as what to work on.
-    if (plan.targetGap <= 0) {
-      advice.push(
-        "This plan meets your target monthly profit. A manager would now focus on " +
-          "making these revenue and cost estimates realistic before committing to them."
+    var parts = [
+      { key: "equipment", label: "Equipment", value: i.equipment },
+      { key: "inventory", label: "Inventory", value: i.inventory },
+      { key: "other-startup", label: "Other startup costs", value: i.otherStartup },
+    ];
+
+    var bar = "";
+    var at = 0;
+    parts.forEach(function (part) {
+      if (part.value <= 0) return;
+      var next = at + barPct(part.value, scale);
+      bar += barSpan("ll-cu-seg ll-cu--" + part.key, at, next);
+      at = next;
+    });
+    if (afterPurchases > 0) bar += barSpan("ll-cu-seg ll-cu--left", at, 100);
+    var over = bought > start;
+    if (over) {
+      var startAt = barPct(start, scale);
+      bar += barSpan("ll-cu-over", startAt, 100) +
+        '<span class="ll-cu-start" style="left:' + startAt.toFixed(2) + '%"></span>';
+    }
+
+    var line = function (op, label, amount, opts) {
+      var o = opts || {};
+      return (
+        '<tr class="' + (o.cls || "") + '">' +
+          '<td class="ll-ledger-op" aria-hidden="true">' + op + "</td>" +
+          '<th scope="row">' +
+            '<span class="ll-cu-key ' + (o.key ? "ll-cu--" + o.key : "is-blank") + '" aria-hidden="true"></span>' +
+            label + "</th>" +
+          '<td class="ll-ledger-amt' + (o.signed ? " " + signClass(amount) : "") + '">' +
+            formatMoney(amount) + "</td>" +
+        "</tr>"
+      );
+    };
+
+    var rows =
+      line("", "Starting cash available", start) +
+      parts.map(function (part) {
+        return line("−", part.label, part.value, {
+          key: part.key, cls: part.value > 0 ? "" : "is-zero",
+        });
+      }).join("") +
+      line("=", "Cash after startup purchases", afterPurchases, {
+        key: afterPurchases > 0 ? "left" : "", cls: "ll-ledger-sub", signed: afterPurchases < 0,
+      }) +
+      line(p < 0 ? "−" : "+", p < 0 ? "First month’s expected loss" : "First month’s expected profit",
+        Math.abs(p)) +
+      line("=", "Estimated cash left", plan.cashLeft, { cls: "ll-ledger-total", signed: true });
+
+    var caption = over
+      ? '<p class="ll-cu-caption">The red part is how far the startup purchases go past the ' +
+        "starting cash.</p>"
+      : "";
+
+    box.innerHTML =
+      (scale > 0
+        ? '<div class="ll-cu-bar" role="img" aria-label="' + cashUsageNote(getStartupCashUsage(plan)) +
+          '">' + bar + "</div>" + caption
+        : "") +
+      '<table class="ll-ledger" aria-label="Startup cash use"><tbody>' +
+        rows + "</tbody></table>";
+  }
+
+  /**
+   * "How This Was Calculated": the plan's two formulas, written out with
+   * the user's own numbers, plus why startup purchases sit apart.
+   */
+  function renderPlanCalculation(plan) {
+    var box = document.getElementById("plan-calc-body");
+    if (!box) return;
+    var p = plan.expectedProfit;
+    var loss = p < 0;
+
+    var monthTable =
+      '<table class="ll-calc">' +
+        "<caption>Expected monthly result</caption>" +
+        "<tbody>" +
+          calcRow("", "Expected monthly revenue", "your estimate for a typical month",
+            plan.inputs.revenue) +
+          calcRow("−", "Monthly operating costs",
+            "rent, wages, supplies, utilities, marketing, and other monthly expenses",
+            plan.totalExpenses) +
+          calcRow("=", loss ? "Expected monthly loss" : "Expected monthly profit",
+            loss ? "costs are higher than revenue"
+              : p === 0 ? "revenue covers costs exactly" : "what is left each month",
+            p, true) +
+        "</tbody>" +
+      "</table>";
+
+    var cashTable =
+      '<table class="ll-calc">' +
+        "<caption>Startup cash position</caption>" +
+        "<tbody>" +
+          calcRow("", "Cash available for startup", "what the business has before opening",
+            plan.inputs.startingCash) +
+          calcRow("−", "One-time startup purchases", "equipment, inventory, and other startup costs",
+            plan.startupPurchases) +
+          calcRow(loss ? "−" : "+", loss ? "Expected monthly loss" : "Expected monthly profit",
+            "one month at the planned numbers", Math.abs(p)) +
+          calcRow("=", "Estimated cash left", "", plan.cashLeft, true) +
+        "</tbody>" +
+      "</table>";
+
+    box.innerHTML =
+      '<div class="ll-calc-pair">' + monthTable + cashTable + "</div>" +
+      '<p class="ll-calc-note"><strong>Why startup purchases are separate.</strong> Monthly costs ' +
+      "come back every month, so they lower monthly profit. Equipment, inventory, and other " +
+      "startup costs are paid once, before opening. They use cash right away, so they lower cash " +
+      "left, but they don’t lower monthly profit here. In accounting, equipment and inventory are " +
+      "usually recorded as assets, things the business owns. Equipment becomes an expense slowly " +
+      "through depreciation, and inventory becomes an expense when it is sold.</p>";
+  }
+
+  /**
+   * "What This Means": what the plan's numbers say, in plain sentences.
+   * No arithmetic here; that lives in How This Was Calculated.
+   */
+  function renderPlanMeaning(plan, ranked) {
+    var notes = [];
+    var p = plan.expectedProfit;
+    var rev = plan.inputs.revenue;
+
+    if (p > 0) {
+      notes.push(plan.totalExpenses > 0
+        ? "The plan is expected to make a monthly profit. " + profitPerDollar(p, rev) +
+          " of expected revenue would be left over."
+        : "The plan is expected to make a monthly profit.");
+    } else if (p < 0) {
+      notes.push(
+        "The plan is expected to lose money each month at the current revenue and cost estimates."
       );
     } else {
-      advice.push(
-        "This plan is below the target profit by " +
-          formatMoney(plan.targetGap) +
-          ". To improve it, focus on raising revenue, reducing fixed expenses, or " +
-          "lowering startup costs before launch."
+      notes.push(
+        "The plan is expected to break even. Revenue would cover monthly costs with nothing left over."
       );
     }
 
-    // 2) Revenue vs. expense level — advice, not just a fact.
-    if (plan.totalExpenses > plan.inputs.revenue) {
-      advice.push(
-        "Revenue is not high enough to support the planned expense level. A manager " +
-          "would review pricing, expected sales volume, or ways to reduce monthly costs."
+    var afterPurchases = plan.inputs.startingCash - plan.startupPurchases;
+    if (afterPurchases < 0) {
+      notes.push("The planned startup purchases would use more cash than is currently available.");
+    } else if (plan.cashLeft < 0) {
+      notes.push(
+        "The starting cash covers the startup purchases, but the first month’s loss would push " +
+        "cash below zero."
+      );
+    } else if (plan.cashLeft === 0) {
+      notes.push("The plan would use all of its starting cash by the end of the first month.");
+    } else if (plan.startupPurchases > 0) {
+      notes.push("The startup still has cash left after its planned purchases.");
+    } else {
+      notes.push("No startup purchases are planned, so all of the starting cash stays available.");
+    }
+
+    if (ranked.length === 1) {
+      notes.push(planCostSubject(ranked[0]) + " the only monthly cost entered.");
+    } else if (ranked.length > 1) {
+      var second = ranked[1].key === "other" ? "other monthly expenses" : ranked[1].label.toLowerCase();
+      notes.push(
+        planCostSubject(ranked[0]).replace(/ (is|are)$/, "") + " and " + second +
+        " make up " + expensePct(ranked[0].value + ranked[1].value, plan.totalExpenses) +
+        " of the monthly costs."
+      );
+    } else {
+      notes.push("No monthly costs were entered, so all expected revenue counts as profit.");
+    }
+
+    if (plan.hasTarget) {
+      notes.push(plan.targetGap > 0
+        ? "The expected monthly profit is below the goal you entered."
+        : "The expected monthly profit reaches the goal you entered.");
+    }
+
+    fillList("plan-meaning-list", notes);
+  }
+
+  /**
+   * "What to Look at Next": two to four observations tied to the numbers
+   * (break-even headroom, the target, the biggest cost, the cash cushion).
+   */
+  function renderPlanNext(plan, ranked) {
+    var notes = [];
+    var p = plan.expectedProfit;
+    var costs = plan.totalExpenses;
+
+    if (p < 0) {
+      notes.push(
+        "Expected monthly costs are " + formatMoney(Math.abs(p)) + " higher than expected " +
+        "revenue. Revenue would need to reach " + formatMoney(costs) + " a month to break even."
+      );
+    } else if (p === 0) {
+      notes.push(
+        "Revenue is exactly at break-even, so any extra monthly cost would turn the plan into a loss."
+      );
+    } else {
+      notes.push(
+        "Expected revenue is " + formatMoney(p) + " above break-even. Revenue could come in that " +
+        "much lower before the plan stops making a profit."
       );
     }
 
-    // 3) Startup purchases vs. available cash — show the percentage + guidance.
+    if (plan.hasTarget && plan.targetGap > 0) {
+      notes.push(
+        "To reach the " + formatMoney(plan.inputs.targetProfit) + " monthly profit target, the plan " +
+        "needs " + formatMoney(plan.targetGap) + " more profit each month, from more revenue, " +
+        "lower monthly costs, or both."
+      );
+    }
+
+    if (ranked.length === 1) {
+      var only = planCostSubject(ranked[0]).split(" ");
+      var verb = only.pop();
+      notes.push(
+        only.join(" ") + " (" + formatMoney(ranked[0].value) + ") " + verb + " the plan’s only " +
+        "monthly cost, so any change to it changes profit by the same amount."
+      );
+    } else if (ranked.length) {
+      notes.push(
+        planCostSubject(ranked[0]) + " the largest monthly cost at " + formatMoney(ranked[0].value) +
+        " (" + expensePct(ranked[0].value, costs) + " of the total). A change here moves profit the most."
+      );
+    }
+
+    var start = plan.inputs.startingCash;
+    var bought = plan.startupPurchases;
     var usage = getStartupCashUsage(plan);
-    if (usage) {
-      var tail;
-      if (usage.band === "healthy") {
-        tail =
-          " — a healthy, flexible level that leaves a solid cash cushion to start.";
-      } else if (usage.band === "watch") {
-        tail =
-          " — watch this carefully, since it leaves less room for slow early months.";
-      } else if (usage.band === "risky") {
-        tail =
-          " — this is risky, and the cash cushion may be tight. A manager may consider " +
-          "delaying purchases, buying used equipment, leasing, or increasing startup funding.";
-      } else {
-        tail =
-          " — this is very risky; the business may start with too little cash left. A " +
-          "manager may consider delaying purchases, buying used equipment, leasing, or " +
-          "increasing startup funding.";
-      }
-      advice.push(cashUsagePhrase(usage) + tail);
+    var cashNote;
+    if (plan.cashLeft < 0) {
+      cashNote = bought > start
+        ? "Startup purchases are " + formatMoney(bought - start) + " more than the starting cash. " +
+          "More starting cash, or buying less before opening, would close that gap."
+        : "Cash would end the first month " + formatMoney(Math.abs(plan.cashLeft)) + " below zero. " +
+          "More starting cash, or a smaller first-month loss, would keep it positive.";
+    } else if (plan.cashLeft === 0) {
+      cashNote = "The plan ends the first month with no cash to spare for a slow start.";
+    } else if (usage && usage.tight) {
+      cashNote =
+        "Startup purchases use " + Math.round(usage.pct) + "% of starting cash, so the plan keeps " +
+        "a smaller cushion of " + formatMoney(plan.cashLeft) + " for slow early months.";
+    } else {
+      cashNote =
+        "The plan ends the first month with " + formatMoney(plan.cashLeft) + " in estimated cash" +
+        (p < 0 ? ", but each month at a loss would keep lowering it." : ", a cushion for slow early months.");
     }
+    // A cash shortfall is the most urgent thing to look at.
+    if (plan.cashLeft < 0) notes.unshift(cashNote);
+    else notes.push(cashNote);
 
-    // 4) Largest-cost lever, when the plan isn't already on target.
-    if (biggest && (plan.targetGap > 0 || plan.totalExpenses > plan.inputs.revenue)) {
-      advice.push(
-        "Your largest planned cost is " +
-          biggest.label.toLowerCase() +
-          " (" +
-          formatMoney(biggest.value) +
-          "). Reducing or renegotiating it is often the fastest way to improve the plan."
-      );
-    }
+    fillList("plan-next-list", notes.slice(0, 4));
+  }
 
-    advice.slice(0, 4).forEach(function (text) {
+  /** Replace a list's items with one <li> per sentence. */
+  function fillList(id, notes) {
+    var list = document.getElementById(id);
+    if (!list) return;
+    list.innerHTML = "";
+    notes.forEach(function (text) {
       var li = document.createElement("li");
       li.textContent = text;
       list.appendChild(li);
@@ -1188,9 +1542,7 @@
     var name = plan.inputs.name.trim();
     var title = document.getElementById("plan-dash-title");
     if (title) {
-      title.textContent = name
-        ? name + " — Startup Plan Summary"
-        : "Startup Plan Summary";
+      title.textContent = name ? name + " — Startup Plan" : "Startup Plan";
     }
 
     var setText = function (id, text) {
@@ -1198,216 +1550,50 @@
       if (el) el.textContent = text;
     };
 
-    setText("plan-out-revenue", formatMoney(plan.inputs.revenue));
-    setText("plan-out-expenses", formatMoney(plan.totalExpenses));
-    setText("plan-out-profit", formatMoney(plan.expectedProfit));
-    setText(
-      "plan-out-gap",
-      plan.targetGap > 0 ? formatMoney(plan.targetGap) : "Met"
-    );
-    setText("plan-out-startup", formatMoney(plan.startupPurchases));
-    setText("plan-out-cash", formatMoney(plan.cashLeft));
+    // Status banner
+    var status = getPlanStatus(plan);
+    var banner = document.getElementById("plan-banner");
+    if (banner) {
+      banner.classList.remove("health-good", "health-warn", "health-danger", "health-neutral");
+      banner.classList.add("health-" + status.tone);
+    }
+    setText("plan-status-label", status.label + ".");
+    setText("plan-banner-message", status.message);
 
-    var colorBySign = function (id, positive) {
+    // Plan at a Glance
+    setText("plan-out-profit", formatMoney(plan.expectedProfit));
+    setText("plan-out-cash", formatMoney(plan.cashLeft));
+    setText("plan-out-startup", formatMoney(plan.startupPurchases));
+    setText("plan-out-startup-help", plan.startupPurchases > 0
+      ? "One-time purchases before opening."
+      : "No one-time purchases planned.");
+    setText("plan-out-health", status.short);
+    setText("plan-out-health-help", cashUsageNote(getStartupCashUsage(plan)));
+
+    // Sign colour: above zero green, below zero red, zero neutral.
+    var colorBySign = function (id, amount) {
       var card = document.getElementById(id);
       if (!card) return;
       card.classList.remove("is-positive", "is-negative");
-      card.classList.add(positive ? "is-positive" : "is-negative");
+      if (amount > 0) card.classList.add("is-positive");
+      else if (amount < 0) card.classList.add("is-negative");
     };
-    colorBySign("plan-out-profit-card", plan.expectedProfit >= 0);
-    colorBySign("plan-out-gap-card", plan.targetGap <= 0); // met = green
-    colorBySign("plan-out-cash-card", plan.cashLeft >= 0);
+    colorBySign("plan-out-profit-card", plan.expectedProfit);
+    colorBySign("plan-out-cash-card", plan.cashLeft);
 
-    var health = getPlanHealth(plan);
-    var banner = document.getElementById("plan-banner");
-    if (banner) {
-      banner.classList.remove(
-        "health-good",
-        "health-warn",
-        "health-danger",
-        "health-neutral"
-      );
-      banner.classList.add("health-" + health.state);
-    }
-    setText("plan-banner-message", health.message);
-
-    var biggest = getBiggestBudget(plan);
-    renderPlanAdvice(plan, biggest);
-    renderPlanManager(plan, biggest);
-    renderPlanAccounting(plan);
-  }
-
-  /** "Manager's View" — how a manager would read these numbers before launching. */
-  function renderPlanManager(plan, biggest) {
-    var list = document.getElementById("plan-manager-list");
-    if (!list) return;
-    list.innerHTML = "";
-
-    var notes = [];
-
-    // Framing: what a manager weighs before launch.
-    notes.push(
-      "As the manager, you would weigh revenue (" +
-        formatMoney(plan.inputs.revenue) +
-        "), expenses (" +
-        formatMoney(plan.totalExpenses) +
-        "), and cash left (" +
-        formatMoney(plan.cashLeft) +
-        ") against your largest cost to decide what to adjust before launching."
-    );
-
-    // Largest planned expense as a lever.
-    if (biggest) {
-      notes.push(
-        "Your largest planned cost is " +
-          biggest.label.toLowerCase() +
-          " at " +
-          formatMoney(biggest.value) +
-          " — the first place a manager looks when trying to protect profit."
-      );
-    } else {
-      notes.push(
-        "No monthly expenses are budgeted yet, so a manager could not judge the cost " +
-          "structure of this plan."
-      );
+    var healthCard = document.getElementById("plan-out-health-card");
+    if (healthCard) {
+      healthCard.classList.remove("status-strong", "status-stable", "status-watch", "status-risk");
+      healthCard.classList.add("status-" + status.card);
     }
 
-    // Reaching the target profit + what to adjust.
-    if (plan.targetGap <= 0) {
-      notes.push(
-        "The plan reaches your target monthly profit, so a manager would double-check " +
-          "that the revenue estimate is achievable rather than optimistic."
-      );
-    } else {
-      notes.push(
-        "The plan is short of your target profit by " +
-          formatMoney(plan.targetGap) +
-          ", so a manager would decide whether to raise revenue or trim costs to close the gap."
-      );
-    }
-
-    // Cash position / runway read.
-    if (plan.cashLeft < 0) {
-      notes.push(
-        "Cash left is negative, so a manager would not launch this plan without more " +
-          "startup funding or lower upfront spending."
-      );
-    } else {
-      var usage = getStartupCashUsage(plan);
-      if (usage && usage.tight) {
-        notes.push(
-          "Cash left is positive but thin after startup purchases, so a manager would " +
-            "keep a close eye on early-month cash flow."
-        );
-      } else {
-        notes.push(
-          "Cash left stays positive with a reasonable cushion, giving a manager room to " +
-            "absorb slower early months."
-        );
-      }
-    }
-
-    notes.forEach(function (text) {
-      var li = document.createElement("li");
-      li.textContent = text;
-      list.appendChild(li);
-    });
-  }
-
-  /**
-   * "How This Connects to Accounting" — grouped by the three core statements,
-   * then one tailored takeaway. Renders into a container div (not a flat list).
-   */
-  function renderPlanAccounting(plan) {
-    var container = document.getElementById("plan-accounting-list");
-    if (!container) return;
-    container.innerHTML = "";
-
-    // Append one titled group: heading + a small bulleted list of notes.
-    var addGroup = function (title, notes) {
-      if (!notes.length) return;
-      var heading = document.createElement("p");
-      heading.className = "plan-acct-heading";
-      heading.textContent = title;
-      container.appendChild(heading);
-
-      var ul = document.createElement("ul");
-      ul.className = "explanation-list";
-      notes.forEach(function (text) {
-        var li = document.createElement("li");
-        li.textContent = text;
-        ul.appendChild(li);
-      });
-      container.appendChild(ul);
-    };
-
-    // Income Statement
-    addGroup("Income Statement Impact", [
-      "Expected revenue (" +
-        formatMoney(plan.inputs.revenue) +
-        ") sits at the top of the income statement.",
-      "Rent, wages, supplies, utilities, marketing, and other monthly costs (" +
-        formatMoney(plan.totalExpenses) +
-        " total) are operating expenses below it.",
-      "The difference is your expected profit or loss of " +
-        formatMoney(plan.expectedProfit) +
-        " — the bottom line of the plan.",
-    ]);
-
-    // Balance Sheet
-    var balanceNotes = [];
-    if (plan.inputs.equipment > 0) {
-      balanceNotes.push(
-        "Equipment (" +
-          formatMoney(plan.inputs.equipment) +
-          ") is recorded as an asset first, then depreciated over its useful life."
-      );
-    }
-    if (plan.inputs.inventory > 0) {
-      balanceNotes.push(
-        "Inventory (" +
-          formatMoney(plan.inputs.inventory) +
-          ") is recorded as an asset until it is sold."
-      );
-    }
-    balanceNotes.push(
-      "Cash is your main asset here — it moves from cash into equipment, inventory, " +
-        "and day-to-day operations."
-    );
-    addGroup("Balance Sheet Impact", balanceNotes);
-
-    // Cash Flow
-    addGroup("Cash Flow Impact", [
-      "Startup purchases (" +
-        formatMoney(plan.startupPurchases) +
-        ") reduce cash upfront, before the business earns anything.",
-      "After startup costs and one month of operations, estimated cash left is " +
-        formatMoney(plan.cashLeft) +
-        ".",
-    ]);
-
-    // Tailored takeaway.
-    var note = document.createElement("p");
-    note.className = "plan-acct-note";
-    var usage = getStartupCashUsage(plan);
-    if (plan.cashLeft < 0) {
-      note.textContent =
-        "The plan runs cash negative after startup costs — profit on paper cannot " +
-        "cover a shortfall in the bank, so the plan needs more cash to launch.";
-    } else if (plan.expectedProfit > 0 && usage && usage.tight) {
-      note.textContent =
-        "Even though the plan shows a profit, startup purchases use a large share of " +
-        "cash upfront — a profitable plan can still hit a cash problem early on.";
-    } else if (plan.expectedProfit > 0) {
-      note.textContent =
-        "This plan shows a profit and keeps a reasonable cash cushion — a solid " +
-        "starting point to refine before launch.";
-    } else {
-      note.textContent =
-        "The plan does not yet show a profit, so both the income statement and the cash " +
-        "position need work before launch.";
-    }
-    container.appendChild(note);
+    var ranked = rankedPlanCosts(plan);
+    renderPlanMonth(plan);
+    renderPlanBreakdown(plan);
+    renderPlanCashUse(plan);
+    renderPlanCalculation(plan);
+    renderPlanMeaning(plan, ranked);
+    renderPlanNext(plan, ranked);
   }
 
   function validatePlanAll() {

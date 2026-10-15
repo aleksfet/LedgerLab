@@ -2557,42 +2557,6 @@ a:hover {
   font-weight: 600;
 }
 
-/* Grouped "How This Connects to Accounting" block (statement-by-statement). */
-.plan-accounting {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.plan-acct-heading {
-  margin: 0.5rem 0 0.1rem;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--blue-bright);
-}
-
-.plan-acct-heading:first-child {
-  margin-top: 0;
-}
-
-.plan-accounting .explanation-list {
-  padding-left: 1.05rem;
-}
-
-/* Tailored takeaway under the three statement groups. */
-.plan-acct-note {
-  margin: 0.5rem 0 0;
-  padding: 0.6rem 0.75rem;
-  background: var(--surface-2);
-  border-left: 3px solid var(--blue);
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--text-soft);
-}
-
 /* ===== Business Simulator: Ledger Workspace shell =====
    Everything below is scoped to #simulator / ll-sim-* so the five tool
    windows, which share the older sim-* / stat-* / field classes, are not
@@ -3126,8 +3090,7 @@ a:hover {
   box-shadow: none;
 }
 
-#simulator .explanation,
-#simulator .plan-acct-note {
+#simulator .explanation {
   background: var(--ll-sim-frame-bg);
   border-left-color: var(--ll-sim-tint-border);
 }
@@ -3155,22 +3118,28 @@ a:hover {
 /* Sign colour lives on the value; card borders stay neutral. */
 #sim-dashboard .stat-card.is-positive,
 #sim-dashboard .stat-card.is-negative,
-#sim-dashboard .stat-card[class*="status-"] {
+#sim-dashboard .stat-card[class*="status-"],
+#plan-dashboard .stat-card.is-positive,
+#plan-dashboard .stat-card.is-negative,
+#plan-dashboard .stat-card[class*="status-"] {
   border-color: var(--ll-sim-rule);
 }
 
 /* Positive / negative values use the theme's own green and red (the shared
    card rule hard-codes a light red that is too faint on the light theme). */
-#sim-dashboard .stat-card.is-positive .stat-value {
+#sim-dashboard .stat-card.is-positive .stat-value,
+#plan-dashboard .stat-card.is-positive .stat-value {
   color: var(--ll-sim-pos);
 }
 
-#sim-dashboard .stat-card.is-negative .stat-value {
+#sim-dashboard .stat-card.is-negative .stat-value,
+#plan-dashboard .stat-card.is-negative .stat-value {
   color: var(--ll-sim-neg);
 }
 
 /* Short explanation under a metric (e.g. break-even). */
-#sim-dashboard .stat-help {
+#sim-dashboard .stat-help,
+#plan-dashboard .stat-help {
   margin-top: 0.3rem;
   font-size: 0.74rem;
   line-height: 1.4;
@@ -3317,13 +3286,15 @@ a:hover {
 }
 
 /* Educational blocks: sentence-case titles, separated by a rule. */
-#sim-dashboard .ll-res-block {
+#sim-dashboard .ll-res-block,
+#plan-dashboard .ll-res-block {
   margin-top: 1.75rem;
   padding-top: 1.4rem;
   border-top: 1px solid var(--ll-sim-rule);
 }
 
-#sim-dashboard .ll-res-title {
+#sim-dashboard .ll-res-title,
+#plan-dashboard .ll-res-title {
   margin: 0 0 0.9rem;
   font-size: 1rem;
   font-weight: 700;
@@ -3480,6 +3451,334 @@ a:hover {
   .ll-donut-figure {
     margin: 0 auto;
   }
+}
+
+/* ---- Startup Planning results: plan review ----
+   Shares the Assessment result system above (cards, donut, worked
+   calculation, notes). Adds: the status label, the Monthly Plan bars, and
+   the Startup Cash Use bar + ledger. Scoped to #plan-dashboard. */
+#plan-dashboard {
+  --ll-don-rent: #2fbf80;
+  --ll-don-wages: #178a60;
+  --ll-don-supplies: #8ad9b5;
+  --ll-don-utilities: #c9a85c;
+  --ll-don-marketing: #9d8ce0;
+  --ll-don-other: #8a9bb0;
+  --ll-pm-rev: var(--ll-sim-bar);
+  --ll-pm-cost: #8a9bb0;
+  --ll-cu-equipment: #8a9bb0;
+  --ll-cu-inventory: #b7c2d0;
+  --ll-cu-other-startup: #5f7189;
+  --ll-cu-left: var(--ll-sim-bar);
+  --ll-pm-mark: rgba(243, 246, 251, 0.75);
+}
+
+:root[data-theme="light"] #plan-dashboard {
+  --ll-don-rent: #2a9d6c;
+  --ll-don-wages: #0f6b4a;
+  --ll-don-supplies: #8fcfae;
+  --ll-don-utilities: #b38a2e;
+  --ll-don-marketing: #6b5bb8;
+  --ll-don-other: #7b8aa0;
+  --ll-pm-cost: #7b8aa0;
+  --ll-cu-equipment: #7b8aa0;
+  --ll-cu-inventory: #aab5c4;
+  --ll-cu-other-startup: #4f5e73;
+  --ll-pm-mark: rgba(15, 29, 58, 0.7);
+}
+
+.ll-donut--marketing { --ll-don: var(--ll-don-marketing); }
+
+/* Status: the label carries the tone; the sentence stays body text. */
+#plan-dashboard .ll-plan-status {
+  align-items: flex-start;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ll-sim-body);
+}
+
+#plan-dashboard .ll-plan-status .health-dot {
+  margin-top: 0.45em;
+}
+
+#plan-dashboard .ll-plan-status-label {
+  margin-right: 0.2rem;
+  font-weight: 700;
+  color: var(--ll-sim-text);
+}
+
+#plan-dashboard .health-good .ll-plan-status-label { color: var(--ll-sim-pos); }
+#plan-dashboard .health-warn .ll-plan-status-label { color: var(--ll-sim-warn); }
+#plan-dashboard .health-danger .ll-plan-status-label { color: var(--ll-sim-neg); }
+
+#plan-dashboard .health-good .health-dot { background: var(--ll-sim-pos); }
+
+/* A touch deeper amber on the light tint, so the label clears 4.5:1. */
+:root[data-theme="light"] #plan-dashboard .health-warn .ll-plan-status-label {
+  color: #865c00;
+}
+
+/* Heading notes at full muted colour (the shared rule fades them below AA). */
+#sim-dashboard .report-note,
+#plan-dashboard .report-note {
+  opacity: 1;
+  color: var(--ll-sim-muted);
+}
+
+/* Plan Health card: theme green (the shared rule uses a fixed light green). */
+#plan-dashboard .stat-card.status-strong .stat-value {
+  color: var(--ll-sim-pos);
+}
+
+/* Monthly Plan: three ruled rows, one shared bar scale. */
+.ll-pm-row {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 0.5rem;
+  row-gap: 0.45rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--ll-sim-rule);
+}
+
+.ll-pm-row:first-child {
+  border-top: 0;
+  padding-top: 0.2rem;
+}
+
+.ll-pm-op {
+  text-align: center;
+  font-weight: 700;
+  color: var(--ll-sim-muted);
+}
+
+.ll-pm-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ll-sim-text);
+}
+
+.ll-pm-amt {
+  text-align: right;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ll-sim-text);
+}
+
+.ll-pm-track {
+  position: relative;
+  grid-column: 2 / -1;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--ll-sim-rule);
+}
+
+.ll-pm-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+}
+
+.ll-pm-bar--rev { background: var(--ll-pm-rev); }
+.ll-pm-bar--cost { background: var(--ll-pm-cost); }
+.ll-pm-bar--profit { background: var(--ll-sim-pos); }
+.ll-pm-bar--loss { background: var(--ll-sim-neg); }
+
+/* Break-even marker: the point where revenue equals monthly costs. */
+.ll-pm-even {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 0;
+  margin-left: -1px;
+  border-left: 2px dashed var(--ll-pm-mark);
+}
+
+.ll-pm-total {
+  border-top: 1.5px solid var(--ll-sim-frame-border);
+  border-bottom: 3px double var(--ll-sim-frame-border);
+}
+
+.ll-pm-total .ll-pm-label,
+.ll-pm-total .ll-pm-amt {
+  font-weight: 700;
+}
+
+.ll-pm-amt.is-pos { color: var(--ll-sim-pos); }
+.ll-pm-amt.is-neg { color: var(--ll-sim-neg); }
+
+.ll-pm-even-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin: 0.85rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ll-sim-body);
+}
+
+.ll-pm-even-note strong {
+  color: var(--ll-sim-text);
+}
+
+.ll-pm-even-key {
+  flex: none;
+  width: 0;
+  height: 1.15em;
+  margin: 0.15em 0 0 0.35rem;
+  border-left: 2px dashed var(--ll-pm-mark);
+}
+
+/* Optional target: one quiet line, never a headline number. */
+.ll-pm-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
+  margin: 0.85rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--ll-sim-rule);
+  border-radius: 8px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--ll-sim-body);
+}
+
+.ll-pm-target strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--ll-sim-text);
+}
+
+.ll-pm-target.is-none {
+  border-style: dashed;
+  color: var(--ll-sim-muted);
+}
+
+.ll-pm-target-rel.is-pos {
+  color: var(--ll-sim-pos);
+}
+
+/* Startup Cash Use: the starting cash as one bar, then the ledger. */
+.ll-cu-bar {
+  position: relative;
+  height: 14px;
+  margin: 0.2rem 0 0.9rem;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--ll-sim-rule);
+}
+
+.ll-cu-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--ll-cu);
+  box-shadow: inset -2px 0 0 var(--ll-sim-bg);
+}
+
+.ll-cu-seg:last-child {
+  box-shadow: none;
+}
+
+.ll-cu--equipment { --ll-cu: var(--ll-cu-equipment); }
+.ll-cu--inventory { --ll-cu: var(--ll-cu-inventory); }
+.ll-cu--other-startup { --ll-cu: var(--ll-cu-other-startup); }
+.ll-cu--left { --ll-cu: var(--ll-cu-left); }
+
+/* Purchases beyond the starting cash: hatched red past the marker. */
+.ll-cu-over {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(135deg, var(--ll-sim-neg) 0 3px, transparent 3px 6px);
+}
+
+.ll-cu-start {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin-left: -1px;
+  border-left: 2px solid var(--ll-sim-text);
+}
+
+.ll-cu-caption {
+  margin: -0.45rem 0 0.8rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--ll-sim-muted);
+}
+
+.ll-ledger {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.ll-ledger th,
+.ll-ledger td {
+  padding: 0.5rem 0.2rem;
+  border-top: 1px solid var(--ll-sim-rule);
+  text-align: left;
+  font-weight: 500;
+  color: var(--ll-sim-body);
+}
+
+.ll-ledger tr:first-child > * {
+  border-top: 0;
+}
+
+.ll-ledger .ll-ledger-op {
+  width: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--ll-sim-muted);
+}
+
+.ll-ledger .ll-ledger-amt {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--ll-sim-text);
+}
+
+.ll-ledger .is-zero > * {
+  color: var(--ll-sim-muted);
+}
+
+.ll-ledger .ll-ledger-sub > *,
+.ll-ledger .ll-ledger-total > * {
+  border-top: 1.5px solid var(--ll-sim-frame-border);
+  font-weight: 700;
+  color: var(--ll-sim-text);
+}
+
+.ll-ledger .ll-ledger-total > * {
+  border-bottom: 3px double var(--ll-sim-frame-border);
+}
+
+.ll-ledger .ll-ledger-op {
+  color: var(--ll-sim-muted);
+}
+
+.ll-ledger .ll-ledger-amt.is-pos { color: var(--ll-sim-pos); }
+.ll-ledger .ll-ledger-amt.is-neg { color: var(--ll-sim-neg); }
+
+.ll-cu-key {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-right: 0.6rem;
+  border-radius: 3px;
+  vertical-align: -0.05em;
+  background: var(--ll-cu);
+}
+
+.ll-cu-key.is-blank {
+  visibility: hidden;
 }
 
 /* ---- Responsive tiers ---- */
