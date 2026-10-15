@@ -2631,29 +2631,41 @@
 
   /**
    * "Try an example" chips: choose one of the existing transactions and fill a
-   * sample amount. Nothing runs; the user still selects Show Journal Entry.
-   * The date keeps whatever it already holds.
+   * sample amount, then build the entry through the form's own submit
+   * handler, exactly as Show Journal Entry does. The date keeps whatever it
+   * already holds.
    */
   function initJournalExamples() {
+    var form = document.getElementById("je-form");
     var select = document.getElementById("je-transaction");
     var amount = document.getElementById("je-amount");
-    if (!select || !amount) return;
+    if (!form || !select || !amount) return;
     document.querySelectorAll(".je-example-btn").forEach(function (button) {
       button.addEventListener("click", function () {
         select.value = button.getAttribute("data-transaction");
         amount.value = button.getAttribute("data-amount");
         clearError(select);
         clearError(amount);
+        submitForm(form);
       });
     });
+  }
+
+  /** Run a tool form through its normal submit handler (used by examples). */
+  function submitForm(form) {
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+    } else {
+      form.dispatchEvent(new Event("submit", { cancelable: true }));
+    }
   }
 
   /* ==========================================================
      Bank Reconciliation Helper (second Accounting Tool)
      Reads data + pure logic from bank-reconciliation.js
-     (window.BankReconciliation) and renders a two-sided
-     reconciliation report with adjustment explanations and the
-     journal entries the book-side items would require.
+     (window.BankReconciliation) and renders a bank-vs-book
+     reconciliation workpaper, its arithmetic, a short explanation and
+     the journal entries the book-side items would require.
      ========================================================== */
 
   // id + whether the field must be filled in. Balances required; rest optional.
@@ -2722,115 +2734,206 @@
     return !firstInvalid;
   }
 
-  /** Display string for a reconciliation line based on its sign. */
-  function brLineAmount(line) {
-    if (line.sign === "minus") return "(" + formatMoney(line.amount) + ")";
-    if (line.sign === "plus") return "+ " + formatMoney(line.amount);
-    return formatMoney(line.amount); // start line
+  /** A workpaper amount: "$" on each side's opening balance and on totals only. */
+  function brAmount(amount, withSign) {
+    var text = formatMoney(amount);
+    return withSign ? text : text.replace("$", "");
   }
 
-  /** Render one side's table body (start line + non-zero adjustments). */
-  function renderBrSide(tbodyId, side) {
+  /** A signed figure for an equation, with a true minus sign. */
+  function brSigned(amount) {
+    return formatMoney(amount).replace("-", "−");
+  }
+
+  /** One side of the workpaper: the opening balance, then each non-zero adjustment. */
+  function renderBrSide(tbodyId, side, noneText) {
     var tbody = document.getElementById(tbodyId);
     if (!tbody) return;
-    tbody.innerHTML = "";
-    side.lines.forEach(function (line) {
-      var tr = document.createElement("tr");
-      if (line.sign === "start") tr.className = "br-start-row";
-      tr.innerHTML =
-        "<td>" + line.label + "</td>" +
-        '<td class="num">' + brLineAmount(line) + "</td>";
-      tbody.appendChild(tr);
-    });
-  }
-
-  /** Plain-English sentence for a single adjustment line. */
-  function brAdjustmentSentence(line) {
-    switch (line.label) {
-      case "Deposits in transit":
-        return "Deposits in transit raise the bank side — the bank hasn't recorded them yet.";
-      case "Outstanding checks":
-        return "Outstanding checks lower the bank side — they haven't cleared the bank yet.";
-      case "Interest earned":
-        return "Interest earned raises the book side — add it to your cash.";
-      case "Bank service fees":
-        return "Bank service fees lower the book side — subtract them from your cash.";
-      case "Bank error":
-        return (
-          "A bank error " +
-          (line.sign === "minus" ? "lowers" : "raises") +
-          " the bank side by " +
-          formatMoney(line.amount) +
-          " — the bank fixes this, not you."
-        );
-      case "Book error":
-        return (
-          "A book error " +
-          (line.sign === "minus" ? "lowers" : "raises") +
-          " the book side by " +
-          formatMoney(line.amount) +
-          " — correct it in your own records."
-        );
-      default:
-        return line.label + ": " + formatMoney(line.amount) + ".";
-    }
-  }
-
-  function renderBrExplanations(result) {
-    var list = document.getElementById("br-explanation-list");
-    if (!list) return;
-    list.innerHTML = "";
-
-    var adjustments = [];
-    result.bank.lines.concat(result.book.lines).forEach(function (line) {
-      if (line.sign !== "start") adjustments.push(line);
-    });
-
-    if (adjustments.length === 0) {
-      var li = document.createElement("li");
-      li.textContent =
-        "No reconciling items entered — the bank and book balances are compared as-is.";
-      list.appendChild(li);
-      return;
-    }
-
-    adjustments.forEach(function (line) {
-      var li = document.createElement("li");
-      li.textContent = brAdjustmentSentence(line);
-      list.appendChild(li);
-    });
-  }
-
-  function renderBrEntries(inputs) {
-    var list = document.getElementById("br-entries-list");
-    if (!list) return;
-    list.innerHTML = "";
-
-    var entries = window.BankReconciliation.suggestedEntries(inputs);
-    if (entries.length === 0) {
-      var li = document.createElement("li");
-      li.textContent = "No adjustments entered, so there are no journal entries to record.";
-      list.appendChild(li);
-      return;
-    }
-
-    entries.forEach(function (entry) {
-      var li = document.createElement("li");
-      if (entry.needsEntry) {
-        li.textContent =
-          entry.item +
-          ": Debit " +
-          entry.debit +
-          ", Credit " +
-          entry.credit +
-          " " +
-          formatMoney(entry.amount) +
-          ".";
-      } else {
-        li.textContent = entry.item + ": no entry needed — " + entry.note;
+    var html = side.lines.map(function (line) {
+      if (line.sign === "start") {
+        return '<tr class="ll-br-start"><th scope="row">' + escapeHtml(line.label) + "</th>" +
+          '<td class="num">' + brAmount(line.amount, true) + "</td></tr>";
       }
-      list.appendChild(li);
+      return '<tr class="ll-is-line"><th scope="row">' +
+        '<span class="ll-doc-op">' + (line.sign === "minus" ? "−" : "+") + "</span>" +
+        escapeHtml(line.label) + "</th>" +
+        '<td class="num">' + brAmount(line.amount, false) + "</td></tr>";
     });
+    if (side.lines.length === 1) {
+      html.push('<tr class="ll-is-line is-empty"><th scope="row" colspan="2">' + noneText + "</th></tr>");
+    }
+    tbody.innerHTML = html.join("");
+  }
+
+  /** The adjustment of a given label on one side, or null. */
+  function brLine(side, label) {
+    for (var i = 1; i < side.lines.length; i++) {
+      if (side.lines[i].label === label) return side.lines[i];
+    }
+    return null;
+  }
+
+  /** "a, b and c" */
+  function brList(items) {
+    if (items.length < 2) return items.join("");
+    return items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
+  }
+
+  /** How This Was Calculated: each side's arithmetic, then the comparison. */
+  function renderBrCalc(result) {
+    var box = document.getElementById("br-calc");
+    if (!box) return;
+    var equation = function (side) {
+      if (side.lines.length === 1) return formatMoney(side.adjusted) + ", with no adjustments";
+      return side.lines.map(function (line, i) {
+        if (i === 0) return formatMoney(line.amount);
+        return (line.sign === "minus" ? "− " : "+ ") + formatMoney(line.amount);
+      }).join(" ") + " = " + formatMoney(side.adjusted);
+    };
+    var steps = [
+      {
+        name: "Bank side",
+        eq: equation(result.bank),
+        why: "Starts from the bank statement and adjusts for items in your books that the bank " +
+          "has not processed yet" + (brLine(result.bank, "Bank error") ? ", plus the bank’s error" : "") + ".",
+      },
+      {
+        name: "Book side",
+        eq: equation(result.book),
+        why: "Starts from your books and adjusts for items the bank recorded that are not in " +
+          "your books yet" + (brLine(result.book, "Book error") ? ", plus the error in your books" : "") + ".",
+      },
+      {
+        name: "Difference",
+        eq: formatMoney(result.bank.adjusted) + " − " + formatMoney(result.book.adjusted) +
+          " = " + (result.reconciled ? formatMoney(0) : brSigned(result.difference)),
+        why: result.reconciled
+          ? "The adjusted balances agree, so the cash is reconciled."
+          : "The cash is reconciled only when the adjusted balances agree. These are " +
+            formatMoney(Math.abs(result.difference)) + " apart.",
+      },
+    ];
+    box.innerHTML = steps.map(function (s) {
+      return '<div class="ll-tool-step">' +
+        '<p class="ll-tool-step-name">' + s.name + "</p>" +
+        '<p class="ll-tool-step-eq">' + s.eq + "</p>" +
+        '<p class="ll-tool-step-why">' + s.why + "</p>" +
+        "</div>";
+    }).join("");
+  }
+
+  /** What This Means: sentences read from the finished workpaper. */
+  function brMeaningNotes(result) {
+    var notes = [];
+    var bank = result.bank, book = result.book;
+    var hasItems = bank.lines.length > 1 || book.lines.length > 1;
+    var gap = formatMoney(Math.abs(result.difference));
+
+    if (!result.reconciled) {
+      var bankLower = result.difference < 0;
+      notes.push("After the reconciling items, the adjusted bank balance (" + formatMoney(bank.adjusted) +
+        ") is " + gap + (bankLower ? " lower" : " higher") + " than the adjusted book balance (" +
+        formatMoney(book.adjusted) + "). No item entered explains that " + gap + ".");
+      notes.push(bankLower
+        ? "The bank side is the lower one. A deposit in transit that is not listed, a bank error, " +
+          "or an unrecorded fee or error on the book side would explain a gap in this direction."
+        : "The bank side is the higher one. An outstanding check that is not listed, a bank error, " +
+          "or unrecorded interest or an error on the book side would explain a gap in this direction.");
+      var cents = Math.round(Math.abs(result.difference) * 100);
+      if (cents % 9 === 0) {
+        notes.push(gap + " divides evenly by 9, which often means two digits were swapped " +
+          "when an amount was copied.");
+      }
+      return notes;
+    }
+
+    notes.push(hasItems
+      ? "After the reconciling items, the bank’s records and your books agree: both show " +
+        formatMoney(bank.adjusted) + " of cash."
+      : "The bank statement and your books already show the same balance, " +
+        formatMoney(bank.adjusted) + ", so no reconciling items were needed.");
+
+    var deposits = brLine(bank, "Deposits in transit");
+    var checks = brLine(bank, "Outstanding checks");
+    if (deposits && checks) {
+      notes.push("The " + formatMoney(deposits.amount) + " of deposits in transit and " +
+        formatMoney(checks.amount) + " of outstanding checks are timing differences. " +
+        "They clear once the bank processes them.");
+    } else if (deposits) {
+      notes.push("The " + formatMoney(deposits.amount) + " of deposits in transit is a timing " +
+        "difference. It clears once the bank records the deposit.");
+    } else if (checks) {
+      notes.push("The " + formatMoney(checks.amount) + " of outstanding checks is a timing " +
+        "difference. It clears once the checks are cashed.");
+    }
+
+    var bookItems = [];
+    var fees = brLine(book, "Bank service fees");
+    var interest = brLine(book, "Interest earned");
+    var bookError = brLine(book, "Book error");
+    if (fees) bookItems.push(formatMoney(fees.amount) + " of bank service fees");
+    if (interest) bookItems.push(formatMoney(interest.amount) + " of interest earned");
+    if (bookError) bookItems.push("the " + formatMoney(bookError.amount) + " correction for the book error");
+    if (bookItems.length) {
+      notes.push("Your books do not yet show " + brList(bookItems) + ". Recording the journal " +
+        (bookItems.length > 1 ? "entries" : "entry") + " below brings the book balance to " +
+        formatMoney(book.adjusted) + ".");
+    }
+
+    var bankError = brLine(bank, "Bank error");
+    if (bankError) {
+      notes.push("The " + formatMoney(bankError.amount) + " bank error is the bank’s to correct. " +
+        "It needs no entry in your books.");
+    }
+    return notes;
+  }
+
+  /** Journal Entries to Record: the book-side entries, then the bank-side items that need none. */
+  function renderBrEntries(inputs, result) {
+    var entries = window.BankReconciliation.suggestedEntries(inputs);
+    var needed = entries.filter(function (e) { return e.needsEntry; });
+    var hasItems = result.bank.lines.length > 1 || result.book.lines.length > 1;
+
+    var lead = document.getElementById("br-entries-lead");
+    if (lead) {
+      lead.textContent = needed.length
+        ? "Only the book-side items need journal entries. They update your books for what the bank already recorded."
+        : hasItems
+          ? "No journal entries are needed. Every reconciling item is on the bank side."
+          : "No reconciling items were entered, so there is nothing to record.";
+    }
+
+    var memo = {
+      "Bank service fees": "To record bank service fees.",
+      "Interest earned": "To record interest earned.",
+      "Book error": "To correct the error in the books.",
+    };
+    var rows = document.getElementById("br-entries-rows");
+    if (rows) {
+      rows.innerHTML = needed.map(function (e) {
+        return '<tr class="ll-entry-debit"><th scope="row">' + escapeHtml(e.debit) + "</th>" +
+            '<td class="num">' + formatMoney(e.amount) + '</td><td class="num"></td></tr>' +
+          '<tr class="ll-entry-credit"><th scope="row" class="ll-entry-indent">' + escapeHtml(e.credit) + "</th>" +
+            '<td class="num"></td><td class="num">' + formatMoney(e.amount) + "</td></tr>" +
+          '<tr class="ll-entry-memo"><td colspan="3">' + escapeHtml(memo[e.item] || e.item) + "</td></tr>";
+      }).join("");
+    }
+    var wrap = document.getElementById("br-entries-wrap");
+    if (wrap) wrap.hidden = needed.length === 0;
+
+    var foot = document.getElementById("br-entries-foot");
+    if (foot) {
+      var notes = [];
+      var timing = [];
+      if (brLine(result.bank, "Deposits in transit")) timing.push("deposits in transit");
+      if (brLine(result.bank, "Outstanding checks")) timing.push("outstanding checks");
+      if (timing.length) {
+        notes.push("No entry for " + timing.join(" or ") + ": they clear when the bank processes them.");
+      }
+      if (brLine(result.bank, "Bank error")) notes.push("No entry for the bank error: the bank corrects it.");
+      foot.textContent = notes.join(" ");
+      foot.hidden = notes.length === 0;
+    }
   }
 
   function renderBankReconciliation(inputs) {
@@ -2847,69 +2950,42 @@
       if (el) el.textContent = text;
     };
 
-    renderBrSide("br-bank-rows", result.bank);
-    renderBrSide("br-book-rows", result.book);
+    // Status: the answer first, from the module's own reconciled flag.
+    var status = document.getElementById("br-status");
+    if (status) {
+      status.classList.remove("is-pos", "is-neg", "is-zero");
+      status.classList.add(result.reconciled ? "is-pos" : "is-neg");
+    }
+    setText("br-status-label", result.reconciled ? "Reconciled" : "Not reconciled");
+    setText("br-status-detail", result.reconciled
+      ? "Adjusted bank and book balances both equal " + formatMoney(result.bank.adjusted)
+      : "Difference of " + formatMoney(Math.abs(result.difference)) + " between the adjusted balances");
+
+    // The workpaper: each side brought to its adjusted balance, then the difference.
+    renderBrSide("br-bank-rows", result.bank, "No bank-side items");
+    renderBrSide("br-book-rows", result.book, "No book-side items");
     setText("br-bank-adjusted", formatMoney(result.bank.adjusted));
     setText("br-book-adjusted", formatMoney(result.book.adjusted));
-
-    var banner = document.getElementById("br-banner");
-    if (banner) {
-      banner.classList.remove(
-        "health-good",
-        "health-warn",
-        "health-danger",
-        "health-neutral"
-      );
-      banner.classList.add(result.reconciled ? "health-good" : "health-danger");
-    }
-    setText(
-      "br-banner-message",
-      result.reconciled
-        ? "Reconciled — both adjusted balances equal " +
-            formatMoney(result.bank.adjusted) +
-            "."
-        : "Not reconciled — difference of " +
-            formatMoney(Math.abs(result.difference)) +
-            ". Recheck the side that's off."
-    );
-
-    renderBrExplanations(result);
-    renderBrEntries(inputs);
-    renderBrInvestigation(result);
-  }
-
-  /** "How accountants would investigate this" — adapts to the reconcile result. */
-  function renderBrInvestigation(result) {
-    var text = document.getElementById("br-investigate-text");
-    var list = document.getElementById("br-investigate-list");
-    if (!text || !list) return;
-    list.innerHTML = "";
-
-    if (result.reconciled) {
-      text.textContent =
-        "The adjusted bank balance and adjusted book balance match, so the cash " +
-        "balance is reconciled. An accountant would now record any needed book-side " +
-        "journal entries, such as bank fees or interest.";
-      return;
+    setText("br-difference", result.reconciled ? formatMoney(0) : formatMoney(Math.abs(result.difference)));
+    var diffLine = document.getElementById("br-diff-line");
+    if (diffLine) {
+      diffLine.classList.toggle("is-income", result.reconciled);
+      diffLine.classList.toggle("is-loss", !result.reconciled);
     }
 
-    text.textContent =
-      "The balances still do not match. An accountant would recheck the bank " +
-      "statement, book cash records, deposits in transit, outstanding checks, bank " +
-      "fees, interest, and possible errors to find the missing item.";
+    renderBrCalc(result);
 
-    [
-      "Recheck the starting bank statement balance.",
-      "Recheck the starting book cash balance.",
-      "Look for a missing deposit in transit.",
-      "Look for a missing outstanding check.",
-      "Check whether bank fees or interest were entered.",
-      "Check for a bank or book error.",
-    ].forEach(function (item) {
-      var li = document.createElement("li");
-      li.textContent = item;
-      list.appendChild(li);
-    });
+    var list = document.getElementById("br-meaning-list");
+    if (list) {
+      list.innerHTML = "";
+      brMeaningNotes(result).forEach(function (text) {
+        var li = document.createElement("li");
+        li.textContent = text;
+        list.appendChild(li);
+      });
+    }
+
+    renderBrEntries(inputs, result);
   }
 
   /**
@@ -3027,8 +3103,8 @@
   /* ==========================================================
      Depreciation Calculator (third Accounting Tool)
      Reads pure logic from depreciation.js (window.Depreciation)
-     and renders summary cards, the yearly journal entry, a
-     straight-line schedule, and a plain-English explanation.
+     and renders an asset depreciation schedule, the formula with the
+     user's numbers, the yearly journal entry and a short explanation.
      ========================================================== */
 
   function depValue(id) {
@@ -3099,6 +3175,12 @@
     return !firstInvalid;
   }
 
+  /** "1 year" / "5 years" */
+  function depYears(n) {
+    return n + (n === 1 ? " year" : " years");
+  }
+
+  /** Render the depreciation result as an asset schedule. */
   function renderDepreciation(result) {
     var empty = document.getElementById("dep-empty");
     var dashboard = document.getElementById("dep-dashboard");
@@ -3110,68 +3192,91 @@
       if (el) el.textContent = text;
     };
 
-    var name = result.name.trim();
-    setText("dep-title", name ? name + " — Depreciation" : "Depreciation");
+    var life = result.usefulLife;
+    var schedule = result.schedule;
+    var last = schedule[schedule.length - 1];
+    var trueUp = life > 1 && last.expense !== result.annual;
 
-    // Summary cards
+    // Asset summary and the headline figure.
+    setText("dep-title", result.name.trim() || "Asset");
+    setText("dep-fact-method", result.method);
+    setText("dep-fact-cost", formatMoney(result.cost));
+    setText("dep-fact-salvage", formatMoney(result.salvage));
+    setText("dep-fact-life", depYears(life));
     setText("dep-out-annual", formatMoney(result.annual));
-    setText("dep-out-monthly", formatMoney(result.monthly));
-    setText("dep-out-base", formatMoney(result.depreciableBase));
-    setText(
-      "dep-out-life",
-      result.usefulLife + (result.usefulLife === 1 ? " year" : " years")
-    );
+    setText("dep-out-monthly", formatMoney(result.monthly) + " per month");
 
-    // Journal entry (annual amount)
-    setText("dep-je-debit", formatMoney(result.journal.amount));
-    setText("dep-je-credit", formatMoney(result.journal.amount));
-    setText("dep-je-total-debit", formatMoney(result.journal.amount));
-    setText("dep-je-total-credit", formatMoney(result.journal.amount));
-
-    // Schedule rows
+    // Schedule: the asset at cost, then one row per year down to salvage.
     var rows = document.getElementById("dep-schedule-rows");
     if (rows) {
-      rows.innerHTML = "";
-      result.schedule.forEach(function (row) {
-        var tr = document.createElement("tr");
-        tr.innerHTML =
-          "<td>" + row.year + "</td>" +
-          '<td class="num">' + formatMoney(row.expense) + "</td>" +
-          '<td class="num">' + formatMoney(row.accumulated) + "</td>" +
-          '<td class="num">' + formatMoney(row.bookValue) + "</td>";
-        rows.appendChild(tr);
-      });
+      var bar = function (bookValue) {
+        var pct = result.cost > 0 ? Math.max(0, Math.min(100, (bookValue / result.cost) * 100)) : 0;
+        return '<td class="ll-dep-barcell" aria-hidden="true"><span class="ll-dep-bar">' +
+          '<span style="width:' + pct.toFixed(1) + '%"></span></span></td>';
+      };
+      // Accumulated depreciation builds each year: a red up arrow, the same red
+      // as the book-value cue, since it is what pulls book value down.
+      var accumulatedCue = '<span class="ll-move ll-move--up ll-move--accent" aria-hidden="true">' +
+        '<svg viewBox="0 0 12 12" focusable="false"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" /></svg></span>';
+      rows.innerHTML =
+        '<tr class="ll-dep-start"><th scope="row">At purchase</th><td class="num"></td><td class="num"></td>' +
+          '<td class="num">' + formatMoney(result.cost) + "</td>" + bar(result.cost) + "</tr>" +
+        schedule.map(function (row, i) {
+          // "$" on the first year and the total only, as on a statement.
+          var money = function (n) { return i === 0 ? formatMoney(n) : formatMoney(n).replace("$", ""); };
+          return '<tr><th scope="row"><span class="ll-dep-yr">Year </span>' + row.year + "</th>" +
+            '<td class="num">' + money(row.expense) + "</td>" +
+            '<td class="num">' + accumulatedCue + money(row.accumulated) + "</td>" +
+            '<td class="num">' + money(row.bookValue) + "</td>" + bar(row.bookValue) + "</tr>";
+        }).join("");
+    }
+    setText("dep-total-expense", formatMoney(last.accumulated));
+
+    var note = document.getElementById("dep-trueup-note");
+    if (note) {
+      note.textContent = trueUp
+        ? "Year " + life + " is " + formatMoney(last.expense) + " rather than " +
+          formatMoney(result.annual) + ". The final year takes the rounding difference so book " +
+          "value ends exactly at the " + formatMoney(result.salvage) + " salvage value."
+        : "";
+      note.hidden = !trueUp;
     }
 
-    // Plain-English explanation
-    var list = document.getElementById("dep-explanation-list");
+    // How This Was Calculated: the straight-line formula with these numbers.
+    setText("dep-calc-cost", formatMoney(result.cost));
+    setText("dep-calc-salvage", formatMoney(result.salvage));
+    setText("dep-calc-base", formatMoney(result.depreciableBase));
+    setText("dep-calc-life", depYears(life));
+    setText("dep-calc-annual", formatMoney(result.annual));
+    setText("dep-calc-monthly", formatMoney(result.monthly));
+
+    // The entry recorded each year.
+    setText("dep-je-debit-account", result.journal.debit);
+    setText("dep-je-credit-account", result.journal.credit);
+    setText("dep-je-debit", formatMoney(result.journal.amount));
+    setText("dep-je-credit", formatMoney(result.journal.amount));
+    setText("dep-je-foot", life === 1
+      ? "Recorded at the end of the year."
+      : trueUp
+        ? "Recorded at the end of each year. The year " + life + " entry is " + formatMoney(last.expense) + "."
+        : "Recorded at the end of each of the " + life + " years.");
+
+    // What This Means
+    var list = document.getElementById("dep-meaning-list");
     if (list) {
       list.innerHTML = "";
       var notes = [
-        "Straight-line depreciation spreads the depreciable cost evenly across the " +
-          "asset's useful life, matching part of the cost to each year the asset helps " +
-          "earn revenue — here the base (cost " +
-          formatMoney(result.cost) +
-          " minus salvage " +
-          formatMoney(result.salvage) +
-          " = " +
-          formatMoney(result.depreciableBase) +
-          ") becomes " +
-          formatMoney(result.annual) +
-          " per year (" +
-          formatMoney(result.monthly) +
-          " per month).",
-        "Depreciation Expense is the part of the asset's cost used up this period — " +
-          formatMoney(result.annual) +
-          " for a full year — and it lowers profit on the income statement.",
-        "Accumulated Depreciation is the total depreciation recorded so far. It builds " +
-          "up each year as a contra-asset that lowers the asset's book value on the " +
-          "balance sheet.",
-        "Book Value is the asset's cost minus accumulated depreciation. It falls each " +
-          "year until it reaches the salvage value of " +
-          formatMoney(result.salvage) +
-          ".",
-        "Book value is an accounting value, not necessarily the real selling price.",
+        "The depreciable base is " + formatMoney(result.depreciableBase) + ": the " +
+          formatMoney(result.cost) + " cost minus the " + formatMoney(result.salvage) + " salvage value. " +
+          (life === 1
+            ? "With a useful life of 1 year, all of it is depreciation expense in that year."
+            : "Spread evenly over " + life + " years, that is " + formatMoney(result.annual) +
+              " of depreciation expense each year."),
+        "Each year’s expense adds to accumulated depreciation, so book value falls from " +
+          formatMoney(result.cost) + " to " + formatMoney(last.bookValue) + " by the end of year " + life + ".",
+        "Book value is an accounting figure: cost minus accumulated depreciation. It is not a " +
+          "measure of what the asset could be sold for.",
+        "Depreciation expense lowers net income each year, but no cash is paid when it is recorded.",
       ];
       notes.forEach(function (text) {
         var li = document.createElement("li");
@@ -3231,7 +3336,8 @@
       window.setTimeout(resetDepreciation, 0);
     });
 
-    // Example boxes: auto-fill the form fields with the example's values.
+    // Example boxes: fill the form fields with the example's values, then
+    // calculate through the form's own submit handler, as Calculate does.
     var exampleButtons = document.querySelectorAll(".dep-example-btn");
     exampleButtons.forEach(function (button) {
       button.addEventListener("click", function () {
@@ -3246,6 +3352,7 @@
         setVal("dep-cost", button.getAttribute("data-cost"));
         setVal("dep-salvage", button.getAttribute("data-salvage"));
         setVal("dep-life", button.getAttribute("data-life"));
+        submitForm(form);
       });
     });
   }
@@ -3706,21 +3813,122 @@
     return ok;
   }
 
+  /**
+   * Movement cue: a small up or down arrow for a meaningful change, or ""
+   * for none. Decorative (aria-hidden): the words beside it state the direction.
+   */
+  function moveCue(value) {
+    if (!value) return "";
+    return '<span class="ll-move ll-move--' + (value > 0 ? "up" : "down") + '" aria-hidden="true">' +
+      '<svg viewBox="0 0 12 12" focusable="false"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" /></svg></span>';
+  }
+
+  /** A statement amount: outflows in parentheses; "$" only where withSign is set. */
+  function cfMoney(amount, withSign) {
+    var text = formatMoney(Math.abs(amount));
+    if (!withSign) text = text.replace("$", "");
+    return amount < 0 ? "(" + text + ")" : text;
+  }
+
+  /** One activity section: each line, "$" on the first; a note when empty. */
   function cfRenderSection(bodyId, lines) {
     var body = document.getElementById(bodyId);
     if (!body) return;
-    body.innerHTML = "";
     if (lines.length === 0) {
-      body.innerHTML = '<tr><td class="cf-empty-line">None this period</td>' +
-        '<td class="num">' + formatMoney(0) + "</td></tr>";
+      body.innerHTML = '<tr class="ll-is-line is-empty"><th scope="row" colspan="2">None this period</th></tr>';
       return;
     }
-    lines.forEach(function (l) {
-      var tr = document.createElement("tr");
-      tr.innerHTML = "<td>" + escapeHtml(l.label) + "</td>" +
-        '<td class="num">' + formatMoney(l.amount) + "</td>";
-      body.appendChild(tr);
+    body.innerHTML = lines.map(function (l, i) {
+      return '<tr class="ll-is-line"><th scope="row">' + escapeHtml(l.label) + "</th>" +
+        '<td class="num">' + cfMoney(l.amount, i === 0) + "</td></tr>";
+    }).join("");
+  }
+
+  /** "operating activities", "operating and financing activities", ... */
+  function cfNames(groups) {
+    var names = groups.map(function (g) { return g.key; });
+    var joined = names.length < 2 ? names.join("")
+      : names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+    return joined + " activities";
+  }
+
+  function cfCap(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
+  /** What This Means: where the cash came from and where it went. */
+  function cfMeaningNotes(result) {
+    var notes = [];
+    var groups = ["operating", "investing", "financing"].map(function (k) {
+      return { key: k, value: result[k].subtotal };
     });
+    var providers = groups.filter(function (g) { return g.value > 0; });
+    var users = groups.filter(function (g) { return g.value < 0; });
+    var sum = function (gs) { return gs.reduce(function (s, g) { return s + Math.abs(g.value); }, 0); };
+    var provided = sum(providers), used = sum(users);
+    var net = result.netChange;
+    var change = formatMoney(Math.abs(net));
+    var each = function (gs, verb) {
+      return gs.map(function (g) { return g.key + " activities " + verb + " " + formatMoney(Math.abs(g.value)); });
+    };
+    var andList = function (items) {
+      return items.length < 2 ? items.join("") : items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
+    };
+
+    if (providers.length && users.length) {
+      if (net > 0) {
+        notes.push("Cash increased by " + change + " because the " + formatMoney(provided) + " provided by " +
+          cfNames(providers) + " was more than the " + formatMoney(used) + " used by " + cfNames(users) + ".");
+      } else if (net < 0) {
+        notes.push("Cash decreased by " + change + " because the " + formatMoney(used) + " used by " +
+          cfNames(users) + " was more than the " + formatMoney(provided) + " provided by " + cfNames(providers) + ".");
+      } else {
+        notes.push("The " + formatMoney(provided) + " provided by " + cfNames(providers) +
+          " exactly matched the " + formatMoney(used) + " used by " + cfNames(users) +
+          ", so cash ended the period where it started.");
+      }
+      // Name the main driver when several activities pushed the same way.
+      var side = net > 0 ? providers : net < 0 ? users : [];
+      var total = net > 0 ? provided : used;
+      var top = side.slice().sort(function (a, b) { return Math.abs(b.value) - Math.abs(a.value); })[0];
+      if (side.length > 1 && Math.abs(top.value) > total / 2) {
+        notes.push(cfCap(top.key) + " activities accounted for most of the cash " +
+          (net > 0 ? "coming in" : "going out") + ": " + formatMoney(Math.abs(top.value)) +
+          " of the " + formatMoney(total) + ".");
+      }
+    } else if (providers.length) {
+      notes.push(providers.length === 1
+        ? "Cash increased by " + change + ", all of it from " + cfNames(providers) + "."
+        : "Cash increased by " + change + ": " + andList(each(providers, "provided")) + ".");
+    } else if (users.length) {
+      notes.push(users.length === 1
+        ? "Cash decreased by " + change + ", all of it used by " + cfNames(users) + "."
+        : "Cash decreased by " + change + ": " + andList(each(users, "used")) + ".");
+    } else {
+      notes.push("The cash coming in and going out cancelled out within each activity, so cash did not change.");
+    }
+
+    if (result.flags.reliedOnFinancing) {
+      notes.push("Day-to-day operations used " + formatMoney(Math.abs(result.operating.subtotal)) +
+        " this period, so the cash came from owners or lenders rather than from running the business.");
+    }
+
+    var sumLines = function (lines, label) {
+      return lines.reduce(function (s, l) { return l.label === label ? s + Math.abs(l.amount) : s; }, 0);
+    };
+    if (result.flags.hasEquipmentPurchase) {
+      notes.push("Buying equipment used " + formatMoney(sumLines(result.investing.lines, "Bought equipment")) +
+        " of cash, but it is not an expense on the income statement this period. That is one reason cash and profit differ.");
+    }
+    if (result.flags.hasOwnerInvestment) {
+      notes.push("The owner’s " + formatMoney(sumLines(result.financing.lines, "Owner invested cash")) +
+        " investment raised cash through financing activities. It is not revenue, so it does not add to profit.");
+    }
+    if (result.endingCash < 0) {
+      notes.push("Ending cash is below zero. A business cannot pay out cash it does not have, so this " +
+        "points to an overdraft, or a beginning balance or inflow that was not entered.");
+    }
+    return notes;
   }
 
   function renderCashFlow(result) {
@@ -3733,73 +3941,85 @@
       var el = document.getElementById(id);
       if (el) el.textContent = text;
     };
+    var setLine = function (id, text) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      el.hidden = text === "";
+    };
+    var sign = function (el, value) {
+      if (!el) return;
+      el.classList.toggle("is-pos", value > 0);
+      el.classList.toggle("is-neg", value < 0);
+    };
 
-    var title = "Statement of Cash Flows";
-    if (result.name.trim()) title = result.name.trim() + " — Statement of Cash Flows";
-    if (result.period.trim()) title += " (" + result.period.trim() + ")";
-    setText("cf-title", title);
+    var net = result.netChange;
+    var netLabel = net > 0 ? "Net increase in cash" : net < 0 ? "Net decrease in cash" : "Net change in cash";
 
-    // Summary cards
-    setText("cf-out-operating", formatMoney(result.operating.subtotal));
-    setText("cf-out-investing", formatMoney(result.investing.subtotal));
-    setText("cf-out-financing", formatMoney(result.financing.subtotal));
-    setText("cf-out-net-label", result.isNetPositive ? "Net Increase in Cash" : "Net Decrease in Cash");
-    setText("cf-out-net", formatMoney(result.netChange));
-    var netCard = document.getElementById("cf-out-net");
-    if (netCard) {
-      netCard.classList.toggle("cf-pos", result.isNetPositive);
-      netCard.classList.toggle("cf-neg", !result.isNetPositive);
+    // Status: what happened to cash, in neutral terms. An arrow replaces the
+    // dot when cash moved; no change keeps the neutral dot.
+    var status = document.getElementById("cf-status");
+    if (status) {
+      status.classList.remove("is-pos", "is-neg", "is-zero");
+      status.classList.add(net > 0 ? "is-pos" : net < 0 ? "is-neg" : "is-zero");
+      status.classList.toggle("has-move", net !== 0);
     }
+    var statusMove = document.getElementById("cf-status-move");
+    if (statusMove) {
+      statusMove.outerHTML = net
+        ? moveCue(net).replace('class="ll-move', 'id="cf-status-move" class="ll-move')
+        : '<span class="ll-move" id="cf-status-move" aria-hidden="true" hidden></span>';
+    }
+    setText("cf-status-label", net > 0 ? "Cash increased" : net < 0 ? "Cash decreased" : "No net change in cash");
+    setText("cf-status-detail", net === 0
+      ? "Cash stayed at " + cfMoney(result.beginningCash, true)
+      : (net > 0 ? "Up " : "Down ") + formatMoney(Math.abs(net)) + ", from " +
+        cfMoney(result.beginningCash, true) + " to " + cfMoney(result.endingCash, true));
+
+    // Heading: entity, statement name, period.
+    var name = result.name.trim();
+    var period = result.period.trim();
+    setLine("cf-entity", name);
+    setLine("cf-period-line", period ? "For " + period : "");
 
     // Statement sections + subtotals
     cfRenderSection("cf-stmt-operating", result.operating.lines);
     cfRenderSection("cf-stmt-investing", result.investing.lines);
     cfRenderSection("cf-stmt-financing", result.financing.lines);
-    setText("cf-sub-operating", formatMoney(result.operating.subtotal));
-    setText("cf-sub-investing", formatMoney(result.investing.subtotal));
-    setText("cf-sub-financing", formatMoney(result.financing.subtotal));
+    setText("cf-sub-operating", cfMoney(result.operating.subtotal, true));
+    setText("cf-sub-investing", cfMoney(result.investing.subtotal, true));
+    setText("cf-sub-financing", cfMoney(result.financing.subtotal, true));
 
-    // Net change + reconciliation
-    setText("cf-net-line-amount", formatMoney(result.netChange));
-    var netLine = document.getElementById("cf-net-line");
-    if (netLine) netLine.classList.toggle("is-loss", !result.isNetPositive);
-    setText("cf-begin-line", formatMoney(result.beginningCash));
-    setText("cf-end-line", formatMoney(result.endingCash));
+    // Net change, then beginning to ending cash.
+    setText("cf-net-label", netLabel);
+    var netAmount = document.getElementById("cf-net-line-amount");
+    if (netAmount) netAmount.innerHTML = moveCue(net) + cfMoney(net, true);
+    sign(document.getElementById("cf-net-line"), net);
+    setText("cf-begin-line", cfMoney(result.beginningCash, true));
+    setText("cf-end-line", cfMoney(result.endingCash, true));
+    var endRow = document.getElementById("cf-end-row");
+    if (endRow) endRow.classList.toggle("is-loss", result.endingCash < 0);
 
-    // Tailored callouts (profit != cash)
-    var tailored = document.getElementById("cf-tailored");
-    if (tailored) {
-      var notes = [];
-      if (result.flags.hasEquipmentPurchase) {
-        notes.push("In your statement, equipment purchases reduced cash through Investing Activities.");
-      }
-      if (result.flags.hasOwnerInvestment) {
-        notes.push("In your statement, owner investment increased cash through Financing Activities, not Operating Activities.");
-      }
-      if (notes.length) {
-        tailored.innerHTML = notes.map(function (n) {
-          return '<p class="is-advice-body">' + escapeHtml(n) + "</p>";
-        }).join("");
-        tailored.hidden = false;
-      } else {
-        tailored.innerHTML = ""; tailored.hidden = true;
-      }
-    }
+    // How This Was Calculated
+    setText("cf-calc-operating", cfMoney(result.operating.subtotal, true));
+    setText("cf-calc-investing", cfMoney(result.investing.subtotal, true));
+    setText("cf-calc-financing", cfMoney(result.financing.subtotal, true));
+    setText("cf-calc-net-label", netLabel);
+    setText("cf-calc-net", cfMoney(net, true));
+    sign(document.getElementById("cf-calc-net"), net);
+    setText("cf-calc-begin", cfMoney(result.beginningCash, true));
+    setText("cf-calc-end", cfMoney(result.endingCash, true));
+    var calcEnd = document.getElementById("cf-calc-end");
+    if (calcEnd) calcEnd.classList.toggle("is-neg", result.endingCash < 0);
 
-    // Light business insight
-    var insight = document.getElementById("cf-insight");
-    if (insight) {
-      var body;
-      if (result.flags.reliedOnFinancing) {
-        body = "This period, the business relied on owner or loan financing because operating cash flow was negative.";
-      } else if (result.operating.subtotal > 0) {
-        body = "Operating cash flow was positive, so day-to-day operations generated cash this period.";
-      } else {
-        body = "Operating activities were flat or negative this period — watch whether operations can fund the business on their own.";
-      }
-      insight.innerHTML =
-        '<p class="is-advice-lead">Business insight</p>' +
-        '<p class="is-advice-body">' + escapeHtml(body) + "</p>";
+    var list = document.getElementById("cf-meaning-list");
+    if (list) {
+      list.innerHTML = "";
+      cfMeaningNotes(result).forEach(function (text) {
+        var li = document.createElement("li");
+        li.textContent = text;
+        list.appendChild(li);
+      });
     }
   }
 

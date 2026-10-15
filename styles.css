@@ -4582,11 +4582,6 @@ a:hover {
   box-shadow: 0 0 0 3px var(--glow-red);
 }
 
-/* Indented credit row (journal-style tables) */
-.je-credit-row td:first-child {
-  padding-left: 2rem;
-}
-
 /* ===== Bank Reconciliation Helper (Accounting Tool) ===== */
 
 /* Example scenario buttons */
@@ -4594,17 +4589,6 @@ a:hover {
 .br-example-btn {
   padding: 0.45rem 0.85rem;
   font-size: 0.83rem;
-}
-
-/* "How accountants would investigate this" intro line */
-.br-investigate-text {
-  margin: 0 0 0.6rem;
-  font-size: 0.86rem;
-  color: var(--text-soft);
-}
-
-.br-investigate-text:last-child {
-  margin-bottom: 0;
 }
 
 /* Small per-input helper text under a field. */
@@ -4663,11 +4647,6 @@ a:hover {
   margin-top: 0.6rem;
 }
 
-/* Two side-statements (bank, book) stacked inside one preview card. */
-.br-statement + .br-statement {
-  border-top: 1px solid var(--border-strong);
-}
-
 /* ===== Depreciation Calculator ===== */
 
 /* Clickable example boxes that auto-fill the form (greenish accent). */
@@ -4706,35 +4685,6 @@ a:hover {
   font-size: 0.72rem;
   line-height: 1.35;
   color: var(--text-muted);
-}
-
-/* Schedule scrolls if the useful life is long, keeping the report compact. */
-.dep-schedule-wrap {
-  max-height: 280px;
-  overflow-y: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-}
-
-.dep-schedule {
-  margin: 0;
-}
-
-/* Keep the schedule header visible while scrolling. */
-.dep-schedule thead th {
-  position: sticky;
-  top: 0;
-  background: var(--surface-2);
-  z-index: 1;
-}
-
-.br-table .br-start-row td {
-  color: var(--text-soft);
-}
-
-/* The adjusted-balance total row stands out (reuses preview-table tfoot). */
-.br-table tfoot td {
-  background: var(--surface-2);
 }
 
 /* ===== Footer ===== */
@@ -4828,35 +4778,12 @@ a:hover {
 .is-row-remove:hover { color: var(--red-strong); background: var(--surface-hover); }
 .is-add-btn { align-self: flex-start; margin-bottom: 0.5rem; }
 
-.is-statement .is-section-head td {
-  font-weight: 600; padding-top: 0.6rem; border-bottom: none; color: var(--text);
-}
-.is-statement .is-total-row td { font-weight: 600; }
-.is-statement .is-net-row td {
-  font-weight: 700; border-top: 2px solid var(--border-strong);
-}
-.is-statement .is-net-row.is-loss td { color: var(--red); }
-.stat-value.is-loss { color: var(--red); }
-.is-advice {
-  margin-top: 0.75rem; padding: 0.75rem 1rem;
-  background: var(--surface-2);
-  border-left: 3px solid var(--blue); border-radius: 6px;
-}
-.is-advice-lead { font-weight: 600; margin: 0 0 0.25rem; color: var(--text); }
-.is-advice-body { margin: 0; }
-
 /* Compact example buttons that auto-fill and build the statement. */
 .is-example-btn {
   padding: 0.45rem 0.85rem;
   font-size: 0.83rem;
 }
 
-/* Learning-focused primers in the results. */
-.is-tells {
-  margin-bottom: 1rem;
-  padding-bottom: 0.9rem;
-  border-bottom: 1px solid var(--border);
-}
 /* ---- Cash Flow Helper ---- */
 .cf-row {
   display: flex;
@@ -4866,14 +4793,6 @@ a:hover {
 }
 .cf-row-select { flex: 1 1 auto; }
 .cf-row .is-row-amount { flex: 0 0 9rem; }
-.cf-statement .cf-recon-row td { border-bottom: none; }
-.cf-statement .cf-end-row td {
-  font-weight: 700;
-  border-top: 1px solid var(--border-strong);
-}
-.cf-empty-line { color: var(--text-muted); font-style: italic; }
-.stat-value.cf-pos { color: var(--green); }
-.stat-value.cf-neg { color: var(--red); }
 
 /* ---- Tool Windows (full-screen slim-inset overlays) ---- */
 .tool-modal {
@@ -6052,9 +5971,8 @@ body.ll-wb-resizing * {
   white-space: normal;
 }
 
-/* ---- Existing results, placed on the workbench ----
-   The populated output keeps its content and structure (its own polish
-   comes later); these rules only keep it readable on the light surface. */
+/* ---- Tool results on the workbench ----
+   The shared result frame; each tool's result rules follow below. */
 .ll-wb .sim-dashboard {
   padding: 1.4rem 1.4rem 1.5rem;
   border: 1px solid var(--wb-line);
@@ -6062,78 +5980,7 @@ body.ll-wb-resizing * {
   background: var(--wb-bg);
 }
 
-.ll-wb .sim-dash-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--wb-text);
-}
-
-.ll-wb .preview-card {
-  max-width: none;
-  overflow-x: auto;
-  box-shadow: none;
-}
-
-.ll-wb .preview-head {
-  border-bottom-color: var(--wb-line);
-  background: var(--wb-band);
-  color: var(--wb-text);
-}
-
-.ll-wb .preview-table th,
-.ll-wb .preview-table td {
-  border-bottom-color: var(--wb-line-soft);
-}
-
-.ll-wb .preview-table tfoot td {
-  border-top-color: var(--wb-control);
-}
-
-.ll-wb .stat-card {
-  border-radius: 6px;
-}
-
-.ll-wb .stat-card.is-negative .stat-value,
-.ll-wb .stat-card.status-risk .stat-value {
-  color: var(--wb-neg);
-}
-
-.ll-wb .health-dot,
-.ll-wb .health-good .health-dot,
-.ll-wb .health-danger .health-dot {
-  box-shadow: none;
-}
-
-.ll-wb .health-good {
-  border-color: var(--wb-tint-border);
-  background: var(--wb-tint);
-  color: var(--wb-pos);
-}
-
-.ll-wb .health-danger {
-  border-color: rgba(200, 50, 63, 0.3);
-  background: #fdf0f1;
-  color: var(--wb-neg);
-}
-
-.ll-wb .health-danger .health-dot {
-  background: var(--wb-neg);
-}
-
-.ll-wb .explanation,
-.ll-wb .is-advice {
-  border-left-color: var(--wb-tint-border);
-}
-
-/* The schedule has four figure columns; tighter cells keep them in view.
-   On very small phones it scrolls inside its own frame. */
-.ll-wb .dep-schedule th,
-.ll-wb .dep-schedule td {
-  padding: 0.5rem 0.6rem;
-  white-space: nowrap;
-}
-
-.ll-wb .dep-schedule thead th,
+/* Empty-state schedule preview: four figure columns in small caps. */
 .ll-doc-schedule thead th {
   font-size: 0.66rem;
   letter-spacing: 0.03em;
@@ -6144,7 +5991,7 @@ body.ll-wb-resizing * {
   margin: 0 0 1.1rem;
 }
 
-/* ---- Tool results: Income Statement and Journal Entry ----
+/* ---- Tool results ----
    The finished document is the result: the same paper as the empty
    preview, with statement / journal rules. Teaching notes sit below it on
    the workbench, as plain text rather than boxes. */
@@ -6191,6 +6038,48 @@ body.ll-wb-resizing * {
 .ll-tool-status.is-pos .ll-tool-status-dot { background: var(--wb-pos); }
 .ll-tool-status.is-neg strong { color: var(--wb-neg); }
 .ll-tool-status.is-neg .ll-tool-status-dot { background: var(--wb-neg); }
+
+/* Movement cue: one small arrow, the same everywhere, always beside words
+   or a figure that state the direction. Up is green, down is red. */
+.ll-move {
+  display: inline-block;
+  flex: none;
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.3em;
+  vertical-align: -0.05em;
+}
+
+.ll-move[hidden] {
+  display: none;
+}
+
+.ll-move svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ll-move--up { color: var(--wb-pos); }
+.ll-move--down { color: var(--wb-neg); }
+.ll-move--down svg { transform: rotate(180deg); }
+/* An increase that reduces value (accumulated depreciation): up, in red. */
+.ll-move--accent { color: var(--wb-neg); }
+
+/* In a status line the arrow takes the dot's place. */
+.ll-tool-status .ll-move {
+  align-self: center;
+  margin-right: 0;
+}
+
+.ll-tool-status.has-move .ll-tool-status-dot {
+  display: none;
+}
 
 /* Income statement: centred heading, one amount column, statement rules. */
 .ll-is-head {
@@ -6559,6 +6448,441 @@ body.ll-wb-resizing * {
 .ll-tool-note strong {
   font-weight: 600;
   color: var(--wb-text);
+}
+
+/* Bank reconciliation workpaper: statement rules (.ll-is-*), with the
+   difference set off by a double rule like a net figure. */
+.ll-br-table .ll-is-line .ll-doc-op {
+  width: 1.1rem;
+}
+
+/* Calculation steps: name, the arithmetic, one line of why. */
+.ll-tool-step {
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--wb-line);
+}
+
+.ll-tool-step:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.ll-tool-step:last-child {
+  padding-bottom: 0;
+}
+
+.ll-tool-step-name {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wb-muted);
+}
+
+.ll-tool-step-eq {
+  margin: 0.2rem 0 0.15rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  color: var(--wb-text);
+}
+
+.ll-tool-step-why {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--wb-body);
+}
+
+/* Small journal: Account | Debit | Credit, credit indented, memo beneath. */
+.ll-entry-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.ll-entry-table th,
+.ll-entry-table td {
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+  color: var(--wb-text);
+}
+
+.ll-entry-table th:first-child,
+.ll-entry-table td:first-child {
+  padding-left: 0;
+}
+
+.ll-entry-table th:last-child,
+.ll-entry-table td:last-child {
+  padding-right: 0;
+}
+
+.ll-entry-table thead th {
+  padding-top: 0.2rem;
+  border-bottom: 1px solid var(--wb-control);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wb-muted);
+}
+
+.ll-entry-table .num {
+  width: 7.5rem;
+  text-align: right;
+}
+
+.ll-entry-table th.ll-entry-indent {
+  padding-left: 2rem;
+}
+
+.ll-entry-memo td {
+  padding-top: 0.05rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--wb-line);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--wb-muted);
+}
+
+.ll-entry-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Cash flow: net change set apart like a net figure, then beginning to
+   ending cash, with the ending balance double-ruled. */
+.ll-cf-change th,
+.ll-cf-change td {
+  padding-top: 0.75rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-cf-change.is-pos td { color: var(--wb-pos); }
+.ll-cf-change.is-neg td { color: var(--wb-neg); }
+
+.ll-cf-table .ll-is-net th,
+.ll-cf-table .ll-is-net td {
+  padding-top: 0.4rem;
+}
+
+.ll-cf-table .ll-is-net td {
+  border-top: 1px solid var(--wb-faint);
+}
+
+/* Depreciation: asset facts four across (two across in a narrow
+   document), the headline figure, then the schedule. */
+.ll-dep-doc {
+  container-type: inline-size;
+}
+
+.ll-dep-doc .ll-doc-facts {
+  grid-template-columns: repeat(4, minmax(0, auto));
+  justify-content: space-between;
+}
+
+@container (max-width: 26rem) {
+  .ll-dep-doc .ll-doc-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ll-dep-answer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "label value" "sub value";
+  align-items: center;
+  column-gap: 1rem;
+  margin: 0 0 1.1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--wb-line);
+  border-bottom: 1px solid var(--wb-line);
+}
+
+.ll-dep-answer-label {
+  grid-area: label;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--wb-text);
+}
+
+.ll-dep-answer-sub {
+  grid-area: sub;
+  font-size: 0.82rem;
+  color: var(--wb-muted);
+}
+
+.ll-tool-result .ll-dep-answer-value {
+  grid-area: value;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-dep-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.ll-dep-table th,
+.ll-dep-table td {
+  padding: 0.42rem 0.6rem;
+  border-bottom: 1px solid var(--wb-line-soft);
+  text-align: left;
+  font-weight: 400;
+  color: var(--wb-body);
+}
+
+.ll-dep-table th:first-child {
+  padding-left: 0;
+  white-space: nowrap;
+}
+
+.ll-dep-table thead th,
+.ll-dep-table thead td {
+  padding-top: 0.2rem;
+  border-bottom: 1px solid var(--wb-control);
+  vertical-align: bottom;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--wb-muted);
+}
+
+.ll-dep-table thead .num {
+  text-align: right;
+  white-space: normal;
+}
+
+/* Above the Book value column: says in words what the bars show. */
+.ll-dep-table .ll-dep-cue {
+  caption-side: top;
+  padding: 0 0 0.45rem;
+  text-align: right;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--wb-muted);
+}
+
+/* Short headers are for a narrow document only. */
+.ll-dep-short {
+  display: none;
+}
+
+.ll-dep-table tbody th {
+  color: var(--wb-text);
+}
+
+.ll-dep-table td.num {
+  color: var(--wb-text);
+}
+
+/* Book value is the column the schedule is about. */
+.ll-dep-table tbody td:nth-child(4) {
+  font-weight: 600;
+}
+
+.ll-dep-table .ll-dep-start th {
+  color: var(--wb-muted);
+}
+
+.ll-dep-table tfoot th,
+.ll-dep-table tfoot td {
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--wb-faint);
+  border-bottom: 0;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-dep-table tfoot td.num {
+  border-bottom: 3px double var(--wb-text);
+}
+
+/* A slim bar per row: book value as a share of cost, falling year by year. */
+.ll-dep-table .ll-dep-barcell {
+  width: 3.5rem;
+  padding-right: 0;
+  vertical-align: middle;
+}
+
+.ll-dep-bar {
+  display: block;
+  height: 0.4rem;
+  border-radius: 2px;
+  background: var(--wb-line-soft);
+  overflow: hidden;
+}
+
+.ll-dep-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--wb-faint);
+}
+
+@container (max-width: 26rem) {
+  /* Narrow document: the figure sits under its label, the schedule tightens
+     so all four columns stay in view, and "Year" lives in the header only. */
+  .ll-dep-answer {
+    grid-template-columns: 1fr;
+    grid-template-areas: "label" "value" "sub";
+  }
+
+  .ll-tool-result .ll-dep-answer-value {
+    margin: 0.1rem 0;
+    text-align: left;
+  }
+
+  .ll-dep-table {
+    font-size: 0.76rem;
+  }
+
+  .ll-dep-table th,
+  .ll-dep-table td {
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+  }
+
+  .ll-dep-table thead th,
+  .ll-dep-table thead td {
+    font-size: 0.6rem;
+    letter-spacing: 0;
+  }
+
+  .ll-dep-yr,
+  .ll-dep-long {
+    display: none;
+  }
+
+  .ll-dep-short {
+    display: inline;
+  }
+
+  .ll-dep-table .ll-dep-start th {
+    white-space: normal;
+  }
+
+  .ll-dep-table .ll-dep-barcell {
+    display: none;
+  }
+
+  .ll-dep-table th:nth-last-child(2),
+  .ll-dep-table td:nth-last-child(2) {
+    padding-right: 0;
+  }
+}
+
+/* Phone-width document: four money columns cannot fit, so each year
+   stacks into two lines: the year and its book value, then that year's
+   expense and accumulated depreciation, labelled. */
+@container (max-width: 20rem) {
+  .ll-dep-table,
+  .ll-dep-table tbody,
+  .ll-dep-table tfoot {
+    display: block;
+    font-size: 0.84rem;
+  }
+
+  .ll-dep-table thead,
+  .ll-dep-table td:empty {
+    display: none;
+  }
+
+  .ll-dep-table .ll-dep-cue {
+    display: block;
+  }
+
+  /* Year and book value on the first line; the year's figures flow below. */
+  .ll-dep-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.1rem 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--wb-line-soft);
+  }
+
+  .ll-dep-table tr::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  .ll-dep-table tr > th {
+    flex: 1 1 auto;
+  }
+
+  .ll-dep-table th,
+  .ll-dep-table td,
+  .ll-dep-table tfoot th,
+  .ll-dep-table tfoot td {
+    padding: 0;
+    border: 0;
+  }
+
+  .ll-dep-yr {
+    display: inline;
+  }
+
+  .ll-dep-table tbody td:nth-child(4),
+  .ll-dep-table tfoot td.num {
+    order: 1;
+  }
+
+  .ll-dep-table tbody td:nth-child(2),
+  .ll-dep-table tbody td:nth-child(3) {
+    order: 3;
+    text-align: left;
+    font-size: 0.76rem;
+    color: var(--wb-muted);
+  }
+
+  .ll-dep-table tbody td:nth-child(2)::before {
+    content: "Expense ";
+  }
+
+  .ll-dep-table tbody td:nth-child(3)::before {
+    content: "Accumulated ";
+  }
+
+  .ll-dep-table tfoot tr {
+    border-top: 1px solid var(--wb-faint);
+    border-bottom: 0;
+  }
+
+  .ll-dep-table tfoot td.num {
+    border-bottom: 3px double var(--wb-text);
+  }
+}
+
+@media (max-width: 480px) {
+  .ll-entry-table {
+    font-size: 0.82rem;
+  }
+
+  .ll-entry-table th,
+  .ll-entry-table td {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+
+  .ll-entry-table .num {
+    width: auto;
+  }
+
+  .ll-entry-table th.ll-entry-indent {
+    padding-left: 1rem;
+  }
 }
 
 @media (max-width: 480px) {

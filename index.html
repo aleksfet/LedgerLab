@@ -1757,66 +1757,73 @@
                 </div>
               </div>
 
-              <div class="sim-dashboard" id="br-dashboard" hidden>
-                <h3 class="sim-dash-title">Bank Reconciliation</h3>
+              <div class="sim-dashboard ll-tool-result" id="br-dashboard" hidden>
+                <p class="ll-tool-status" id="br-status">
+                  <span class="ll-tool-status-dot" aria-hidden="true"></span>
+                  <strong id="br-status-label">—</strong>
+                  <span id="br-status-detail"></span>
+                </p>
 
-                <div class="health-banner" id="br-banner">
-                  <span class="health-dot" aria-hidden="true"></span>
-                  <span id="br-banner-message">—</span>
-                </div>
+                <!-- Statement rules are shared with the income statement (.ll-is-*). -->
+                <article class="ll-doc ll-br-doc" aria-labelledby="br-doc-title">
+                  <header class="ll-doc-head">
+                    <p class="ll-doc-kicker">Cash workpaper</p>
+                    <h3 class="ll-doc-name" id="br-doc-title">Bank Reconciliation</h3>
+                  </header>
+                  <table class="ll-is-table ll-br-table">
+                    <tbody>
+                      <tr class="ll-is-section"><th scope="rowgroup" colspan="2">Bank side</th></tr>
+                    </tbody>
+                    <tbody id="br-bank-rows"><!-- injected --></tbody>
+                    <tbody>
+                      <tr class="ll-is-subtotal">
+                        <th scope="row">Adjusted bank balance</th>
+                        <td class="num" id="br-bank-adjusted">—</td>
+                      </tr>
+                      <tr class="ll-is-section"><th scope="rowgroup" colspan="2">Book side</th></tr>
+                    </tbody>
+                    <tbody id="br-book-rows"><!-- injected --></tbody>
+                    <tbody>
+                      <tr class="ll-is-subtotal">
+                        <th scope="row">Adjusted book balance</th>
+                        <td class="num" id="br-book-adjusted">—</td>
+                      </tr>
+                      <tr class="ll-is-net ll-br-diff" id="br-diff-line">
+                        <th scope="row">Difference</th>
+                        <td class="num" id="br-difference">—</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </article>
 
-                <div class="preview-card br-report">
-                  <div class="br-statement">
-                    <div class="preview-head">Bank side</div>
-                    <table class="preview-table br-table">
-                      <tbody id="br-bank-rows">
-                        <!-- injected by script.js -->
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td>Adjusted bank balance</td>
-                          <td class="num" id="br-bank-adjusted">—</td>
-                        </tr>
-                      </tfoot>
+                <section class="ll-tool-block" aria-labelledby="br-calc-title">
+                  <h4 class="ll-tool-title" id="br-calc-title">How This Was Calculated</h4>
+                  <div class="ll-tool-steps" id="br-calc"><!-- injected --></div>
+                </section>
+
+                <section class="ll-tool-block" aria-labelledby="br-meaning-title">
+                  <h4 class="ll-tool-title" id="br-meaning-title">What This Means</h4>
+                  <ul class="ll-tool-notes" id="br-meaning-list"><!-- injected --></ul>
+                </section>
+
+                <section class="ll-tool-block" aria-labelledby="br-entries-title">
+                  <h4 class="ll-tool-title" id="br-entries-title">Journal Entries to Record</h4>
+                  <p class="ll-tool-lead" id="br-entries-lead">—</p>
+                  <div class="ll-doc-scroll" id="br-entries-wrap">
+                    <table class="ll-entry-table">
+                      <thead>
+                        <tr><th scope="col">Account</th><th scope="col" class="num">Debit</th><th scope="col" class="num">Credit</th></tr>
+                      </thead>
+                      <tbody id="br-entries-rows"><!-- injected --></tbody>
                     </table>
                   </div>
-                  <div class="br-statement">
-                    <div class="preview-head">Book side</div>
-                    <table class="preview-table br-table">
-                      <tbody id="br-book-rows">
-                        <!-- injected by script.js -->
-                      </tbody>
-                      <tfoot>
-                        <tr>
-                          <td>Adjusted book balance</td>
-                          <td class="num" id="br-book-adjusted">—</td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                </div>
-
-                <section class="report-section">
-                  <h4 class="report-heading">What each adjustment means</h4>
-                  <ul class="explanation-list" id="br-explanation-list">
-                    <!-- injected by script.js -->
-                  </ul>
+                  <p class="ll-tool-foot" id="br-entries-foot" hidden></p>
                 </section>
 
-                <section class="report-section">
-                  <h4 class="report-heading">Journal entries you'd record</h4>
-                  <ul class="suggestion-list" id="br-entries-list">
-                    <!-- injected by script.js -->
-                  </ul>
-                </section>
-
-                <section class="report-section">
-                  <h4 class="report-heading">How accountants would investigate this</h4>
-                  <p class="br-investigate-text" id="br-investigate-text">—</p>
-                  <ul class="suggestion-list" id="br-investigate-list">
-                    <!-- checklist injected by script.js when not reconciled -->
-                  </ul>
-                </section>
+                <p class="ll-tool-note">
+                  <strong>About bank reconciliations.</strong> A bank reconciliation compares the
+                  bank’s records with the company’s books and explains the differences between them.
+                </p>
               </div>
             </div>
             </div>
@@ -1952,99 +1959,101 @@
                 </div>
               </div>
 
-              <div class="sim-dashboard" id="dep-dashboard" hidden>
-                <h3 class="sim-dash-title" id="dep-title">Depreciation</h3>
+              <div class="sim-dashboard ll-tool-result" id="dep-dashboard" hidden>
+                <article class="ll-doc ll-dep-doc" aria-labelledby="dep-title">
+                  <header class="ll-doc-head">
+                    <p class="ll-doc-kicker">Depreciation Schedule</p>
+                    <h3 class="ll-doc-name" id="dep-title">Asset</h3>
+                  </header>
+                  <dl class="ll-doc-facts">
+                    <div><dt>Method</dt><dd id="dep-fact-method">—</dd></div>
+                    <div><dt>Cost</dt><dd id="dep-fact-cost">—</dd></div>
+                    <div><dt>Salvage value</dt><dd id="dep-fact-salvage">—</dd></div>
+                    <div><dt>Useful life</dt><dd id="dep-fact-life">—</dd></div>
+                  </dl>
 
-                <!-- Summary -->
-                <section class="report-section">
-                  <h4 class="report-heading">Summary</h4>
-                  <div class="stat-grid">
-                    <div class="stat-card">
-                      <span class="stat-label">Annual Depreciation</span>
-                      <span class="stat-value" id="dep-out-annual">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label">Monthly Depreciation</span>
-                      <span class="stat-value" id="dep-out-monthly">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label">Depreciable Base</span>
-                      <span class="stat-value" id="dep-out-base">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label">Useful Life</span>
-                      <span class="stat-value" id="dep-out-life">—</span>
-                    </div>
-                  </div>
-                </section>
+                  <p class="ll-dep-answer">
+                    <span class="ll-dep-answer-label">Annual depreciation expense</span>
+                    <span class="ll-dep-answer-value num" id="dep-out-annual">—</span>
+                    <span class="ll-dep-answer-sub" id="dep-out-monthly">—</span>
+                  </p>
 
-                <!-- Journal entry -->
-                <section class="report-section">
-                  <h4 class="report-heading">Journal entry (each year)</h4>
-                  <div class="preview-card">
-                    <div class="preview-head">Recording depreciation</div>
-                    <table class="preview-table">
+                  <div class="ll-doc-scroll">
+                    <table class="ll-dep-table">
+                      <caption class="ll-dep-cue"><span class="ll-move ll-move--down" aria-hidden="true"><svg viewBox="0 0 12 12" focusable="false"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" /></svg></span>Book value decreases each year</caption>
                       <thead>
                         <tr>
-                          <th>Account</th>
-                          <th class="num">Debit</th>
-                          <th class="num">Credit</th>
+                          <th scope="col">Year</th>
+                          <th scope="col" class="num"><span class="ll-dep-long">Depreciation expense</span><span class="ll-dep-short">Expense</span></th>
+                          <th scope="col" class="num"><span class="ll-dep-long">Accumulated depreciation</span><span class="ll-dep-short">Accumulated</span></th>
+                          <th scope="col" class="num">Book value</th>
+                          <td class="ll-dep-barcell" aria-hidden="true"></td>
                         </tr>
                       </thead>
-                      <tbody>
-                        <tr>
-                          <td>Depreciation Expense</td>
-                          <td class="num" id="dep-je-debit">—</td>
-                          <td class="num">—</td>
-                        </tr>
-                        <tr class="je-credit-row">
-                          <td>Accumulated Depreciation</td>
-                          <td class="num">—</td>
-                          <td class="num" id="dep-je-credit">—</td>
-                        </tr>
-                      </tbody>
+                      <tbody id="dep-schedule-rows"><!-- injected --></tbody>
                       <tfoot>
                         <tr>
-                          <td>Totals</td>
-                          <td class="num" id="dep-je-total-debit">—</td>
-                          <td class="num" id="dep-je-total-credit">—</td>
+                          <th scope="row">Total depreciation</th>
+                          <td class="num" id="dep-total-expense">—</td>
+                          <td></td>
+                          <td></td>
+                          <td class="ll-dep-barcell" aria-hidden="true"></td>
                         </tr>
                       </tfoot>
                     </table>
-                    <p class="preview-note">
-                      Recorded each year. The final year uses the remaining balance so
-                      book value ends exactly at the salvage value.
-                    </p>
                   </div>
+                  <p class="ll-doc-foot" id="dep-trueup-note" hidden></p>
+                </article>
+
+                <section class="ll-tool-block" aria-labelledby="dep-calc-title">
+                  <h4 class="ll-tool-title" id="dep-calc-title">How This Was Calculated</h4>
+                  <table class="ll-tool-calc">
+                    <tbody>
+                      <tr><td class="ll-tool-op" aria-hidden="true"></td><th scope="row">Asset cost</th><td class="num" id="dep-calc-cost">—</td></tr>
+                      <tr><td class="ll-tool-op" aria-hidden="true">−</td><th scope="row">Salvage value</th><td class="num" id="dep-calc-salvage">—</td></tr>
+                      <tr class="ll-tool-calc-total"><td class="ll-tool-op" aria-hidden="true">=</td><th scope="row">Depreciable base</th><td class="num" id="dep-calc-base">—</td></tr>
+                      <tr><td class="ll-tool-op" aria-hidden="true">÷</td><th scope="row">Useful life</th><td class="num" id="dep-calc-life">—</td></tr>
+                      <tr class="ll-tool-calc-total"><td class="ll-tool-op" aria-hidden="true">=</td><th scope="row">Annual depreciation</th><td class="num" id="dep-calc-annual">—</td></tr>
+                      <tr><td class="ll-tool-op" aria-hidden="true">÷</td><th scope="row">Months in a year</th><td class="num">12</td></tr>
+                      <tr class="ll-tool-calc-total"><td class="ll-tool-op" aria-hidden="true">=</td><th scope="row">Monthly depreciation</th><td class="num" id="dep-calc-monthly">—</td></tr>
+                    </tbody>
+                  </table>
                 </section>
 
-                <!-- Schedule -->
-                <section class="report-section">
-                  <h4 class="report-heading">Depreciation schedule</h4>
-                  <div class="dep-schedule-wrap">
-                    <table class="preview-table dep-schedule">
+                <section class="ll-tool-block" aria-labelledby="dep-entry-title">
+                  <h4 class="ll-tool-title" id="dep-entry-title">Annual Journal Entry</h4>
+                  <div class="ll-doc-scroll">
+                    <table class="ll-entry-table">
                       <thead>
-                        <tr>
-                          <th>Year</th>
-                          <th class="num">Depreciation</th>
-                          <th class="num">Accumulated</th>
-                          <th class="num">Book value</th>
-                        </tr>
+                        <tr><th scope="col">Account</th><th scope="col" class="num">Debit</th><th scope="col" class="num">Credit</th></tr>
                       </thead>
-                      <tbody id="dep-schedule-rows">
-                        <!-- injected by script.js -->
+                      <tbody>
+                        <tr class="ll-entry-debit">
+                          <th scope="row" id="dep-je-debit-account">—</th>
+                          <td class="num" id="dep-je-debit">—</td>
+                          <td class="num"></td>
+                        </tr>
+                        <tr class="ll-entry-credit">
+                          <th scope="row" class="ll-entry-indent" id="dep-je-credit-account">—</th>
+                          <td class="num"></td>
+                          <td class="num" id="dep-je-credit">—</td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
+                  <p class="ll-tool-foot" id="dep-je-foot">—</p>
                 </section>
 
-                <!-- Explanation -->
-                <div class="explanation dep-explanation">
-                  <h4 class="explanation-title">What depreciation means</h4>
-                  <ul class="explanation-list" id="dep-explanation-list">
-                    <!-- injected by script.js -->
-                  </ul>
-                </div>
+                <section class="ll-tool-block" aria-labelledby="dep-meaning-title">
+                  <h4 class="ll-tool-title" id="dep-meaning-title">What This Means</h4>
+                  <ul class="ll-tool-notes" id="dep-meaning-list"><!-- injected --></ul>
+                </section>
+
+                <p class="ll-tool-note">
+                  <strong>About depreciation.</strong> Depreciation spreads the accounting cost of a
+                  long-term asset over its useful life. The straight-line method records the same
+                  amount each year.
+                </p>
               </div>
             </div>
             </div>
@@ -2416,103 +2425,90 @@
                 </div>
               </div>
 
-              <div class="sim-dashboard" id="cf-dashboard" hidden>
-                <h3 class="sim-dash-title" id="cf-title">Statement of Cash Flows</h3>
+              <div class="sim-dashboard ll-tool-result" id="cf-dashboard" hidden>
+                <p class="ll-tool-status" id="cf-status">
+                  <span class="ll-tool-status-dot" aria-hidden="true"></span>
+                  <span class="ll-move" id="cf-status-move" aria-hidden="true" hidden></span>
+                  <strong id="cf-status-label">—</strong>
+                  <span id="cf-status-detail"></span>
+                </p>
 
-                <section class="report-section">
-                  <h4 class="report-heading">Summary</h4>
-                  <div class="stat-grid">
-                    <div class="stat-card">
-                      <span class="stat-label">Operating</span>
-                      <span class="stat-value" id="cf-out-operating">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label">Investing</span>
-                      <span class="stat-value" id="cf-out-investing">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label">Financing</span>
-                      <span class="stat-value" id="cf-out-financing">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label" id="cf-out-net-label">Net Change in Cash</span>
-                      <span class="stat-value" id="cf-out-net">$0</span>
-                    </div>
-                  </div>
+                <!-- Statement rules are shared with the income statement (.ll-is-*). -->
+                <article class="ll-doc ll-cf-doc" aria-labelledby="cf-title">
+                  <header class="ll-is-head">
+                    <p class="ll-is-entity" id="cf-entity" hidden></p>
+                    <h3 class="ll-is-docname" id="cf-title">Statement of Cash Flows</h3>
+                    <p class="ll-is-period" id="cf-period-line" hidden></p>
+                  </header>
+                  <table class="ll-is-table ll-cf-table">
+                    <tbody>
+                      <tr class="ll-is-section"><th scope="rowgroup" colspan="2">Operating activities</th></tr>
+                    </tbody>
+                    <tbody id="cf-stmt-operating"><!-- injected --></tbody>
+                    <tbody>
+                      <tr class="ll-is-subtotal">
+                        <th scope="row">Net cash from operating activities</th>
+                        <td class="num" id="cf-sub-operating">—</td>
+                      </tr>
+                      <tr class="ll-is-section"><th scope="rowgroup" colspan="2">Investing activities</th></tr>
+                    </tbody>
+                    <tbody id="cf-stmt-investing"><!-- injected --></tbody>
+                    <tbody>
+                      <tr class="ll-is-subtotal">
+                        <th scope="row">Net cash from investing activities</th>
+                        <td class="num" id="cf-sub-investing">—</td>
+                      </tr>
+                      <tr class="ll-is-section"><th scope="rowgroup" colspan="2">Financing activities</th></tr>
+                    </tbody>
+                    <tbody id="cf-stmt-financing"><!-- injected --></tbody>
+                    <tbody>
+                      <tr class="ll-is-subtotal">
+                        <th scope="row">Net cash from financing activities</th>
+                        <td class="num" id="cf-sub-financing">—</td>
+                      </tr>
+                    </tbody>
+                    <tbody class="ll-cf-recon">
+                      <tr class="ll-cf-change" id="cf-net-line">
+                        <th scope="row" id="cf-net-label">Net change in cash</th>
+                        <td class="num" id="cf-net-line-amount">—</td>
+                      </tr>
+                      <tr class="ll-cf-begin">
+                        <th scope="row">Beginning cash balance</th>
+                        <td class="num" id="cf-begin-line">—</td>
+                      </tr>
+                      <tr class="ll-is-net" id="cf-end-row">
+                        <th scope="row">Ending cash balance</th>
+                        <td class="num" id="cf-end-line">—</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </article>
+
+                <section class="ll-tool-block" aria-labelledby="cf-calc-title">
+                  <h4 class="ll-tool-title" id="cf-calc-title">How This Was Calculated</h4>
+                  <table class="ll-tool-calc">
+                    <tbody>
+                      <tr><td class="ll-tool-op" aria-hidden="true"></td><th scope="row">Operating activities</th><td class="num" id="cf-calc-operating">—</td></tr>
+                      <tr><td class="ll-tool-op" aria-hidden="true">+</td><th scope="row">Investing activities</th><td class="num" id="cf-calc-investing">—</td></tr>
+                      <tr><td class="ll-tool-op" aria-hidden="true">+</td><th scope="row">Financing activities</th><td class="num" id="cf-calc-financing">—</td></tr>
+                      <tr class="ll-tool-calc-total"><td class="ll-tool-op" aria-hidden="true">=</td><th scope="row" id="cf-calc-net-label">Net change in cash</th><td class="num" id="cf-calc-net">—</td></tr>
+                      <tr><td class="ll-tool-op" aria-hidden="true">+</td><th scope="row">Beginning cash balance</th><td class="num" id="cf-calc-begin">—</td></tr>
+                      <tr class="ll-tool-calc-total"><td class="ll-tool-op" aria-hidden="true">=</td><th scope="row">Ending cash balance</th><td class="num" id="cf-calc-end">—</td></tr>
+                    </tbody>
+                  </table>
                 </section>
 
-                <section class="report-section">
-                  <h4 class="report-heading">Statement of Cash Flows</h4>
-                  <div class="preview-card">
-                    <table class="preview-table is-statement cf-statement">
-                      <tbody>
-                        <tr class="is-section-head"><td colspan="2">Operating activities</td></tr>
-                      </tbody>
-                      <tbody id="cf-stmt-operating"><!-- injected --></tbody>
-                      <tbody>
-                        <tr class="is-total-row">
-                          <td>Net cash from operating activities</td>
-                          <td class="num" id="cf-sub-operating">—</td>
-                        </tr>
-                        <tr class="is-section-head"><td colspan="2">Investing activities</td></tr>
-                      </tbody>
-                      <tbody id="cf-stmt-investing"><!-- injected --></tbody>
-                      <tbody>
-                        <tr class="is-total-row">
-                          <td>Net cash from investing activities</td>
-                          <td class="num" id="cf-sub-investing">—</td>
-                        </tr>
-                        <tr class="is-section-head"><td colspan="2">Financing activities</td></tr>
-                      </tbody>
-                      <tbody id="cf-stmt-financing"><!-- injected --></tbody>
-                      <tbody>
-                        <tr class="is-total-row">
-                          <td>Net cash from financing activities</td>
-                          <td class="num" id="cf-sub-financing">—</td>
-                        </tr>
-                        <tr class="is-net-row" id="cf-net-line">
-                          <td>Net change in cash</td>
-                          <td class="num" id="cf-net-line-amount">—</td>
-                        </tr>
-                        <tr class="cf-recon-row">
-                          <td>Beginning cash balance</td>
-                          <td class="num" id="cf-begin-line">—</td>
-                        </tr>
-                        <tr class="cf-recon-row cf-end-row">
-                          <td>Ending cash balance</td>
-                          <td class="num" id="cf-end-line">—</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                <section class="ll-tool-block" aria-labelledby="cf-meaning-title">
+                  <h4 class="ll-tool-title" id="cf-meaning-title">What This Means</h4>
+                  <ul class="ll-tool-notes" id="cf-meaning-list"><!-- injected --></ul>
                 </section>
 
-                <div class="explanation is-explanation">
-                  <div class="is-tells">
-                    <h4 class="explanation-title">What each activity means</h4>
-                    <ul class="explanation-list">
-                      <li><strong>Operating</strong> — cash from the day-to-day running of the
-                        business, like selling to customers and paying rent and wages.</li>
-                      <li><strong>Investing</strong> — cash from buying or selling long-term
-                        assets, like equipment.</li>
-                      <li><strong>Financing</strong> — cash from owners and lenders, like owner
-                        contributions, withdrawals, and loans.</li>
-                    </ul>
-                  </div>
-                  <div class="is-tells">
-                    <h4 class="explanation-title">Why profit isn't the same as cash</h4>
-                    <ul class="explanation-list">
-                      <li><strong>Sale on account</strong> — revenue and profit can go up before
-                        the cash is actually collected.</li>
-                      <li><strong>Buy equipment for cash</strong> — cash drops now, but the whole
-                        purchase isn't an immediate expense on the income statement.</li>
-                      <li><strong>Owner invests cash</strong> — cash goes up, but it's financing,
-                        not revenue or profit.</li>
-                    </ul>
-                    <div class="is-advice" id="cf-tailored" hidden><!-- injected --></div>
-                  </div>
-                  <div class="is-advice" id="cf-insight"><!-- injected --></div>
-                </div>
+                <p class="ll-tool-note">
+                  <strong>About this statement.</strong> A statement of cash flows groups the cash
+                  coming in and going out into operating activities (running the business), investing
+                  activities (buying or selling long-term assets) and financing activities (owners and
+                  lenders). It tracks cash, not profit.
+                </p>
               </div>
             </div>
             </div>
