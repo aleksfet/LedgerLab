@@ -1439,6 +1439,15 @@
             <form id="je-form" class="ll-wb-build" novalidate autocomplete="off">
               <section class="ll-wb-section" aria-labelledby="je-setup-title">
                 <h4 class="ll-wb-heading" id="je-setup-title">Transaction setup</h4>
+                <!-- Examples fill the fields below; the user still selects Show Journal Entry. -->
+                <div class="ll-wb-examples ll-je-examples" role="group" aria-label="Try an example">
+                  <p class="ll-wb-examples-label" aria-hidden="true">Try an example</p>
+                  <div class="ll-wb-chips">
+                    <button type="button" class="ll-chip je-example-btn" data-transaction="buy-equipment" data-amount="5000">Bought equipment with cash</button>
+                    <button type="button" class="ll-chip je-example-btn" data-transaction="owner-invest" data-amount="10000">Owner invested cash</button>
+                    <button type="button" class="ll-chip je-example-btn" data-transaction="record-depreciation" data-amount="250">Recorded depreciation</button>
+                  </div>
+                </div>
                 <div class="field field-full">
                   <label for="je-transaction">Transaction</label>
                   <select id="je-transaction" name="je-transaction" class="je-select">
@@ -1502,49 +1511,54 @@
                 </div>
               </div>
 
-              <div class="sim-dashboard" id="je-dashboard" hidden>
-                <h3 class="sim-dash-title">Journal Entry</h3>
-
-                <div class="preview-card je-preview">
-                  <div class="preview-head">
-                    <span id="je-preview-date">—</span>
-                    <span class="je-preview-sep" aria-hidden="true">·</span>
-                    <span id="je-preview-label">—</span>
+              <div class="sim-dashboard ll-tool-result" id="je-dashboard" hidden>
+                <article class="ll-doc ll-je-doc" aria-labelledby="je-doc-title">
+                  <header class="ll-doc-head">
+                    <p class="ll-doc-kicker">General Journal</p>
+                    <h3 class="ll-doc-name" id="je-doc-title">Journal Entry</h3>
+                  </header>
+                  <div class="ll-doc-scroll">
+                    <table class="ll-je-table">
+                      <thead>
+                        <tr><th scope="col">Date</th><th scope="col">Account</th><th scope="col" class="num">Debit</th><th scope="col" class="num">Credit</th></tr>
+                      </thead>
+                      <tbody id="je-rows">
+                        <!-- debit, credit and explanation rows injected by script.js -->
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td></td>
+                          <th scope="row">Totals</th>
+                          <td class="num" id="je-total-debit">—</td>
+                          <td class="num" id="je-total-credit">—</td>
+                        </tr>
+                      </tfoot>
+                    </table>
                   </div>
-                  <table class="preview-table">
-                    <thead>
-                      <tr>
-                        <th>Account</th>
-                        <th class="num">Debit</th>
-                        <th class="num">Credit</th>
-                      </tr>
-                    </thead>
-                    <tbody id="je-rows">
-                      <!-- debit + credit rows injected by script.js -->
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <td>Totals</td>
-                        <td class="num" id="je-total-debit">—</td>
-                        <td class="num" id="je-total-credit">—</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                  <p class="preview-note" id="je-narration">—</p>
-                </div>
+                  <p class="ll-je-check" id="je-balance">—</p>
+                </article>
 
-                <p class="je-balance" id="je-balance">—</p>
+                <section class="ll-tool-block" aria-labelledby="je-works-title">
+                  <h4 class="ll-tool-title" id="je-works-title">How This Entry Works</h4>
+                  <p class="ll-tool-lead" id="je-works-lead">—</p>
+                  <div class="ll-doc-scroll">
+                    <table class="ll-je-effects">
+                      <thead>
+                        <tr><th scope="col">Account</th><th scope="col">Type</th><th scope="col">Side</th><th scope="col">Effect</th></tr>
+                      </thead>
+                      <tbody id="je-explanation-list">
+                        <!-- one row per account, injected by script.js -->
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="ll-tool-foot" id="je-contra-note" hidden></p>
+                </section>
 
-                <div class="explanation je-explanation">
-                  <h4 class="explanation-title">Why these accounts?</h4>
-                  <ul class="explanation-list" id="je-explanation-list">
-                    <!-- per-account explanation injected by script.js -->
-                  </ul>
-                  <p class="je-rule">
-                    Debits increase assets and expenses; credits increase
-                    liabilities, equity, and revenue.
-                  </p>
-                </div>
+                <p class="ll-tool-note">
+                  <strong>Debits and credits.</strong> Debits increase assets and expenses;
+                  credits increase liabilities, equity, and revenue. A journal entry is
+                  balanced when total debits equal total credits.
+                </p>
               </div>
             </div>
             </div>
@@ -2210,88 +2224,65 @@
                 </div>
               </div>
 
-              <div class="sim-dashboard" id="is-dashboard" hidden>
-                <h3 class="sim-dash-title" id="is-title">Income Statement</h3>
+              <div class="sim-dashboard ll-tool-result" id="is-dashboard" hidden>
+                <p class="ll-tool-status" id="is-status">
+                  <span class="ll-tool-status-dot" aria-hidden="true"></span>
+                  <strong id="is-status-label">—</strong>
+                  <span id="is-status-detail"></span>
+                </p>
 
-                <section class="report-section">
-                  <h4 class="report-heading">Summary</h4>
-                  <div class="stat-grid">
-                    <div class="stat-card">
-                      <span class="stat-label">Total Revenue</span>
-                      <span class="stat-value" id="is-out-revenue">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label">Total Expenses</span>
-                      <span class="stat-value" id="is-out-expenses">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label" id="is-out-net-label">Net Income</span>
-                      <span class="stat-value" id="is-out-net">$0</span>
-                    </div>
-                    <div class="stat-card">
-                      <span class="stat-label">Profit Margin</span>
-                      <span class="stat-value" id="is-out-margin">—</span>
-                    </div>
-                  </div>
+                <article class="ll-doc ll-is-doc" aria-labelledby="is-title">
+                  <header class="ll-is-head">
+                    <p class="ll-is-entity" id="is-entity" hidden></p>
+                    <h3 class="ll-is-docname" id="is-title">Income Statement</h3>
+                    <p class="ll-is-period" id="is-period-line" hidden></p>
+                  </header>
+                  <table class="ll-is-table">
+                    <tbody>
+                      <tr class="ll-is-section"><th scope="rowgroup" colspan="2">Revenue</th></tr>
+                    </tbody>
+                    <tbody id="is-statement-revenue"><!-- injected --></tbody>
+                    <tbody>
+                      <tr class="ll-is-subtotal">
+                        <th scope="row">Total revenue</th>
+                        <td class="num" id="is-total-revenue">—</td>
+                      </tr>
+                      <tr class="ll-is-section"><th scope="rowgroup" colspan="2">Expenses</th></tr>
+                    </tbody>
+                    <tbody id="is-statement-expenses"><!-- injected --></tbody>
+                    <tbody>
+                      <tr class="ll-is-subtotal">
+                        <th scope="row">Total expenses</th>
+                        <td class="num" id="is-total-expenses">—</td>
+                      </tr>
+                      <tr class="ll-is-net" id="is-net-line">
+                        <th scope="row" id="is-net-line-label">Net income</th>
+                        <td class="num" id="is-net-line-amount">—</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </article>
+
+                <section class="ll-tool-block" aria-labelledby="is-calc-title">
+                  <h4 class="ll-tool-title" id="is-calc-title">How This Was Calculated</h4>
+                  <table class="ll-tool-calc">
+                    <tbody>
+                      <tr><td class="ll-tool-op" aria-hidden="true"></td><th scope="row">Total revenue</th><td class="num" id="is-calc-revenue">—</td></tr>
+                      <tr><td class="ll-tool-op" aria-hidden="true">−</td><th scope="row">Total expenses</th><td class="num" id="is-calc-expenses">—</td></tr>
+                      <tr class="ll-tool-calc-total"><td class="ll-tool-op" aria-hidden="true">=</td><th scope="row" id="is-calc-net-label">Net income</th><td class="num" id="is-calc-net">—</td></tr>
+                    </tbody>
+                  </table>
                 </section>
 
-                <section class="report-section">
-                  <h4 class="report-heading">Income statement</h4>
-                  <div class="preview-card">
-                    <table class="preview-table is-statement">
-                      <tbody>
-                        <tr class="is-section-head"><td colspan="2">Revenue</td></tr>
-                      </tbody>
-                      <tbody id="is-statement-revenue"><!-- injected --></tbody>
-                      <tbody>
-                        <tr class="is-total-row">
-                          <td>Total revenue</td>
-                          <td class="num" id="is-total-revenue">—</td>
-                        </tr>
-                        <tr class="is-section-head"><td colspan="2">Expenses</td></tr>
-                      </tbody>
-                      <tbody id="is-statement-expenses"><!-- injected --></tbody>
-                      <tbody>
-                        <tr class="is-total-row">
-                          <td>Total expenses</td>
-                          <td class="num" id="is-total-expenses">—</td>
-                        </tr>
-                        <tr class="is-net-row" id="is-net-line">
-                          <td id="is-net-line-label">Net income</td>
-                          <td class="num" id="is-net-line-amount">—</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                <section class="ll-tool-block" aria-labelledby="is-meaning-title">
+                  <h4 class="ll-tool-title" id="is-meaning-title">What This Means</h4>
+                  <ul class="ll-tool-notes" id="is-explanation-list"><!-- injected --></ul>
                 </section>
 
-                <div class="explanation is-explanation">
-                  <div class="is-tells">
-                    <h4 class="explanation-title">Purpose of the Income Statement</h4>
-                    <p class="is-purpose-body">
-                      The income statement shows whether a business earned a profit or had a loss
-                      during a specific period. It helps owners and managers understand revenue,
-                      control expenses, and evaluate operating performance.
-                    </p>
-                  </div>
-                  <div class="is-tells">
-                    <h4 class="explanation-title">What this statement tells you</h4>
-                    <ul class="explanation-list">
-                      <li>The income statement shows whether the business earned more than it
-                        spent during the period.</li>
-                      <li><strong>Net income</strong> means revenue was greater than expenses.</li>
-                      <li><strong>Net loss</strong> means expenses were greater than revenue.</li>
-                    </ul>
-                  </div>
-                  <h4 class="explanation-title">What this means</h4>
-                  <ul class="explanation-list" id="is-explanation-list"><!-- injected --></ul>
-                  <div class="is-advice" id="is-advice"><!-- injected --></div>
-                  <p class="preview-note is-dep-note" id="is-dep-note" hidden>
-                    Depreciation lowers profit but isn't a cash payment this period — your cash
-                    didn't drop by this amount. It spreads the cost of a long-term asset over its
-                    useful life.
-                  </p>
-                </div>
+                <p class="ll-tool-note">
+                  <strong>About this statement.</strong> An income statement reports a business’s
+                  revenue and expenses for a period of time and ends with net income or net loss.
+                </p>
               </div>
             </div>
             </div>

@@ -2412,24 +2412,6 @@
     return JE_MONTHS[month - 1] + " " + day + ", " + year;
   }
 
-  /** Past-tense of a posting side, for explanation sentences. */
-  function jeSideWord(side) {
-    return side === "debit" ? "debited" : "credited";
-  }
-
-  /** CSS modifier for an account-type badge. */
-  function jeBadgeClass(line) {
-    if (line.isContra) return "contra";
-    switch (line.type) {
-      case "Asset": return "asset";
-      case "Liability": return "liability";
-      case "Equity": return "equity";
-      case "Revenue": return "revenue";
-      case "Expense": return "expense";
-      default: return "asset";
-    }
-  }
-
   function validateJeTransaction() {
     var select = document.getElementById("je-transaction");
     if (!select) return false;
@@ -2463,7 +2445,18 @@
     return true;
   }
 
-  /** Render the journal entry view-model into the output panel. */
+  /** Plural-friendly element name for a contra account's effect ("assets"). */
+  function jeElementWord(element) {
+    return element === "Asset" ? "assets" : element.toLowerCase();
+  }
+
+  /** "Increases" / "Decreases", or for a contra account its effect on the element. */
+  function jeEffectText(line) {
+    var verb = line.direction.charAt(0).toUpperCase() + line.direction.slice(1);
+    return line.isContra ? verb + " " + jeElementWord(line.elementLabel) : verb;
+  }
+
+  /** Render the journal entry view-model as a general-journal document. */
   function renderJournalEntry(entry) {
     var empty = document.getElementById("je-empty");
     var dashboard = document.getElementById("je-dashboard");
@@ -2475,74 +2468,77 @@
       if (el) el.textContent = text;
     };
 
-    // Preview header: date · transaction label
-    setText("je-preview-date", formatJeDate(entry.date));
-    setText("je-preview-label", entry.label);
-
-    // Debit + credit rows (credit indented via .je-credit-row)
+    // Debit line, indented credit line, then the explanation line beneath.
     var rows = document.getElementById("je-rows");
     if (rows) {
-      rows.innerHTML = "";
-
-      var debitRow = document.createElement("tr");
-      debitRow.innerHTML =
-        "<td>" + entry.debit.name + "</td>" +
-        '<td class="num">' + formatMoney(entry.debit.amount) + "</td>" +
-        '<td class="num">—</td>';
-      rows.appendChild(debitRow);
-
-      var creditRow = document.createElement("tr");
-      creditRow.className = "je-credit-row";
-      creditRow.innerHTML =
-        "<td>" + entry.credit.name + "</td>" +
-        '<td class="num">—</td>' +
-        '<td class="num">' + formatMoney(entry.credit.amount) + "</td>";
-      rows.appendChild(creditRow);
+      // On phones the date moves to its own line above the entry (CSS).
+      rows.innerHTML =
+        '<tr class="ll-je-daterow"><td colspan="4">' + escapeHtml(formatJeDate(entry.date)) + "</td></tr>" +
+        '<tr class="ll-je-debit">' +
+          '<td class="ll-je-date">' + escapeHtml(formatJeDate(entry.date)) + "</td>" +
+          "<td>" + escapeHtml(entry.debit.name) + "</td>" +
+          '<td class="num">' + formatMoney(entry.debit.amount) + "</td>" +
+          '<td class="num"></td>' +
+        "</tr>" +
+        '<tr class="ll-je-credit">' +
+          "<td></td>" +
+          '<td class="ll-je-indent">' + escapeHtml(entry.credit.name) + "</td>" +
+          '<td class="num"></td>' +
+          '<td class="num">' + formatMoney(entry.credit.amount) + "</td>" +
+        "</tr>" +
+        '<tr class="ll-je-memo">' +
+          "<td></td>" +
+          '<td colspan="3">' + escapeHtml(entry.narration) + "</td>" +
+        "</tr>";
     }
 
-    // Totals
     setText("je-total-debit", formatMoney(entry.totals.debit));
     setText("je-total-credit", formatMoney(entry.totals.credit));
 
-    // Narration
-    setText("je-narration", entry.narration);
+    // Balance check: the difference between the two totals.
+    var difference = Math.round((entry.totals.debit - entry.totals.credit) * 100) / 100;
+    var check = document.getElementById("je-balance");
+    if (check) {
+      var balanced = entry.totals.balanced && difference === 0;
+      check.className = "ll-je-check " + (balanced ? "is-balanced" : "is-unbalanced");
+      check.innerHTML = balanced
+        ? '<span class="ll-je-check-mark" aria-hidden="true">✓</span>' +
+          "<strong>Balanced.</strong> Total debits equal total credits. " +
+          '<span class="ll-je-diff">Difference: ' + formatMoney(0) + "</span>"
+        : '<span class="ll-je-check-mark" aria-hidden="true">!</span>' +
+          "<strong>Not balanced.</strong> Total debits and total credits differ. " +
+          '<span class="ll-je-diff">Difference: ' + formatMoney(Math.abs(difference)) + "</span>";
+    }
 
-    // Balance confirmation
+    // How This Entry Works: one sentence, then each account's type and effect.
     setText(
-      "je-balance",
-      "This entry balances because total debits equal total credits (" +
-        formatMoney(entry.totals.debit) +
-        " = " +
-        formatMoney(entry.totals.credit) +
-        ")."
+      "je-works-lead",
+      entry.debit.name + " is debited for " + formatMoney(entry.debit.amount) + " and " +
+        entry.credit.name + " is credited for " + formatMoney(entry.credit.amount) + "."
     );
 
-    // Per-account explanation (badge + plain-English sentence)
     var list = document.getElementById("je-explanation-list");
     if (list) {
-      list.innerHTML = "";
-      entry.lines.forEach(function (line) {
-        var li = document.createElement("li");
+      list.innerHTML = entry.lines.map(function (line) {
+        return (
+          "<tr>" +
+            '<th scope="row">' + escapeHtml(line.name) + "</th>" +
+            "<td>" + escapeHtml(line.type) + "</td>" +
+            "<td>" + (line.side === "debit" ? "Debit" : "Credit") + "</td>" +
+            "<td>" + escapeHtml(jeEffectText(line)) + "</td>" +
+          "</tr>"
+        );
+      }).join("");
+    }
 
-        var badge = document.createElement("span");
-        badge.className = "je-badge je-badge--" + jeBadgeClass(line);
-        badge.textContent = line.type;
-        li.appendChild(badge);
-
-        var text = line.isContra
-          ? line.note
-          : line.name +
-            " (" +
-            line.type +
-            ") is " +
-            jeSideWord(line.side) +
-            ", which " +
-            line.direction +
-            " it.";
-        li.appendChild(document.createTextNode(" " + text));
-
-        list.appendChild(li);
-      });
+    // Contra accounts carry their own short explanation.
+    var contra = document.getElementById("je-contra-note");
+    if (contra) {
+      var notes = entry.lines
+        .filter(function (line) { return line.isContra && line.note; })
+        .map(function (line) { return line.note; });
+      contra.textContent = notes.join(" ");
+      contra.hidden = notes.length === 0;
     }
   }
 
@@ -2630,6 +2626,25 @@
     form.addEventListener("reset", function () {
       // Let the native reset clear fields first, then restore our defaults.
       window.setTimeout(resetJournalEntry, 0);
+    });
+  }
+
+  /**
+   * "Try an example" chips: choose one of the existing transactions and fill a
+   * sample amount. Nothing runs; the user still selects Show Journal Entry.
+   * The date keeps whatever it already holds.
+   */
+  function initJournalExamples() {
+    var select = document.getElementById("je-transaction");
+    var amount = document.getElementById("je-amount");
+    if (!select || !amount) return;
+    document.querySelectorAll(".je-example-btn").forEach(function (button) {
+      button.addEventListener("click", function () {
+        select.value = button.getAttribute("data-transaction");
+        amount.value = button.getAttribute("data-amount");
+        clearError(select);
+        clearError(amount);
+      });
     });
   }
 
@@ -3364,14 +3379,63 @@
     return ok;
   }
 
-  function isBandCopy(band) {
-    switch (band) {
-      case "loss": return "This period is a net loss — the business spent more than it earned.";
-      case "thin": return "This is a thin margin — a small buffer between revenue and costs.";
-      case "healthy": return "This is a healthy margin for many small businesses.";
-      case "strong": return "This is a strong margin.";
-      default: return "";
+  /** A statement amount: "$" on the first line of a column and on totals only. */
+  function isStatementMoney(amount, withSign) {
+    var text = formatMoney(amount);
+    return withSign ? text : text.replace("$", "");
+  }
+
+  /** Net figure as the statement shows it: a loss in parentheses. */
+  function isNetText(result) {
+    return result.isLoss
+      ? "(" + formatMoney(Math.abs(result.netIncome)) + ")"
+      : formatMoney(result.netIncome);
+  }
+
+  /** Statement rows for one section; shows a single $0.00 line when empty. */
+  function isStatementRows(lines, emptyText) {
+    if (lines.length === 0) {
+      return '<tr class="ll-is-line is-empty"><th scope="row">' + emptyText + "</th>" +
+        '<td class="num">' + formatMoney(0) + "</td></tr>";
     }
+    return lines.map(function (l, i) {
+      return '<tr class="ll-is-line"><th scope="row">' + escapeHtml(l.label) + "</th>" +
+        '<td class="num">' + isStatementMoney(l.amount, i === 0) + "</td></tr>";
+    }).join("");
+  }
+
+  /** Sentences for "What This Means", read from the finished statement. */
+  function isMeaningNotes(result, expenseLines) {
+    var notes = [];
+    var period = result.period.trim();
+    var during = period ? " for " + period : " for the period";
+    var net = result.netIncome;
+
+    if (net > 0 && result.totalExpenses > 0) {
+      notes.push("Revenue was higher than expenses" + during + ", so the business earned net income.");
+    } else if (net > 0) {
+      notes.push("No expenses were recorded" + during + ", so all of the revenue is net income.");
+    } else if (net < 0 && result.totalRevenue > 0) {
+      notes.push("Expenses were higher than revenue" + during + ", so the business recorded a net loss.");
+    } else if (net < 0) {
+      notes.push("No revenue was recorded" + during + ", so the expenses become a net loss of the same amount.");
+    } else {
+      notes.push("Revenue exactly covered expenses" + during + ", so the business broke even, with no net income or net loss.");
+    }
+
+    var le = result.largestExpense;
+    if (le && expenseLines.length > 1) {
+      notes.push(le.label + " is the largest expense" +
+        (le.pctOfRevenue !== null ? ", equal to " + Math.round(le.pctOfRevenue * 100) + "% of revenue" : "") + ".");
+    } else if (le) {
+      notes.push(le.label + " is the only expense on the statement.");
+    }
+
+    if (result.hasDepreciation) {
+      notes.push("Depreciation expense lowers net income, but it is not a cash payment this period. " +
+        "It spreads the cost of a long-term asset over its useful life.");
+    }
+    return notes;
   }
 
   function renderIncomeStatement(result) {
@@ -3384,112 +3448,70 @@
       var el = document.getElementById(id);
       if (el) el.textContent = text;
     };
+    var setLine = function (id, text) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      el.hidden = text === "";
+    };
 
-    var title = "Income Statement";
-    if (result.name.trim()) title = result.name.trim() + " — Income Statement";
-    if (result.period.trim()) title += " (" + result.period.trim() + ")";
-    setText("is-title", title);
+    // Heading: entity, statement name, period.
+    var name = result.name.trim();
+    var period = result.period.trim();
+    setLine("is-entity", name);
+    setLine("is-period-line", period ? "For " + period : "");
 
-    // Summary cards
-    setText("is-out-revenue", formatMoney(result.totalRevenue));
-    setText("is-out-expenses", formatMoney(result.totalExpenses));
-    setText("is-out-net-label", result.isLoss ? "Net Loss" : "Net Income");
-    setText("is-out-net", result.isLoss
-      ? "(" + formatMoney(Math.abs(result.netIncome)) + ")"
-      : formatMoney(result.netIncome));
-    setText("is-out-margin", result.margin === null
-      ? "—" : Math.round(result.margin * 100) + "%");
+    // Status: net income / net loss / break-even, coloured by sign.
+    var net = result.netIncome;
+    var status = document.getElementById("is-status");
+    if (status) {
+      status.classList.remove("is-pos", "is-neg", "is-zero");
+      status.classList.add(net > 0 ? "is-pos" : net < 0 ? "is-neg" : "is-zero");
+    }
+    setText("is-status-label", net > 0 ? "Net income" : net < 0 ? "Net loss" : "Break-even");
+    setText("is-status-detail", net > 0 && result.margin !== null
+      ? Math.round(result.margin * 100) + "% of revenue kept as net income"
+      : "");
 
-    var netCard = document.getElementById("is-out-net");
-    if (netCard) netCard.classList.toggle("is-loss", result.isLoss);
-
-    // Statement body — revenue
+    // The statement. Expense lines with no amount are left off, as on a
+    // finished statement; their $0 does not change any total.
+    var expenseLines = result.expenseLines.filter(function (l) { return l.amount > 0; });
     var revBody = document.getElementById("is-statement-revenue");
-    if (revBody) {
-      revBody.innerHTML = "";
-      if (result.revenueLines.length === 0) {
-        revBody.innerHTML = '<tr><td class="is-empty-line">No revenue entered</td>' +
-          '<td class="num">' + formatMoney(0) + "</td></tr>";
-      } else {
-        result.revenueLines.forEach(function (l) {
-          var tr = document.createElement("tr");
-          tr.innerHTML = "<td>" + escapeHtml(l.label) + "</td>" +
-            '<td class="num">' + formatMoney(l.amount) + "</td>";
-          revBody.appendChild(tr);
-        });
-      }
-    }
-    setText("is-total-revenue", formatMoney(result.totalRevenue));
-
-    // Statement body — expenses
+    if (revBody) revBody.innerHTML = isStatementRows(result.revenueLines, "No revenue entered");
     var expBody = document.getElementById("is-statement-expenses");
-    if (expBody) {
-      expBody.innerHTML = "";
-      result.expenseLines.forEach(function (l) {
-        var tr = document.createElement("tr");
-        tr.innerHTML = "<td>" + escapeHtml(l.label) + "</td>" +
-          '<td class="num">' + formatMoney(l.amount) + "</td>";
-        expBody.appendChild(tr);
-      });
-    }
+    if (expBody) expBody.innerHTML = isStatementRows(expenseLines, "No expenses entered");
+    setText("is-total-revenue", formatMoney(result.totalRevenue));
     setText("is-total-expenses", formatMoney(result.totalExpenses));
 
-    setText("is-net-line-label", result.isLoss ? "Net loss" : "Net income");
-    setText("is-net-line-amount", result.isLoss
-      ? "(" + formatMoney(Math.abs(result.netIncome)) + ")"
-      : formatMoney(result.netIncome));
+    var netLabel = result.isLoss ? "Net loss" : "Net income";
+    setText("is-net-line-label", netLabel);
+    setText("is-net-line-amount", isNetText(result));
     var netLine = document.getElementById("is-net-line");
-    if (netLine) netLine.classList.toggle("is-loss", result.isLoss);
+    if (netLine) {
+      netLine.classList.toggle("is-loss", result.isLoss);
+      netLine.classList.toggle("is-income", net > 0);
+    }
 
-    // Explanation list
+    // How This Was Calculated: the three totals only.
+    setText("is-calc-revenue", formatMoney(result.totalRevenue));
+    setText("is-calc-expenses", formatMoney(result.totalExpenses));
+    setText("is-calc-net-label", netLabel);
+    setText("is-calc-net", isNetText(result));
+    var calcNet = document.getElementById("is-calc-net");
+    if (calcNet) {
+      calcNet.classList.toggle("is-pos", net > 0);
+      calcNet.classList.toggle("is-neg", net < 0);
+    }
+
     var list = document.getElementById("is-explanation-list");
     if (list) {
       list.innerHTML = "";
-      var notes = [];
-      if (result.margin !== null) {
-        if (result.isLoss) {
-          notes.push("The business spent more than it earned this period, so there is no profit to keep — expenses were " +
-            formatMoney(result.totalExpenses) + " against " + formatMoney(result.totalRevenue) + " of revenue.");
-        } else {
-          notes.push("You keep " + result.centsKept + "¢ of every $1 of revenue — that's your net profit margin of " +
-            Math.round(result.margin * 100) + "%.");
-        }
-        notes.push(isBandCopy(result.marginBand) +
-          " These margin categories are general planning signals, not industry benchmarks. Healthy margins vary by industry and business model.");
-      } else {
-        notes.push("Profit margin needs revenue to be meaningful — add revenue to see the margin for this period.");
-      }
-      notes.forEach(function (text) {
+      isMeaningNotes(result, expenseLines).forEach(function (text) {
         var li = document.createElement("li");
         li.textContent = text;
         list.appendChild(li);
       });
     }
-
-    // Manager's review (largest expense)
-    var advice = document.getElementById("is-advice");
-    if (advice) {
-      if (result.largestExpense) {
-        var le = result.largestExpense;
-        var lead = le.label + " is the largest expense";
-        if (le.pctOfRevenue !== null) {
-          lead += " at " + Math.round(le.pctOfRevenue * 100) + "% of revenue";
-        }
-        lead += ".";
-        var body = window.IncomeStatement.ADVICE[le.key] || window.IncomeStatement.ADVICE.custom;
-        advice.innerHTML =
-          '<p class="is-advice-lead">Manager’s review</p>' +
-          '<p class="is-advice-body">' + escapeHtml(lead) + " " + escapeHtml(body) + "</p>";
-        advice.hidden = false;
-      } else {
-        advice.innerHTML = "";
-        advice.hidden = true;
-      }
-    }
-
-    // Depreciation note
-    var depNote = document.getElementById("is-dep-note");
-    if (depNote) depNote.hidden = !result.hasDepreciation;
   }
 
   function resetIncomeStatement() {
@@ -4184,6 +4206,7 @@
     initPlanning();
     initModeTabs();
     initJournalEntry();
+    initJournalExamples();
     initBankReconciliation();
     initDepreciation();
     initIncomeStatement();

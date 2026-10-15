@@ -4582,93 +4582,9 @@ a:hover {
   box-shadow: 0 0 0 3px var(--glow-red);
 }
 
-/* Preview header separator + indented credit row */
-.je-preview-sep {
-  margin: 0 0.4rem;
-  color: var(--text-muted);
-}
-
+/* Indented credit row (journal-style tables) */
 .je-credit-row td:first-child {
   padding-left: 2rem;
-}
-
-/* Balance confirmation callout */
-.je-balance {
-  margin: 0.9rem 0 0;
-  padding: 0.6rem 0.85rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--green-bright);
-  background: rgba(34, 197, 94, 0.10);
-  border: 1px solid rgba(34, 197, 94, 0.30);
-  border-radius: var(--radius-sm);
-}
-
-/* Explanation panel for the entry */
-.je-explanation {
-  margin-top: 0.9rem;
-}
-
-.je-explanation .explanation-list li {
-  margin-bottom: 0.6rem;
-}
-
-.je-rule {
-  margin: 0.75rem 0 0;
-  padding-top: 0.65rem;
-  border-top: 1px solid var(--border);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-/* Account-type badges, color-coded by element */
-.je-badge {
-  display: inline-block;
-  margin-right: 0.4rem;
-  padding: 0.05rem 0.5rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  vertical-align: baseline;
-}
-
-.je-badge--asset {
-  color: var(--blue-bright);
-  background: rgba(59, 130, 246, 0.14);
-  border-color: rgba(59, 130, 246, 0.30);
-}
-
-.je-badge--liability {
-  color: #fbbf24;
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.30);
-}
-
-.je-badge--equity {
-  color: var(--green-bright);
-  background: rgba(34, 197, 94, 0.12);
-  border-color: rgba(34, 197, 94, 0.30);
-}
-
-.je-badge--revenue {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.12);
-  border-color: rgba(74, 222, 128, 0.30);
-}
-
-.je-badge--expense {
-  color: #f87171;
-  background: rgba(248, 113, 113, 0.12);
-  border-color: rgba(248, 113, 113, 0.30);
-}
-
-.je-badge--contra {
-  color: var(--text-muted);
-  background: var(--surface-2);
-  border-color: var(--border-strong);
 }
 
 /* ===== Bank Reconciliation Helper (Accounting Tool) ===== */
@@ -4921,8 +4837,6 @@ a:hover {
 }
 .is-statement .is-net-row.is-loss td { color: var(--red); }
 .stat-value.is-loss { color: var(--red); }
-.is-empty-line { color: var(--text-muted); font-style: italic; }
-
 .is-advice {
   margin-top: 0.75rem; padding: 0.75rem 1rem;
   background: var(--surface-2);
@@ -4943,13 +4857,6 @@ a:hover {
   padding-bottom: 0.9rem;
   border-bottom: 1px solid var(--border);
 }
-.is-purpose-body {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.5;
-  color: var(--text-soft);
-}
-
 /* ---- Cash Flow Helper ---- */
 .cf-row {
   display: flex;
@@ -6213,12 +6120,6 @@ body.ll-wb-resizing * {
   background: var(--wb-neg);
 }
 
-.ll-wb .je-balance {
-  border-color: var(--wb-tint-border);
-  background: var(--wb-tint);
-  color: var(--wb-pos);
-}
-
 .ll-wb .explanation,
 .ll-wb .is-advice {
   border-left-color: var(--wb-tint-border);
@@ -6238,13 +6139,542 @@ body.ll-wb-resizing * {
   letter-spacing: 0.03em;
 }
 
-/* Account-type badges, re-toned for contrast on white. */
-.ll-wb .je-badge--asset { color: #2a4f86; background: #edf2fa; border-color: #d3dff1; }
-.ll-wb .je-badge--liability { color: var(--wb-warn); background: #fcf4e2; border-color: #f0dfb4; }
-.ll-wb .je-badge--equity { color: var(--wb-pos); background: var(--wb-tint); border-color: var(--wb-tint-border); }
-.ll-wb .je-badge--revenue { color: #0b6b48; background: #e3f4ec; border-color: #c2e5d3; }
-.ll-wb .je-badge--expense { color: #b02a37; background: #fbeced; border-color: #f2cfd3; }
-.ll-wb .je-badge--contra { color: var(--wb-muted); background: var(--wb-band); border-color: var(--wb-line); }
+/* Journal Entry: example chips above the Transaction field. */
+.ll-wb .ll-je-examples {
+  margin: 0 0 1.1rem;
+}
+
+/* ---- Tool results: Income Statement and Journal Entry ----
+   The finished document is the result: the same paper as the empty
+   preview, with statement / journal rules. Teaching notes sit below it on
+   the workbench, as plain text rather than boxes. */
+.ll-wb .sim-dashboard.ll-tool-result {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.ll-tool-result .num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* One-line result status above the statement. */
+.ll-tool-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.55rem;
+  margin: 0 0 0.8rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--wb-muted);
+}
+
+.ll-tool-status-dot {
+  flex: none;
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--wb-muted);
+}
+
+.ll-tool-status strong {
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-tool-status.is-pos strong { color: var(--wb-pos); }
+.ll-tool-status.is-pos .ll-tool-status-dot { background: var(--wb-pos); }
+.ll-tool-status.is-neg strong { color: var(--wb-neg); }
+.ll-tool-status.is-neg .ll-tool-status-dot { background: var(--wb-neg); }
+
+/* Income statement: centred heading, one amount column, statement rules. */
+.ll-is-head {
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--wb-line);
+  text-align: center;
+}
+
+.ll-is-entity {
+  margin: 0 0 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wb-text);
+}
+
+.ll-wb .ll-is-docname {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--wb-text);
+}
+
+.ll-is-period {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: var(--wb-muted);
+}
+
+.ll-is-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.ll-is-table th,
+.ll-is-table td {
+  padding: 0.36rem 0;
+  text-align: left;
+  font-weight: 400;
+  color: var(--wb-body);
+}
+
+.ll-is-table .num {
+  padding-left: 1rem;
+  text-align: right;
+  color: var(--wb-text);
+}
+
+.ll-is-section th {
+  padding-top: 0.9rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-is-table tbody:first-child .ll-is-section th {
+  padding-top: 0;
+}
+
+.ll-is-line th {
+  padding-left: 1.25rem;
+}
+
+.ll-is-line.is-empty th {
+  font-style: italic;
+  color: var(--wb-muted);
+}
+
+/* Subtotals: a single rule above the figure. */
+.ll-is-subtotal th,
+.ll-is-subtotal td {
+  font-weight: 600;
+  color: var(--wb-text);
+}
+
+.ll-is-subtotal td {
+  border-top: 1px solid var(--wb-faint);
+}
+
+/* Net income / net loss: rule above, double rule below. */
+.ll-is-net th,
+.ll-is-net td {
+  padding-top: 0.75rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-is-net td {
+  border-bottom: 3px double var(--wb-text);
+}
+
+.ll-is-net.is-income td { color: var(--wb-pos); }
+.ll-is-net.is-loss td { color: var(--wb-neg); }
+
+/* General journal: Date | Account | Debit | Credit. */
+.ll-je-table,
+.ll-je-effects {
+  width: 100%;
+  border-collapse: collapse;
+  line-height: 1.35;
+}
+
+.ll-je-table {
+  min-width: 25rem;
+  font-size: 0.86rem;
+}
+
+.ll-je-table th,
+.ll-je-table td,
+.ll-je-effects th,
+.ll-je-effects td {
+  padding: 0.55rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+  color: var(--wb-body);
+}
+
+.ll-je-table thead th,
+.ll-je-effects thead th {
+  padding-top: 0.2rem;
+  border-bottom: 1px solid var(--wb-control);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--wb-muted);
+}
+
+.ll-je-table thead .num {
+  text-align: right;
+}
+
+.ll-je-table th:first-child,
+.ll-je-table td:first-child,
+.ll-je-effects th:first-child,
+.ll-je-effects td:first-child {
+  padding-left: 0;
+}
+
+.ll-je-table th:last-child,
+.ll-je-table td:last-child {
+  padding-right: 0;
+}
+
+/* Date and amounts take only the room they need; the account gets the rest. */
+.ll-je-table td.num,
+.ll-je-table tfoot .num {
+  width: 1%;
+  padding-left: 1.1rem;
+  color: var(--wb-text);
+}
+
+.ll-je-date {
+  width: 1%;
+  padding-right: 1.1rem;
+  white-space: nowrap;
+}
+
+.ll-je-debit td {
+  color: var(--wb-text);
+}
+
+.ll-je-credit td {
+  color: var(--wb-text);
+}
+
+.ll-je-table .ll-je-indent {
+  padding-left: 2.25rem;
+}
+
+.ll-je-daterow {
+  display: none;
+}
+
+.ll-je-memo td {
+  padding-top: 0.1rem;
+  padding-bottom: 0.7rem;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--wb-muted);
+}
+
+.ll-je-table tfoot th,
+.ll-je-table tfoot td {
+  border-top: 1px solid var(--wb-control);
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-je-table tfoot .num {
+  border-bottom: 3px double var(--wb-text);
+}
+
+/* Balance check under the entry. */
+.ll-je-check {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.45rem;
+  margin: 1rem 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--wb-line);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--wb-body);
+}
+
+.ll-je-check strong {
+  font-weight: 700;
+}
+
+.ll-je-check-mark {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  align-self: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ll-je-check.is-balanced strong,
+.ll-je-check.is-balanced .ll-je-check-mark { color: var(--wb-pos); }
+.ll-je-check.is-unbalanced strong,
+.ll-je-check.is-unbalanced .ll-je-check-mark,
+.ll-je-check.is-unbalanced .ll-je-diff { color: var(--wb-neg); }
+
+.ll-je-diff {
+  margin-left: auto;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--wb-text);
+}
+
+/* Account analysis under How This Entry Works. */
+.ll-je-effects {
+  min-width: 24rem;
+  font-size: 0.84rem;
+}
+
+.ll-je-effects tbody th,
+.ll-je-effects tbody td {
+  border-bottom: 1px solid var(--wb-line);
+}
+
+.ll-je-effects tbody th {
+  font-weight: 600;
+  color: var(--wb-text);
+}
+
+/* Teaching sections below the document. */
+.ll-tool-block {
+  margin-top: 1.6rem;
+}
+
+.ll-wb .ll-tool-title {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--wb-text);
+}
+
+.ll-tool-lead {
+  margin: 0 0 0.6rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--wb-body);
+}
+
+.ll-tool-calc {
+  width: 100%;
+  max-width: 24rem;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.ll-tool-calc th,
+.ll-tool-calc td {
+  padding: 0.36rem 0;
+  text-align: left;
+  font-weight: 500;
+  color: var(--wb-body);
+}
+
+.ll-tool-calc .num {
+  padding-left: 1rem;
+  text-align: right;
+  color: var(--wb-text);
+}
+
+.ll-tool-calc .ll-tool-op {
+  width: 1.4rem;
+  font-weight: 700;
+  color: var(--wb-muted);
+}
+
+.ll-tool-calc-total > * {
+  border-top: 1px solid var(--wb-faint);
+  font-weight: 700;
+  color: var(--wb-text);
+}
+
+.ll-tool-calc-total .num.is-pos { color: var(--wb-pos); }
+.ll-tool-calc-total .num.is-neg { color: var(--wb-neg); }
+
+.ll-tool-notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ll-tool-notes li {
+  position: relative;
+  margin-bottom: 0.55rem;
+  padding-left: 1rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--wb-body);
+}
+
+.ll-tool-notes li:last-child {
+  margin-bottom: 0;
+}
+
+.ll-tool-notes li::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 0.1rem;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--wb-green);
+}
+
+.ll-tool-foot {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--wb-muted);
+}
+
+/* One restrained accounting note, set off by a rule. */
+.ll-tool-note {
+  margin: 1.6rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--wb-line);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--wb-muted);
+}
+
+.ll-tool-note strong {
+  font-weight: 600;
+  color: var(--wb-text);
+}
+
+@media (max-width: 480px) {
+  /* Columns size to their content; only very large amounts scroll. */
+  .ll-je-table {
+    min-width: 0;
+    font-size: 0.82rem;
+  }
+
+  /* Date on its own line above the entry, so Account | Debit | Credit fit. */
+  .ll-je-table tr:not(.ll-je-daterow) > :first-child {
+    display: none;
+  }
+
+  .ll-je-table .ll-je-daterow {
+    display: table-row;
+  }
+
+  /* Account is now the left edge of the table. */
+  .ll-je-table tr:not(.ll-je-daterow) > :nth-child(2):not(.ll-je-indent) {
+    padding-left: 0;
+  }
+
+  .ll-je-daterow td {
+    padding: 0.5rem 0 0.1rem;
+    font-weight: 600;
+    color: var(--wb-text);
+  }
+}
+
+@media (max-width: 400px) {
+  .ll-je-table {
+    font-size: 0.78rem;
+  }
+
+  .ll-je-table th,
+  .ll-je-table td {
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+  }
+
+  .ll-je-table td.num,
+  .ll-je-table tfoot .num {
+    padding-left: 0.45rem;
+    padding-right: 0.15rem;
+  }
+
+  .ll-je-table td.num:last-child {
+    padding-right: 0;
+  }
+
+  .ll-je-table .ll-je-indent {
+    padding-left: 0.75rem;
+  }
+
+  .ll-je-table th,
+  .ll-je-table td {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+
+  .ll-je-table td.num,
+  .ll-je-table tfoot .num {
+    padding-left: 0.6rem;
+  }
+
+  .ll-je-date {
+    padding-right: 0.6rem;
+  }
+
+  .ll-je-table .ll-je-indent {
+    padding-left: 1.25rem;
+  }
+
+  /* Each account becomes one short stacked line:
+     name, then "type · side · effect". */
+  .ll-je-effects,
+  .ll-je-effects tbody,
+  .ll-je-effects tr {
+    display: block;
+    min-width: 0;
+  }
+
+  .ll-je-effects thead {
+    display: none;
+  }
+
+  .ll-je-effects tbody tr {
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--wb-line);
+  }
+
+  .ll-je-effects tbody tr:first-child {
+    border-top: 1px solid var(--wb-control);
+  }
+
+  .ll-je-effects tbody th,
+  .ll-je-effects tbody td {
+    padding: 0;
+    border: 0;
+  }
+
+  .ll-je-effects tbody th {
+    display: block;
+    margin-bottom: 0.1rem;
+  }
+
+  .ll-je-effects tbody td {
+    display: inline;
+  }
+
+  .ll-je-effects tbody td + td::before {
+    content: " · ";
+    color: var(--wb-muted);
+  }
+}
 
 /* ---- Responsive ---- */
 @media (max-width: 1179px) {
